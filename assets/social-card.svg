@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#282828"/>
+  <g fill="none" stroke="#504945" stroke-width="2"><path d="M690 106H1110V524H690Z"/><path d="M690 188H1110M690 270H1110M690 352H1110M690 434H1110"/><path d="M774 106V524M858 106V524M942 106V524M1026 106V524"/></g>
+  <g fill="#d79921"><rect x="690" y="106" width="168" height="82"/><rect x="858" y="270" width="84" height="82"/><rect x="1026" y="434" width="84" height="90"/></g>
+  <g fill="#83a598"><rect x="858" y="106" width="84" height="82"/><rect x="942" y="188" width="168" height="82"/><rect x="690" y="352" width="252" height="82"/></g>
+  <text x="72" y="112" fill="#d79921" font-family="ui-monospace, monospace" font-size="22" letter-spacing="5">CLEAN-ROOM RECONSTRUCTION</text>
+  <text x="68" y="280" fill="#ebdbb2" font-family="Arial, sans-serif" font-size="105" font-weight="700">OpenZT2</text>
+  <text x="73" y="359" fill="#a89984" font-family="Arial, sans-serif" font-size="37">Measured byte by byte.</text>
+  <text x="73" y="548" fill="#83a598" font-family="ui-monospace, monospace" font-size="19" letter-spacing="2">EXECUTABLE · TYPES · BEHAVIOUR · COVERAGE</text>
+</svg>
