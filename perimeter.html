@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="107d9414898b76a5">
+<meta name="openzt2-site-version" content="0d58db159091446f">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OpenZT2 — Binary Perimeter</title>
 <style>
@@ -24,7 +24,7 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{border:1px soli
 .tablewrap{max-height:60vh;overflow:auto;border:1px solid var(--line);border-radius:4px}
 @media(min-width:881px){.tabs{grid-template-columns:minmax(72px,.7fr) minmax(110px,.9fr) minmax(96px,.8fr) minmax(230px,1.7fr) 34px 26px;width:min(calc(100vw - 24px),1120px)}}@media(max-width:880px){body{padding-bottom:62px}.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;grid-template-columns:repeat(6,minmax(0,1fr));width:100%;margin:0;padding:6px 8px;background:var(--panel);border-top:1px solid var(--control-border);font:11px/1 system-ui,sans-serif}.tabs a{min-height:48px;padding:0;white-space:normal;border-radius:4px;min-width:0}.tabs a.gstart{margin-left:0}.tabs a.gstart::before{display:none}.nav-icon{display:block;font:22px/1 system-ui,sans-serif}.nav-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.theme-toggle,.reload-toggle{width:48px;height:48px;font-size:22px}main{padding:8px 10px 74px}.coverage-grid{grid-template-columns:1fr}.seg{font-size:10px}}
 </style>
-<link rel="stylesheet" href="site-shell.css">
+<link rel="stylesheet" href="site-shell.css?v=1">
 <body>
 <nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="index.html">OpenZT2</a><a href="index.html"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map.html"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a class="active" href="perimeter.html"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a class="gstart" href="functional-specification.html"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
 <main>
@@ -341,7 +341,7 @@ Promise.all([
 </script>
 <script id="openzt2-live-reload">
 (()=>{
- const current="107d9414898b76a5";
+ const current="0d58db159091446f";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;
