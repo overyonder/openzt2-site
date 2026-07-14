@@ -1,0 +1,99 @@
+.tabs {
+  position: sticky !important;
+  top: 0 !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 50 !important;
+  box-sizing: border-box;
+  display: flex !important;
+  align-items: center;
+  gap: 5px !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 6px 12px !important;
+  overflow-x: auto;
+  background: var(--panel) !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--control-border) !important;
+  font: 12px/1.05 system-ui, sans-serif !important;
+}
+
+.tabs a,
+.tabs button.nav-tab {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  min-width: 0 !important;
+  min-height: 26px !important;
+  padding: 3px 8px !important;
+  white-space: nowrap !important;
+}
+
+.tabs a.gstart { margin-left: 0 !important; }
+.tabs a.gstart::before { display: none !important; }
+.tabs .site-brand { font-weight: 700 !important; }
+.tabs .site-company { margin-left: auto !important; }
+
+.tabs .theme-toggle,
+.tabs .reload-toggle {
+  flex: 0 0 26px;
+  width: 26px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  font-size: 15px !important;
+}
+
+.nav-icon { display: none !important; }
+.nav-label {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: nowrap !important;
+}
+
+body { padding-bottom: 0 !important; }
+main,
+.map-content {
+  width: auto !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.doc-source {
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding-top: 8px !important;
+}
+
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 10px 20px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  background: var(--panel);
+  font: 12px/1.35 system-ui, sans-serif;
+}
+.site-footer a { font-weight: 600; }
+
+html.embedded .tabs,
+html.embedded .site-footer { display: none !important; }
+html.embedded body { padding: 0 !important; }
+html.embedded main { padding: 10px 12px !important; }
+
+@media (max-width: 880px) {
+  .tabs { position: sticky !important; padding: 6px 8px !important; }
+  .tabs .site-company { margin-left: 0 !important; }
+  main { padding-bottom: 32px !important; }
+  .site-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 10px;
+  }
+}
