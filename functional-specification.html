@@ -1,19 +1,9 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="0d58db159091446f">
+<meta name="openzt2-site-version" content="bc6d25d5b7189454">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="A functional specification of Zoo Tycoon 2's observable game systems and the behaviour OpenZT2 must reproduce.">
 <title>OpenZT2 - Functional Specification</title>
-<link rel="canonical" href="https://openzt2.over-yonder.tech/functional-specification.html">
-<meta property="og:title" content="OpenZT2 - Functional Specification">
-<meta property="og:description" content="A functional specification of Zoo Tycoon 2's observable game systems and the behaviour OpenZT2 must reproduce.">
-<meta property="og:url" content="https://openzt2.over-yonder.tech/functional-specification.html">
-<meta property="og:type" content="article">
-<meta property="og:image" content="https://openzt2.over-yonder.tech/assets/social-card.png">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="https://over-yonder.tech/archived/legacy-site/assets/openzt2-logo.webp" type="image/webp">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"OpenZT2 functional specification","description":"A functional specification of Zoo Tycoon 2's observable game systems and the behaviour OpenZT2 must reproduce.","url":"https://openzt2.over-yonder.tech/functional-specification.html","image":"https://openzt2.over-yonder.tech/assets/social-card.png","author":{"@type":"Organization","name":"over|yonder","url":"https://over-yonder.tech/"}}</script>
 <style>
 /* shared-site-nav */.tabs{box-sizing:border-box;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr)) 34px 26px;gap:5px;width:min(calc(100vw - 24px),1120px);margin:5px auto 6px!important;transform:none!important;font:12px/1.05 system-ui,sans-serif!important}.tabs a,.tabs button.nav-tab{box-sizing:border-box;display:flex!important;align-items:center;justify-content:center;min-height:24px;padding:2px 6px!important;text-align:center;white-space:nowrap;color:var(--fg)!important;text-decoration:none!important;border:1px solid var(--line)!important;border-radius:4px;background:var(--panel)!important;font:inherit!important;cursor:pointer}.tabs a.active{outline:2px solid currentColor;outline-offset:1px}.tabs a.gstart{margin-left:9px;position:relative}.tabs a.gstart::before{content:"";position:absolute;left:-5px;top:2px;bottom:2px;border-left:1px solid var(--control-border)}.nav-icon{display:none}.nav-label{display:inline}@media(min-width:881px){.tabs{grid-template-columns:minmax(72px,.7fr) minmax(110px,.9fr) minmax(96px,.8fr) minmax(230px,1.7fr) 34px 26px!important;width:min(calc(100vw - 24px),1120px)!important}.tabs a[href="functional-specification.html"]{min-width:230px}}@media(max-width:880px){body{padding-bottom:62px}.tabs{position:fixed!important;left:0!important;right:0!important;bottom:0!important;z-index:50!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:5px!important;width:100%!important;margin:0!important;padding:6px 8px!important;background:var(--panel)!important;border-top:1px solid var(--control-border)!important;font:11px/1 system-ui,sans-serif!important}.tabs a,.tabs button.nav-tab{min-height:48px!important;padding:0!important;white-space:normal!important;border-radius:4px!important;min-width:0!important}.tabs a.gstart{margin-left:0!important}.tabs a.gstart::before{display:none!important}.nav-icon{display:block!important;font:22px/1 system-ui,sans-serif!important}.nav-label{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important}.tabs .theme-toggle,.tabs .reload-toggle{width:48px!important;height:48px!important;font-size:22px!important;justify-self:stretch!important}main{padding-bottom:74px}}/* end-shared-site-nav */
 /* shared-gruvbox-theme */
@@ -83,7 +73,7 @@ th{background:var(--soft)}
 })();
 </script>
 <body>
-<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="index.html">OpenZT2</a><a href="index.html"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map.html"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter.html"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a class="gstart active" href="functional-specification.html"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
+<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="index.html">OpenZT2</a><a href="index.html"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map.html"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter.html"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a href="asset-lineage.html"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a class="gstart active" href="functional-specification.html"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
 <div class="doc-source">Rendered from <code>docs/FUNCTIONAL-SPECIFICATION.md and docs/work-packages/briefs/</code></div>
 <main>
 <h1>OpenZT2 Functional Specification</h1>
@@ -228,9 +218,9 @@ change, and publication rejects a stale or incomplete crosswalk. Passing means
 there is no known unowned domain. It is not a claim that unresolved formulas,
 edge cases, presentation details, or behaviors absent from current evidence
 have already been recovered; each owning brief retains those acceptance gates.</p>
-<section aria-label="Package delivery status"><div class="package-summary"><strong>0 / 56 verified</strong><span>Every card must be green for complete-game acceptance.</span></div><div class="package-grid"><a class="package-card package-status-brief" href="#package-a01"><span class="package-id">A01</span><span class="package-name">Launcher</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a02"><span class="package-id">A02</span><span class="package-name">Compiled UI Document</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a03"><span class="package-id">A03</span><span class="package-name">Species Catalogue</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a04"><span class="package-id">A04</span><span class="package-name">GPU-ready model</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a05"><span class="package-id">A05</span><span class="package-name">GPU-Native Texture</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a06"><span class="package-id">A06</span><span class="package-name">Skeletal Animation</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a07"><span class="package-id">A07</span><span class="package-name">Material</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a08"><span class="package-id">A08</span><span class="package-name">Shader modules and variants</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a09"><span class="package-id">A09</span><span class="package-name">Localization</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a10"><span class="package-id">A10</span><span class="package-name">Compiled Behavior Program</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a11"><span class="package-id">A11</span><span class="package-name">Unified audio</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a12"><span class="package-id">A12</span><span class="package-name">Font and Glyph Data</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a13"><span class="package-id">A13</span><span class="package-name">Video stream</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a14"><span class="package-id">A14</span><span class="package-name">World Definitions</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a15"><span class="package-id">A15</span><span class="package-name">Scene Prefab</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a16"><span class="package-id">A16</span><span class="package-name">Streamable Terrain</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a17"><span class="package-id">A17</span><span class="package-name">Navigation</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a18"><span class="package-id">A18</span><span class="package-name">GPU-ready effects</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a19"><span class="package-id">A19</span><span class="package-name">Worlds, Scenarios and Imported Starts</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g01"><span class="package-id">G01</span><span class="package-name">Source-driven game shell</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g02"><span class="package-id">G02</span><span class="package-name">Native game UI</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g03"><span class="package-id">G03</span><span class="package-name">Device-independent input</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g04"><span class="package-id">G04</span><span class="package-name">World instantiation</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g05"><span class="package-id">G05</span><span class="package-name">Editable terrain and water</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g06"><span class="package-id">G06</span><span class="package-name">Authentic game cameras</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g07"><span class="package-id">G07</span><span class="package-name">Construction interaction and history</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g08"><span class="package-id">G08</span><span class="package-name">Fences, paths and portals</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g09"><span class="package-id">G09</span><span class="package-name">Habitat containment and membership</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g10"><span class="package-id">G10</span><span class="package-name">Scenery and facility placement</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g11"><span class="package-id">G11</span><span class="package-name">Animal lifecycle and family</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g12"><span class="package-id">G12</span><span class="package-name">Animal needs, welfare and suitability</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g13"><span class="package-id">G13</span><span class="package-name">Data-authored animal task selection</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g14"><span class="package-id">G14</span><span class="package-name">Navigation, steering and docking</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g15"><span class="package-id">G15</span><span class="package-name">Food, drink and refill transactions</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g16"><span class="package-id">G16</span><span class="package-name">Animal Health</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g17"><span class="package-id">G17</span><span class="package-name">Guests</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g18"><span class="package-id">G18</span><span class="package-name">Economy</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g19"><span class="package-id">G19</span><span class="package-name">Donations</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g20"><span class="package-id">G20</span><span class="package-name">Staff</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g21"><span class="package-id">G21</span><span class="package-name">Information and Catalogues</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g22"><span class="package-id">G22</span><span class="package-name">Persistence</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g23"><span class="package-id">G23</span><span class="package-name">Progression</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g24"><span class="package-id">G24</span><span class="package-name">Scenarios, Campaigns, Tutorials, and Challenges</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g25"><span class="package-id">G25</span><span class="package-name">Aquatic Systems</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g26"><span class="package-id">G26</span><span class="package-name">Animal Shows</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g27"><span class="package-id">G27</span><span class="package-name">Transport and Tours</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g28"><span class="package-id">G28</span><span class="package-name">Photos</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g29"><span class="package-id">G29</span><span class="package-name">Extinct Animal Recovery</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g30"><span class="package-id">G30</span><span class="package-name">Gestures and Puzzles</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g31"><span class="package-id">G31</span><span class="package-name">Immersive and Special Modes</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g32"><span class="package-id">G32</span><span class="package-name">Simulation time and determinism</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g33"><span class="package-id">G33</span><span class="package-name">World environment and ambient life</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g34"><span class="package-id">G34</span><span class="package-name">Display and graphics settings</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g35"><span class="package-id">G35</span><span class="package-name">Native content mapping and residency</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g36"><span class="package-id">G36</span><span class="package-name">Maintenance and Sanitation</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g37"><span class="package-id">G37</span><span class="package-name">Interactive physics and attachments</span><span class="package-state">Brief ready</span></a></div></section>
+<section aria-label="Package delivery status"><div class="package-summary"><strong>0 / 56 verified</strong><span>Every card must be green for complete-game acceptance.</span></div><div class="package-grid"><a class="package-card package-status-brief" href="#package-a01"><span class="package-id">A01</span><span class="package-name">Launcher</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a02"><span class="package-id">A02</span><span class="package-name">Compiled UI Document</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a03"><span class="package-id">A03</span><span class="package-name">Species Catalogue</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a04"><span class="package-id">A04</span><span class="package-name">GPU-ready model</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a05"><span class="package-id">A05</span><span class="package-name">GPU-Native Texture</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a06"><span class="package-id">A06</span><span class="package-name">Skeletal Animation</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a07"><span class="package-id">A07</span><span class="package-name">Material</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a08"><span class="package-id">A08</span><span class="package-name">Shader modules and variants</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a09"><span class="package-id">A09</span><span class="package-name">Localization</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a10"><span class="package-id">A10</span><span class="package-name">Compiled Behavior Program</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a11"><span class="package-id">A11</span><span class="package-name">Unified audio</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a12"><span class="package-id">A12</span><span class="package-name">System Font Integration</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a13"><span class="package-id">A13</span><span class="package-name">Video stream</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a14"><span class="package-id">A14</span><span class="package-name">World Definitions</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a15"><span class="package-id">A15</span><span class="package-name">Scene Prefab</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a16"><span class="package-id">A16</span><span class="package-name">Streamable Terrain</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a17"><span class="package-id">A17</span><span class="package-name">Navigation</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a18"><span class="package-id">A18</span><span class="package-name">GPU-ready effects</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-a19"><span class="package-id">A19</span><span class="package-name">Worlds, Scenarios and Imported Starts</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g01"><span class="package-id">G01</span><span class="package-name">Source-driven game shell</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g02"><span class="package-id">G02</span><span class="package-name">Native game UI</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g03"><span class="package-id">G03</span><span class="package-name">Device-independent input</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g04"><span class="package-id">G04</span><span class="package-name">World instantiation</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g05"><span class="package-id">G05</span><span class="package-name">Editable terrain and water</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g06"><span class="package-id">G06</span><span class="package-name">Authentic game cameras</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g07"><span class="package-id">G07</span><span class="package-name">Construction interaction and history</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g08"><span class="package-id">G08</span><span class="package-name">Fences, paths and portals</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g09"><span class="package-id">G09</span><span class="package-name">Habitat containment and membership</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g10"><span class="package-id">G10</span><span class="package-name">Scenery and facility placement</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g11"><span class="package-id">G11</span><span class="package-name">Animal lifecycle and family</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g12"><span class="package-id">G12</span><span class="package-name">Animal needs, welfare and suitability</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g13"><span class="package-id">G13</span><span class="package-name">Data-authored animal task selection</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g14"><span class="package-id">G14</span><span class="package-name">Navigation, steering and docking</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g15"><span class="package-id">G15</span><span class="package-name">Food, drink and refill transactions</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g16"><span class="package-id">G16</span><span class="package-name">Animal Health</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g17"><span class="package-id">G17</span><span class="package-name">Guests</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g18"><span class="package-id">G18</span><span class="package-name">Economy</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g19"><span class="package-id">G19</span><span class="package-name">Donations</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g20"><span class="package-id">G20</span><span class="package-name">Staff</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g21"><span class="package-id">G21</span><span class="package-name">Information and Catalogues</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g22"><span class="package-id">G22</span><span class="package-name">Persistence</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g23"><span class="package-id">G23</span><span class="package-name">Progression</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g24"><span class="package-id">G24</span><span class="package-name">Scenarios, Campaigns, Tutorials, and Challenges</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g25"><span class="package-id">G25</span><span class="package-name">Aquatic Systems</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g26"><span class="package-id">G26</span><span class="package-name">Animal Shows</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g27"><span class="package-id">G27</span><span class="package-name">Transport and Tours</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g28"><span class="package-id">G28</span><span class="package-name">Photos</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g29"><span class="package-id">G29</span><span class="package-name">Extinct Animal Recovery</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g30"><span class="package-id">G30</span><span class="package-name">Gestures and Puzzles</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g31"><span class="package-id">G31</span><span class="package-name">Immersive and Special Modes</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g32"><span class="package-id">G32</span><span class="package-name">Simulation time and determinism</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g33"><span class="package-id">G33</span><span class="package-name">World environment and ambient life</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g34"><span class="package-id">G34</span><span class="package-name">Display and graphics settings</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g35"><span class="package-id">G35</span><span class="package-name">Native content mapping and residency</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g36"><span class="package-id">G36</span><span class="package-name">Maintenance and Sanitation</span><span class="package-state">Brief ready</span></a><a class="package-card package-status-brief" href="#package-g37"><span class="package-id">G37</span><span class="package-name">Interactive physics and attachments</span><span class="package-state">Brief ready</span></a></div></section>
 
-<h2>Detailed package contracts</h2>
+<h1>Detailed package contracts</h1>
 <p><a id="package-a01"></a></p>
 <h2>A01 — Launcher</h2>
 <h3>1. Identity and outcome</h3>
@@ -352,7 +342,7 @@ runtime loader.</p>
 <p>This package produces the one native representation of mod-authored UI: flat layout/style/
 binding/command tables that G02 projects directly into Bevy UI. XML templates,
 skins and command names are completely compiled before launch. Integration wave
-1; depends on A05 textures, A09 localization and A12 fonts.</p>
+1; depends on A05 textures, A09 localization and A12 system-font policy.</p>
 <h3>2. Exclusive ownership</h3>
 <p>This package owns <code>native/src/families/ui_document.rs</code>,
 <code>converter/src/families/ui_document.rs</code>, <code>game/src/assets/ui_document.rs</code>, and
@@ -918,13 +908,13 @@ mapping/upload/GPU/render measurements.</p>
 <h3>1. Identity and outcome</h3>
 <p>This package produces the only runtime texture representation: target-profile GPU-compressed
 mip/layer payloads with exact dimensions, colour semantics and upload ranges.
-No DDS/TGA/BMP/JPEG/PNG decode occurs in the game. Integration wave 1; only the
+No DDS/TGA/BMP/JPEG decode occurs in the game. Integration wave 1; only the
 shared native contract is prerequisite.</p>
 <h3>2. Exclusive ownership</h3>
 <p>This package owns <code>native/src/families/texture.rs</code>, <code>converter/src/families/texture.rs</code>,
 <code>game/src/assets/texture.rs</code>, <code>preflight/tests/texture_contract.rs</code>. Renderer,
 GPU ledger and module/plugin registration are root-owned/read-only.</p>
-<p>Existing <code>image</code>, <code>ddsfile</code>, <code>image_dds</code>, and <code>ktx2</code> dependencies exclusively
+<p>Existing <code>image</code>, <code>ddsfile</code>, and <code>image_dds</code> dependencies exclusively
 own source image decoding/transcoding in preflight; Bevy/wgpu own runtime images,
 GPU textures and upload. This package must not write an image codec, runtime
 source decoder, texture renderer, or second CPU pixel cache.</p>
@@ -948,8 +938,8 @@ source decoder, texture renderer, or second CPU pixel cache.</p>
 <tr>
   <td><code>TextureArchive</code></td>
   <td>root</td>
-  <td><code>{ version:u32, target:TargetProfile, id:AssetId, dimension:TextureDimension, width:u32, height:u32, depth_or_layers:u32, mip_count:u16, format:TextureFormat, color_space:ColorSpace, sampler:SamplerRecord, subresources:Vec&lt;TextureSubresource&gt;, payload:Vec&lt;u8&gt; }</code></td>
-  <td>Payload is final GPU copy source.</td>
+  <td><code>{ version:u32, target:TargetProfile, id:AssetId, dimension:TextureDimension, width:u32, height:u32, depth_or_layers:u32, mip_count:u16, format:TextureFormat, color_space:ColorSpace, sampler:SamplerRecord, cursor_hotspot:Option&lt;[u16;2]&gt;, subresources:Vec&lt;TextureSubresource&gt;, payload:Vec&lt;u8&gt; }</code></td>
+  <td>Payload is final GPU copy source; hotspot is present only for converted CUR.</td>
 </tr>
 <tr>
   <td><code>TextureDimension</code></td>
@@ -1002,8 +992,8 @@ source decoder, texture renderer, or second CPU pixel cache.</p>
 <tr>
   <td><code>TextureSource</code></td>
   <td>producer input</td>
-  <td><code>{ virtual_path:String, bytes:Vec&lt;u8&gt;, usage:TextureUsage }</code></td>
-  <td>Source image plus evidenced usage.</td>
+  <td><code>{ virtual_path:Cow&lt;str&gt;, bytes:Cow&lt;[u8]&gt;, usage:TextureUsage }</code></td>
+  <td>Borrowed unless legacy normalization is required.</td>
 </tr>
 <tr>
   <td><code>TextureUsage</code></td>
@@ -1020,14 +1010,20 @@ source decoder, texture renderer, or second CPU pixel cache.</p>
 <tr>
   <td><code>TextureAsset</code></td>
   <td>Bevy asset</td>
-  <td><code>{ archive:MappedTextureArchive, bevy_image:Handle&lt;Image&gt; }</code> deriving <code>Asset, TypePath, Clone</code>; <code>bevy_image(&amp;self)-&gt;&amp;Handle&lt;Image&gt;</code></td>
-  <td>Mapping owner plus the sole ordinary-Bevy image handle consumed by <code>ImageNode</code>; no pixel copy retained in this asset.</td>
+  <td><code>{ archive:MappedTextureArchive }</code> deriving <code>Asset, TypePath, Clone</code>; <code>bevy_image(&amp;self)-&gt;Handle&lt;Image&gt;</code></td>
+  <td>Sole mapped CPU payload owner; the image handle is a stable UUID view of the same native asset ID.</td>
+</tr>
+<tr>
+  <td><code>TextureGpuAsset</code></td>
+  <td>render asset</td>
+  <td>custom <code>RenderAsset&lt;SourceAsset=TextureAsset&gt;</code></td>
+  <td>Borrows archived <code>&amp;[u8]</code> and prepares the sole <code>GpuImage</code> directly; never constructs <code>Image.data</code> or another pixel buffer.</td>
 </tr>
 <tr>
   <td><code>TextureAssetLoader</code></td>
   <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=TextureAsset&gt;</code> for <code>oztexture</code> using path + <code>get_owned</code>; creates labeled subasset <code>Image</code> named <code>image</code> with <code>RenderAssetUsages::RENDER_WORLD</code></td>
-  <td>Constructs the one Bevy <code>Image</code> from final mapped subresources; any Bevy-required transient upload buffer is released after render extraction and no main-world CPU pixel copy remains.</td>
+  <td><code>AssetLoader&lt;Asset=TextureAsset&gt;</code> for <code>oztexture</code> using path + <code>get_owned</code></td>
+  <td>Validates the mapped native archive and performs no pixel conversion or copy.</td>
 </tr>
 <tr>
   <td><code>TextureAssetPlugin</code></td>
@@ -1038,20 +1034,23 @@ source decoder, texture renderer, or second CPU pixel cache.</p>
 </tbody>
 </table>
 <h3>4. Data layout or ECS ownership</h3>
-<p>Metadata is rkyv; payload is contiguous block-compressed/row-aligned data in
+<p>Metadata is rkyv; payload is contiguous, tightly packed block-compressed data in
 the same archive. Ranges are bytes relative to payload. Little-endian metadata;
-subresource starts satisfy wgpu copy alignment selected by profile. Mapping is
-kept until asset eviction. The loader's labeled <code>Image</code> is the single ordinary
-Bevy render asset used by world materials and UI <code>ImageNode</code>; it is marked
-render-world-only, so Bevy does not retain a second main-world pixel payload.
-Upload creates exactly one GPU texture and view set. Preparation updates
+subresources have no storage padding. Mapping is kept until asset eviction. A
+narrow GPU-image registration bridge lets ordinary Bevy materials and
+<code>ImageNode</code> resolve the prepared texture by the native asset UUID without a CPU
+<code>Image</code> or custom renderer. Upload creates exactly one GPU texture and view set. Preparation updates
 <code>GpuMemoryLedger</code>; no external renderer wrapper or parallel texture cache exists.</p>
 <h3>5. Preflight producer contract</h3>
-<p>Accept DDS/TGA/BMP/PNG/JPEG and any evidenced BFT/embedded NIF image sources.
+<p>Accept only DDS/TGA/BMP/JPEG and loose-installation CUR, the formats evidenced by shipped archives or the
+original C++ loaders. PNG, KTX2, and unevidenced BFT texture inputs are not part
+of the source contract.
 Normalize virtual paths before ID. Resolve replacements and later pack layers
-before decode. Decode, orient, select colour space, generate complete mip chain,
-renormalize normal maps, transcode to profile-native format and compute row
-layout. Reject corrupt dimensions, unsupported semantics, excessive target
+before decode. Compatible DDS blocks and complete authored mips are copied
+unchanged. Decode, orient, select colour space, generate missing/invalid mips,
+renormalize normal maps, transcode only target-incompatible formats and compute tight row
+layout. CUR is decoded offline to the same D2 GPU texture while preserving its
+hotspot as native metadata. Reject corrupt dimensions, unsupported semantics, excessive target
 limits, incomplete compressed blocks and ambiguous colour space. Diagnostics
 name source and failing mip. Output ordering is layer then mip.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -1072,20 +1071,19 @@ Missing optional textures resolve to an explicit preflight-generated fallback
 asset; missing required textures fail conversion. Runtime streams declared mip
 subresources without decoding. Mod textures are preflight-converted identically.</p>
 <h3>8. Performance contract</h3>
-<p>Metadata traversal/<code>Handle&lt;Image&gt;</code> clone is zero allocation and never clones
-pixel data. Upload copies mapped ranges through reusable staging; the only
-per-load transient required by Bevy's <code>Image</code> API is measured and freed after
-extraction; no recurring allocation after maximum subresource
-capacity. O(payload bytes) conversion, O(subresources) validation, O(1)
+<p>Metadata traversal/<code>Handle&lt;Image&gt;</code> construction is zero allocation and never
+clones pixel data. Render preparation passes the mapped payload directly to
+Bevy/wgpu as <code>&amp;[u8]</code>; no payload-sized Rust heap allocation is permitted.
+O(payload bytes) GPU transfer, O(subresources) validation, O(1)
 subresource access. Record mapped/resident bytes separately from exact GPU
 texture bytes and staging. No per-frame texture preparation after residency.
 Repeated render extraction of unchanged handles is allocation-free.</p>
 <h3>9. Acceptance criteria</h3>
-<p>Four files and API above; fixtures cover sRGB colour, linear normal, mip/layer
-ranges and corrupt alignment. Tests prove expected dimensions/formats and
-zero-allocation traversal. A Bevy fixture obtains <code>TextureAsset::bevy_image()</code>, sets
-it directly on ordinary <code>ImageNode</code>, observes one GPU preparation, and proves
-no retained main-world CPU pixel payload. Non-goals: material selection, renderer batching and
+<p>Four files and API above; fixtures cover sRGB colour, linear normal, preserved
+DDS blocks, mip/layer ranges and non-tight payload rejection. Tests prove
+expected dimensions/formats and zero-allocation hydration view. A Bevy fixture obtains
+<code>TextureAsset::bevy_image()</code>, sets it directly on ordinary <code>ImageNode</code>, observes
+one GPU preparation, and proves no CPU pixel copy. Non-goals: material selection, renderer batching and
 source decode in engine. A render fixture must verify exact create/upload/remove
 ledger deltas and no repeated preparation.</p>
 <h3>10. Required handoff</h3>
@@ -1096,7 +1094,7 @@ and heap/mapping/GPU measurements.</p>
 <h2>A06 — Skeletal Animation</h2>
 <h3>1. Identity and outcome</h3>
 <p>This package produces compact skeleton-indexed clips, markers and graph transition tables
-that can be sampled directly from mapped memory. Source BF/BFM parsing and name
+that can be sampled directly from mapped memory. Source BF/KF/BFM parsing and name
 resolution end in preflight. Integration wave 3; depends on A04 model.</p>
 <h3>2. Exclusive ownership</h3>
 <p>This package owns <code>native/src/families/animation.rs</code>, <code>converter/src/families/animation.rs</code>,
@@ -1300,7 +1298,16 @@ writes the <code>SkinnedPose</code> range in <code>AnimationPoseBuffer</code>; t
 matrices are transient A04 renderer data, not archived duplicates. Each system
 performs one operation; there is no animation manager loop.</p>
 <h3>5. Preflight producer contract</h3>
-<p>Accept BF binary clips and BFM XML graph documents after layer resolution.
+<p>Accept BF binary clips, NetImmerse KF controller sequences, BFM XML graph
+documents, and TXTKEYS presentation markers after layer resolution. Prefer the
+winning same-stem BF clip because the shipped BFM graphs reference BF; when no
+BF winner exists, compile the KF sequence as the clip. KF target names bind to
+the final model skeleton, NiKeyframeController/NiKeyframeData become canonical
+translation/rotation/scale tracks, and NiTextKeyExtraData becomes presentation
+markers. Preflight flattens quadratic and tension/bias/continuity curves into
+the native linear/spherical sampling contract. KFM, KFINFO, and BIP remain
+authoring/controller evidence with explicit validated disposition. None of
+these source formats or their block graphs reach the runtime.
 Normalize IDs, map source node names to model joints, convert Euler tracks to
 canonical quaternions, quantize time to milliseconds only within evidenced
 tolerance, compile nonsemantic presentation markers/transitions and close clip
@@ -1530,7 +1537,8 @@ requirements, unresolved original render-state evidence and memory counters.</p>
 <p><a id="package-a08"></a></p>
 <h2>A08 — Shader modules and variants</h2>
 <h3>1. Identity and outcome</h3>
-<p>Preflight translates and validates every supported original/material shader
+<p>Preflight translates and validates the original FX effects and their shipped H
+includes, plus material-selected fixed-function variants,
 variant with Naga, selects a target-profile module representation, and emits
 exact bind/pipeline metadata. Bevy/wgpu create and cache runtime shader modules
 and pipelines. OpenZT2 contains no shader compiler or graphics API abstraction.</p>
@@ -1623,7 +1631,7 @@ backend profile, aligned and referenced by <code>AssetRange</code>. Binding/vari
 are flat and directly traversed. Prepared runtime state is Bevy/wgpu state;
 OpenZT2 retains no parallel module or pipeline registry.</p>
 <h3>5. Preflight producer contract</h3>
-<p>Resolve original effects/material techniques and selected mod shaders. Convert
+<p>Resolve original FX/H effects and material techniques. Convert
 supported semantics to Naga input, parse, validate capabilities/uniformity,
 translate to the target representation, reflect exact bindings, enumerate only
 reachable variants and sort deterministically. Reject unknown required shader
@@ -2092,8 +2100,8 @@ root decision before changing backend.</p>
 <tr>
   <td><code>NativeAudioFormat</code></td>
   <td>enum</td>
-  <td><code>PcmS16, StreamedVorbis</code></td>
-  <td>Closed target-profile vocabulary; additions require measured backend support.</td>
+  <td><code>PcmS16, StreamedMp3, StreamedVorbis</code></td>
+  <td>Closed target-profile vocabulary. Authored MP3 is retained when it already satisfies the runtime stream contract.</td>
 </tr>
 <tr>
   <td><code>AudioSeekBlock</code></td>
@@ -2156,12 +2164,14 @@ is an ordinary playback entity spatially parented or transformed like any other
 Bevy entity. Completion uses component removal/despawn policy, not a central
 audio manager.</p>
 <h3>5. Preflight producer contract</h3>
-<p>Decode WAV/MP3 and middleware-supported original inputs in preflight. Normalize
-sample format, rate, channel layout, gain, loop points and usage; select resident
-PCM for small latency-sensitive clips and bounded streamed Vorbis for large
-music/ambience. Emit deterministic blocks and reject corrupt media, invalid
+<p>Accept only WAV and MP3, the audio formats present in the official corpus and
+original loader evidence. Validate MP3 timing/headers but preserve its authored
+compressed bytes unchanged as the native streamed representation. Decode WAV;
+select resident PCM for small latency-sensitive clips and streamed Vorbis for
+large music/ambience. Normalize channel layout, loop points and usage. Emit
+deterministic ranges and reject corrupt media, invalid
 loops, unsupported required content, clipping beyond recovered policy, or target
-codec mismatch. No original codec enters the game dependency closure.</p>
+codec mismatch. OGG/WMA and other unevidenced source routes are absent.</p>
 <h3>6. Behavioral evidence and disposition</h3>
 <p>Inspect shipped audio, sound/music definitions, oracle audio calls and live
 mixing behavior. Recover usage classification, attenuation, concurrency,
@@ -2195,143 +2205,38 @@ mixer, device backend, voice registry, or second playback state.</p>
 usage policy, A13 synchronization surface, root registrations, recovered audio
 rules, and allocation/fault/underrun measurements.</p>
 <p><a id="package-a12"></a></p>
-<h2>A12 — Font and Glyph Data</h2>
-<h3>1. Identity and outcome</h3>
-<p>This package produces validated subset font bytes plus precomputed metrics/coverage and one
-ordinary Bevy <code>Handle&lt;Font&gt;</code> per loaded native font. No XML font mapping,
-texture-atlas side renderer or repeated source inspection occurs in game.
-Integration wave 1.</p>
-<h3>2. Exclusive ownership</h3>
-<p>This package owns <code>native/src/families/font.rs</code>, <code>converter/src/families/font.rs</code>,
-<code>game/src/assets/font.rs</code>, <code>preflight/tests/font_contract.rs</code> only.</p>
-<p>Bevy text/font systems exclusively own shaping, glyph caches, atlases and text
-rendering. Preflight may subset and precompute metrics, and the loader may make
-the one Bevy-required shaping-face construction, but A12 must not implement a
-font rasterizer, shaper, atlas renderer, text layout engine, or duplicate glyph
-cache.</p>
-<h3>3. Frozen public contract</h3>
-<table>
-<thead>
-<tr>
-  <th>Symbol</th>
-  <th>Kind</th>
-  <th>Exact shape or signature</th>
-  <th>Owner and invariant</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td><code>FONT_ARCHIVE_VERSION</code></td>
-  <td>constant</td>
-  <td><code>u32 = 1</code></td>
-  <td>Layout version.</td>
-</tr>
-<tr>
-  <td><code>FontArchive</code></td>
-  <td>root</td>
-  <td><code>{ version:u32, target:TargetProfile, id:AssetId, units_per_em:u16, ascent:i16, descent:i16, line_gap:i16, coverage:Vec&lt;UnicodeRange&gt;, glyphs:Vec&lt;GlyphRecord&gt;, kern:Vec&lt;KerningPair&gt;, font_bytes:Vec&lt;u8&gt; }</code></td>
-  <td>Glyphs sorted codepoint; kern sorted pair; bytes are the final Bevy-supported subset face.</td>
-</tr>
-<tr>
-  <td><code>UnicodeRange</code></td>
-  <td>record</td>
-  <td><code>{ first:u32, last:u32 }</code></td>
-  <td>Sorted, merged valid scalar ranges.</td>
-</tr>
-<tr>
-  <td><code>GlyphRecord</code></td>
-  <td>record</td>
-  <td><code>{ codepoint:u32, glyph:u32, advance:i16, bearing:[i16;2], size:[u16;2] }</code></td>
-  <td>Metrics in 1/64 px for profile base size.</td>
-</tr>
-<tr>
-  <td><code>KerningPair</code></td>
-  <td>record</td>
-  <td><code>{ left:u32, right:u32, adjust:i16 }</code></td>
-  <td>Glyph IDs and 1/64 px adjustment.</td>
-</tr>
-<tr>
-  <td><code>MappedFontArchive</code> / <code>access_font</code> / <code>access_font_validated</code></td>
-  <td>owning view/functions</td>
-  <td>tuple wrapper; <code>new(MappedAsset)-&gt;io::Result&lt;Self&gt;</code>; <code>archived(&amp;self)-&gt;&amp;ArchivedFontArchive</code>; <code>glyph(&amp;self,char)-&gt;Option&lt;&amp;ArchivedGlyphRecord&gt;</code>; <code>kerning(&amp;self,u32,u32)-&gt;i16</code>; <code>fn access_font(&amp;[u8])-&gt;io::Result&lt;&amp;ArchivedFontArchive&gt;</code>; <code>unsafe fn access_font_validated(&amp;[u8])-&gt;&amp;ArchivedFontArchive</code></td>
-  <td>Validate once, own mapping.</td>
-</tr>
-<tr>
-  <td><code>FontSource</code></td>
-  <td>input</td>
-  <td><code>{ virtual_path:String, bytes:Vec&lt;u8&gt;, requested_codepoints:Vec&lt;u32&gt; }</code></td>
-  <td>Resolved TTF/OTF and locale/UI coverage.</td>
-</tr>
-<tr>
-  <td><code>compile_font</code></td>
-  <td>producer</td>
-  <td><code>fn compile_font(input:&amp;FontSource, target:TargetProfile)-&gt;io::Result&lt;Vec&lt;u8&gt;&gt;</code></td>
-  <td>Deterministic subset/metrics compilation to a Bevy-supported face.</td>
-</tr>
-<tr>
-  <td><code>FontAsset</code></td>
-  <td>Bevy asset</td>
-  <td><code>{ archive:MappedFontArchive, bevy_font:Handle&lt;Font&gt; }</code>; <code>bevy_font(&amp;self)-&gt;&amp;Handle&lt;Font&gt;</code></td>
-  <td>Mapping owner plus sole main-world Bevy font handle. G02 clones this handle directly into ordinary <code>TextFont</code>.</td>
-</tr>
-<tr>
-  <td><code>FontAssetLoader</code></td>
-  <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=FontAsset&gt;</code> for <code>ozfont</code> via path + <code>get_owned</code>; creates labeled subasset <code>Font</code> named <code>font</code></td>
-  <td>Validates the mapping once, builds exactly one Bevy shaping face from <code>font_bytes</code>, and records the backend-owned byte allocation.</td>
-</tr>
-<tr>
-  <td><code>FontAssetPlugin</code></td>
-  <td>plugin</td>
-  <td>unit struct</td>
-  <td>Registers native asset/loader and labeled ordinary Bevy <code>Font</code>; no custom text renderer/system.</td>
-</tr>
-</tbody>
-</table>
-<h3>4. Data layout or ECS ownership</h3>
-<p>Metadata is rkyv. The mapped subset remains the source of truth. Bevy's text
-backend requires an owned shaping face in the main world, so the loader performs
-that single unavoidable construction once per <code>FontAsset</code> and exposes its
-ordinary <code>Handle&lt;Font&gt;</code>. No node copies bytes or builds another face. The mapped
-bytes, backend-owned face bytes, Bevy text cache heap and glyph-atlas GPU bytes
-created internally by Bevy are accounted independently.</p>
-<h3>5. Preflight producer contract</h3>
-<p>Accept resolved TTF/OTF and source font aliases plus required codepoints derived
-from A09/A02. Normalize ID, validate tables/licensing boundary, subset glyphs,
-preserve shaping tables needed by locales and compute metrics/kerning. Reject corrupt fonts, absent
-required glyphs without evidenced fallback, invalid metrics or output rejected
-by Bevy's <code>Font</code> constructor.
-Deterministic glyph/codepoint order.</p>
-<h3>6. Behavioral evidence and disposition</h3>
-<p>Search shipped font files and UI font/style references; old UI text/font paths;
-oracle UI text/font wrappers and middleware. Questions: original font aliases,
-sizes, fallback chain, line height, kerning/shaping, bitmap versus vector use and
-locale coverage. Live-check menu/status/Zoopedia wrapping.</p>
-<blockquote>
-<p>Commit <code>19dd222f</code> intentionally deleted the former Rust architecture. Do not
-restore its hosts, managers, aggregate runtime resources, generic bags,
-duplicated worlds, runtime source parsing, or compatibility layers.</p>
-</blockquote>
-<h3>7. Required behavior</h3>
-<p>Authored aliases resolve before output; every selected locale has glyph coverage
-or explicit preflight fallback. Metrics produce evidenced wrapping/baselines.
-Mods may add fonts but cannot trigger engine source parsing. Dynamic user text
-uses the same fixed font asset and shaping backend.</p>
-<h3>8. Performance contract</h3>
-<p>Glyph/kerning O(log n), zero allocation. Font parsing/subsetting is
-preflight only. Runtime shaping may use reusable scratch/cache; settled unchanged
-text does not reshape or allocate. Cloning <code>Handle&lt;Font&gt;</code> into <code>TextFont</code>
-allocates no font data. Track mapped font pages, the one-time backend face
-allocation, Bevy text cache heap and glyph GPU bytes separately.</p>
-<h3>9. Acceptance criteria</h3>
-<p>Four files/API; fixture covers glyph/kerning/coverage and face validation,
-missing glyph failure, allocation-free lookup and exactly one accounted Bevy
-face construction per native handle. G02 obtains <code>FontAsset::bevy_font()</code> and renders
-ordinary Bevy <code>Text</code>/<code>TextFont</code> without a custom bridge component. Non-goals: UI
-node projection and localization formatting.</p>
-<h3>10. Required handoff</h3>
-<p>Report font/subset dependencies, Bevy text integration, A09 coverage
-inputs, root registrations, unresolved original metrics and memory validation.</p>
+<h2>A12 — System Font Integration</h2>
+<h3>Outcome and evidence boundary</h3>
+<p>The official archives and loose installation contain no TTF, OTF, FNT, bitmap
+font, or other authored font payload. The recovered executable creates fonts
+through the operating-system font API (<code>D3DXCreateFontA</code>). A12 therefore does
+not define a source frontend, native rkyv font family, pack entry, mapped asset,
+or custom glyph cache. Adding any of those would duplicate bytes that do not
+exist in the original content and would invent a mod contract without evidence.</p>
+<p>OpenZT2 maps the recovered UI font aliases, sizes, weights, and fallback policy
+onto Bevy's ordinary text components and platform/system font integration.
+Bevy owns shaping, glyph caching, atlas allocation, layout, and rendering. G02
+projects the compiled A02 text/style facts directly into <code>Text</code>, <code>TextFont</code>, and
+<code>TextColor</code>; it does not attach an OpenZT2 font wrapper component.</p>
+<h3>Runtime and performance contract</h3>
+<p>Font selection happens once when a native UI document is projected. Unchanged
+text must not be reshaped or reallocated by OpenZT2 per frame. Font-face heap,
+glyph-cache heap, and atlas GPU memory are backend-owned measurements, not
+mapped-pack residency. There is no source-font parsing or filesystem lookup in
+the game content path.</p>
+<h3>Mod boundary</h3>
+<p>The current content contract supports the fixed font vocabulary evidenced by
+the original game. A future native editor may deliberately introduce authored
+font assets, but that is a new OpenZT2 feature and must receive its own measured
+contract; preflight must not silently accept unevidenced original formats.</p>
+<h3>Acceptance criteria</h3>
+<ul>
+<li>Source inventory continues to prove no official font files.</li>
+<li>No <code>FontArchive</code>, <code>MappedFontArchive</code>, <code>FontAsset</code>, or <code>ozfont</code> loader exists.</li>
+<li>Representative shell, HUD, and localized text use ordinary Bevy text nodes.</li>
+<li>Missing system aliases follow one explicit fallback chain and produce a
+diagnostic rather than an injected archive font.</li>
+</ul>
 <p><a id="package-a13"></a></p>
 <h2>A13 — Video stream</h2>
 <h3>1. Identity and outcome</h3>
@@ -2436,14 +2341,15 @@ picture allocator recycles aligned frame storage. GPU textures/staging buffers
 are created per pool slot and reused. <code>VideoPlayer</code> and A11's playback entity
 are the only live state; there is no media session graph.</p>
 <h3>5. Preflight producer contract</h3>
-<p>Use the approved media dependency to demux/decode original Bink/other shipped
-movies, normalize dimensions, frame rate, pixel/color metadata and orientation,
+<p>Accept only Bink (<code>.bik</code>), the movie format established by the executable's
+Bink imports and loader calls. Use the approved media dependency to demux/decode
+Bink, normalize dimensions, frame rate, pixel/color metadata and orientation,
 split audio into A11, encode AV1 with deterministic target settings, and emit
 packet/keyframe/timestamp blocks. Reject unsupported required source media,
 invalid timing, excessive dimensions, missing keyframes, A/V duration mismatch,
 or decoder-profile incompatibility. Never invoke media conversion in the game.</p>
 <h3>6. Behavioral evidence and disposition</h3>
-<p>Inspect shipped movies, UI references, oracle playback calls and live original
+<p>Inspect Bink references, oracle Bink playback calls and live original
 for aspect/stretch, skippability, looping, end transitions, audio routing,
 pause/focus behavior and required seek accuracy.</p>
 <blockquote>
@@ -4743,8 +4649,9 @@ single precedence-resolved document for every supported role at that semantic
 native virtual path. Do not invent local command strings, JSON-like values,
 widget traits, a DOM, a binding property bag, or a role-to-handle store.
 Projection exhaustively converts each <code>UiBinding</code> variant into the corresponding
-typed component above once. A05 <code>TextureAsset::bevy_image()</code> is the sole bridge
-to Bevy <code>ImageNode</code>; A12 <code>FontAsset::bevy_font()</code> is cloned into ordinary Bevy
+typed component above once. A05's stable native-ID <code>Handle&lt;Image&gt;</code> is the sole
+bridge to Bevy <code>ImageNode</code>, while a retained <code>Handle&lt;TextureAsset&gt;</code> owns its mapped
+source through preparation; A12 resolves the recovered system-font policy into ordinary Bevy
 <code>TextFont</code> beside <code>Text</code>.</p>
 <h3>4. ECS ownership</h3>
 <p>All live UI is Bevy <code>Node</code>, <code>Text</code>, <code>ImageNode</code>, interaction and small marker
@@ -4763,8 +4670,8 @@ components. Only per-screen focus is retained.</p>
 <tr>
   <td><code>project_ui_documents</code></td>
   <td><code>Update/GameSet::Ui</code></td>
-  <td><code>Commands, MessageReader&lt;ShowUiDocument&gt;, Res&lt;Assets&lt;UiDocumentAsset&gt;&gt;, Res&lt;Assets&lt;TextureAsset&gt;&gt;, Res&lt;Assets&lt;FontAsset&gt;&gt;</code></td>
-  <td>Bevy UI tree, exhaustive typed binding components, <code>ImageNode</code> using <code>TextureAsset::bevy_image().clone()</code>, and ordinary <code>TextFont { font: FontAsset::bevy_font().clone(), .. }</code></td>
+  <td><code>Commands, MessageReader&lt;ShowUiDocument&gt;, Res&lt;Assets&lt;UiDocumentAsset&gt;&gt;, Res&lt;AssetServer&gt;, Res&lt;ContentMap&gt;</code></td>
+  <td>Bevy UI tree, exhaustive typed binding components, <code>ImageNode</code> using A05's native-ID image handle plus its mapped texture source handle, and ordinary <code>TextFont</code> using A12 system-font policy</td>
   <td>only loaded validated assets; before interaction; no custom image/font renderer</td>
 </tr>
 <tr>
@@ -4874,7 +4781,7 @@ handles clone without payload allocation. No per-frame tree rebuild, text key
 formatting, hash growth or asset lookup by constructed path. Role resolution is
 startup/screen-transition work and loads a fixed <code>&amp;'static str</code>. Work is
 <code>O(changed nodes + input messages)</code>. Counters cover idle UI and focus/confirm;
-mapped faults and texture/font GPU bytes remain attributed to A02/A05/A12.</p>
+mapped faults remain attributed to A02/A05; backend font/glyph memory is measured under A12.</p>
 <h3>9. Acceptance criteria</h3>
 <p>Deliver all symbols above. Pure/system tests prove deterministic projection
 order, disabled targets never activate, controller and pointer emit the same
@@ -15324,7 +15231,7 @@ allocation/contact-count results.</p>
 
 </body><script id="openzt2-live-reload">
 (()=>{
- const current="0d58db159091446f";
+ const current="bc6d25d5b7189454";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;
