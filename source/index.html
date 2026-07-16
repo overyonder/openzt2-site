@@ -39,7 +39,7 @@ h2{font-size:17px;margin:26px 0 6px;border-bottom:1px solid var(--line);padding-
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;:&quot;7462f5834b4745449f0f5e46d98a53ab&quot;}"></script>
 <!-- End Cloudflare Web Analytics -->
 <body>
-<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="index.html">OpenZT2</a><a class="active" href="index.html"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map.html"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter.html"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a href="asset-lineage.html"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a class="gstart" href="functional-specification.html"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
+<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="/">OpenZT2</a><a class="active" href="/"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a href="asset-lineage"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a class="gstart" href="functional-specification"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
 <main>
  <h1>OpenZT2 Reconstruction Dashboard</h1>
  <p class="sub">A map of the reconstruction pipeline: evidence, ownership/behavior, and implementation.</p>
@@ -58,19 +58,19 @@ h2{font-size:17px;margin:26px 0 6px;border-bottom:1px solid var(--line);padding-
  <h2>Pages</h2>
  <div class="doc-grid" aria-label="Project page guide">
   <div class="doc-card">
-   <h3><a href="zt-disk-map.html">Byte Range Map</a></h3>
+   <h3><a href="zt-disk-map">Byte Range Map</a></h3>
    <p>Contains the byte-level evidence ledger for the original executable: disk/runtime ranges, SafeDisc materialization records, accepted function identities, residual gaps, and status notes for exact address spans.</p>
   </div>
   <div class="doc-card">
-   <h3><a href="perimeter.html">Binary Perimeter</a></h3>
+   <h3><a href="perimeter">Binary Perimeter</a></h3>
    <p>Shows generated function, variables/data, and type-identity inventories over the stripped binary, joining exact byte-map anchors with library provenance, vtable membership, inferred domains, and remaining frontier classifications.</p>
   </div>
   <div class="doc-card">
-   <h3><a href="asset-lineage.html">Asset Lineage</a></h3>
+   <h3><a href="asset-lineage">Asset Lineage</a></h3>
    <p>The settled source-to-native conversion table: every accepted original extension, offline transformation, rkyv archive, mapped Bevy asset boundary, copy policy, and renderer handoff.</p>
   </div>
   <div class="doc-card">
-   <h3><a href="functional-specification.html">Functional Specification</a></h3>
+   <h3><a href="functional-specification">Functional Specification</a></h3>
    <p>The canonical product contract and delivery map: high-performance native assets, greenfield Bevy ownership, original-game behavior, acceptance criteria, and the status of all 56 independent work packages.</p>
   </div>
  </div>
@@ -84,7 +84,7 @@ h2{font-size:17px;margin:26px 0 6px;border-bottom:1px solid var(--line);padding-
 <div class="modal" id="legal-modal" hidden>
  <div class="modal-box">
   <header><strong>Clean-Room Legal Roadmap</strong><button type="button" id="legal-close">Close</button></header>
-  <iframe class="legal-frame" src="clean-room-legal-roadmap.html" title="Legal Roadmap"></iframe>
+  <iframe class="legal-frame" src="clean-room-legal-roadmap" title="Legal Roadmap"></iframe>
  </div>
 </div>
 <script>
@@ -95,11 +95,11 @@ function pct(n,total){return total?`${(100*n/total).toFixed(1)}%`:"0.0%"}
 function seg(cls,n,total,label){return n?`<div class="seg ${cls}" style="width:${100*n/(total||1)}%" title="${esc(label)}">${pct(n,total)}</div>`:""}
 function legend(cls,label){return `<div class="legend-row"><span class="swatch ${cls}"></span>${esc(label)}</div>`}
 (()=>{const m=document.getElementById("legal-modal");document.getElementById("legal-open").onclick=()=>m.hidden=false;document.getElementById("legal-close").onclick=()=>m.hidden=true;m.onclick=e=>{if(e.target===m)m.hidden=true}})();
-text(["functional-specification.html"]).then(specText=>{
+text(["functional-specification"]).then(specText=>{
  const plan=packageProgress(specText);
  document.getElementById("progress-bars").innerHTML=[
    `<div class="progress-card primary">
-    <h3><a href="functional-specification.html">Game Package Delivery</a></h3>
+    <h3><a href="functional-specification">Game Package Delivery</a></h3>
     <div class="stacked-bar" role="img" aria-label="${esc(plan.aria)}">
      ${plan.segments}
     </div>
@@ -107,7 +107,7 @@ text(["functional-specification.html"]).then(specText=>{
     <p class="progress-note">${plan.note}</p>
    </div>`,
    `<div class="progress-card">
-    <h3><a href="perimeter.html">Evidence Gates</a></h3>
+    <h3><a href="perimeter">Evidence Gates</a></h3>
     <p class="progress-note">Byte range and binary perimeter coverage remain on their evidence pages. The delivery bar tracks the packages whose combined acceptance produces the complete game.</p>
    </div>`
  ].join("");

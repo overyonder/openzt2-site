@@ -4,7 +4,7 @@
 <meta name="openzt2-site-version" content="bc6d25d5b7189454">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OpenZT2 — Binary Perimeter</title>
-<link rel="canonical" href="https://openzt2.over-yonder.tech/perimeter.html">
+<link rel="canonical" href="https://openzt2.over-yonder.tech/perimeter">
 <style>
 :root{color-scheme:light;--fg:#3c3836;--muted:#7c6f64;--line:#d5c4a1;--panel:#fbf1c7;--soft:#ebdbb2;--link:#076678;--control:#f2e5bc;--control-border:#a89984;--active:#ebdbb2;--ok:#79740e;--warn:#b57614;--frontier:#8f3f71;--bad:#9d0006}
 :root[data-theme="dark"]{color-scheme:dark;--fg:#ebdbb2;--muted:#a89984;--line:#504945;--panel:#282828;--soft:#3c3836;--link:#83a598;--control:#3c3836;--control-border:#665c54;--active:#504945;--ok:#98971a;--warn:#d79921;--frontier:#b16286;--bad:#cc241d}
@@ -30,7 +30,7 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{border:1px soli
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;:&quot;7462f5834b4745449f0f5e46d98a53ab&quot;}"></script>
 <!-- End Cloudflare Web Analytics -->
 <body>
-<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="index.html">OpenZT2</a><a href="index.html"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map.html"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a class="active" href="perimeter.html"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a href="asset-lineage.html"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a class="gstart" href="functional-specification.html"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
+<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="/">OpenZT2</a><a href="/"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a class="active" href="perimeter"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a href="asset-lineage"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a class="gstart" href="functional-specification"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
 <main>
  <h1>Binary Perimeter</h1>
  <p class="sub">Gate-2 evidence pivots for the stripped Zoo Tycoon 2 binary: function entries, variables/data, type identities, vtables, and byte-map coverage. Data files: <code>zt-function-perimeter.tsv</code>, <code>zt-global-perimeter.tsv</code>, <code>zt-type-coverage-reconciliation.tsv</code>, <code>zt-vtable-methods-full.tsv</code>, and <code>zt-byte-range-map.tsv</code>.</p>
@@ -81,7 +81,7 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{border:1px soli
 <script>
 (()=>{const key="zt2-theme";const root=document.documentElement;const stored=()=>{try{return localStorage.getItem(key)}catch(_){return null}};const save=t=>{try{localStorage.setItem(key,t)}catch(_){}};const apply=(t,p=false)=>{root.dataset.theme=t;if(p)save(t);const b=document.querySelector(".theme-toggle");if(b){b.textContent=t==="dark"?"☀":"☾";b.title="Toggle theme"}};apply(stored()==="light"?"light":"dark");window.addEventListener("DOMContentLoaded",()=>{const b=document.createElement("button");b.type="button";b.className="theme-toggle";b.onclick=()=>apply(root.dataset.theme==="dark"?"light":"dark",true);document.querySelector(".tabs").append(b);apply(root.dataset.theme||"dark")})})();
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-async function tsv(urls){let last;for(const u of urls){try{const r=await fetch(u);if(r.ok){const t=await r.text();const L=t.trim().split(/\r?\n/);const h=L.shift().split("\t");return L.filter(Boolean).map(l=>{const c=l.split("\t");const o={};h.forEach((k,i)=>o[k]=c[i]||"");return o})}last=u+": "+r.status}catch(e){last=e.message}}throw new Error(last)}
+async function tsv(urls){let last;for(const u of urls){try{const r=await fetch(u);if(r.ok){const body=u.includes(".gz")?r.body.pipeThrough(new DecompressionStream("gzip")):r.body;const t=await new Response(body).text();const L=t.trim().split(/\r?\n/);const h=L.shift().split("\t");return L.filter(Boolean).map(l=>{const c=l.split("\t");const o={};h.forEach((k,i)=>o[k]=c[i]||"");return o})}last=u+": "+r.status}catch(e){last=e.message}}throw new Error(last)}
 function pill(s){return `<span class="pill s-${esc(s)}">${esc(s)}</span>`}
 function counts(rows,key){const c={};for(const r of rows)c[r[key]]=(c[r[key]]||0)+1;return c}
 function fmt(n){return Number(n||0).toLocaleString()}
@@ -335,7 +335,7 @@ Promise.all([
  tsv(["zt-function-perimeter.tsv","../docs/analysis/function-perimeter.tsv"]),
  tsv(["zt-global-perimeter.tsv","../docs/analysis/global-perimeter.tsv"]),
  tsv(["zt-vtable-methods-full.tsv","../docs/analysis/vtable-methods-full.tsv"]),
- tsv(["zt-byte-range-map.tsv","../docs/analysis/zt-byte-range-map.tsv"]),
+ tsv(["zt-byte-range-map.tsv.gz"]),
  tsv(["zt-type-coverage-reconciliation.tsv","../docs/analysis/type-coverage-reconciliation.tsv"])
 ]).then(([fp,gp,vt,mapRows,typeRows])=>{
  coverageSummary(fp,gp,vt,mapRows,typeRows);

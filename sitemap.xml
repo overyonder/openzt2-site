@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://openzt2.over-yonder.tech/</loc></url>
-  <url><loc>https://openzt2.over-yonder.tech/zt-disk-map.html</loc></url>
-  <url><loc>https://openzt2.over-yonder.tech/perimeter.html</loc></url>
-  <url><loc>https://openzt2.over-yonder.tech/asset-lineage.html</loc></url>
-  <url><loc>https://openzt2.over-yonder.tech/functional-specification.html</loc></url>
-  <url><loc>https://openzt2.over-yonder.tech/clean-room-legal-roadmap.html</loc></url>
+  <url><loc>https://openzt2.over-yonder.tech/zt-disk-map</loc></url>
+  <url><loc>https://openzt2.over-yonder.tech/perimeter</loc></url>
+  <url><loc>https://openzt2.over-yonder.tech/asset-lineage</loc></url>
+  <url><loc>https://openzt2.over-yonder.tech/functional-specification</loc></url>
+  <url><loc>https://openzt2.over-yonder.tech/clean-room-legal-roadmap</loc></url>
 </urlset>
