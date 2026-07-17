@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Guard public search metadata
         run: |
-          pages=(index.html zt-disk-map.html perimeter.html asset-lineage.html functional-specification.html clean-room-legal-roadmap.html)
+          pages=(index.html zt-disk-map.html perimeter.html functional-specification.html asset-lineage.html behavior-coverage.html clean-room-legal-roadmap.html)
           for page in "${pages[@]}"; do
             if grep -Eqi '<meta[^>]+name="robots"[^>]+noindex' "$page"; then
               echo "$page must remain indexable" >&2

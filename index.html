@@ -1,11 +1,18 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="aac73edd3ea705ca">
+<meta name="openzt2-site-version" content="00f3278efbcbc599">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
 <title>OpenZT2 — Reconstruction Dashboard</title>
 <link rel="canonical" href="https://openzt2.over-yonder.tech/">
+<meta name="description" content="OpenZT2 is a clean-room native reconstruction of Zoo Tycoon 2, documented from binary evidence through implementation.">
+<meta property="og:title" content="OpenZT2 — Reconstruction Dashboard">
+<meta property="og:description" content="OpenZT2 is a clean-room native reconstruction of Zoo Tycoon 2, documented from binary evidence through implementation.">
+<meta property="og:url" content="https://openzt2.over-yonder.tech/">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://openzt2.over-yonder.tech/assets/social-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <style>
 :root{color-scheme:light;--fg:#3c3836;--muted:#7c6f64;--line:#d5c4a1;--panel:#fbf1c7;--soft:#ebdbb2;--link:#076678;--control:#f2e5bc;--control-border:#a89984;--active:#ebdbb2;--ok:#79740e;--warn:#b57614;--frontier:#8f3f71;--bad:#9d0006}
 :root[data-theme="dark"]{color-scheme:dark;--fg:#ebdbb2;--muted:#a89984;--line:#504945;--panel:#282828;--soft:#3c3836;--link:#83a598;--control:#3c3836;--control-border:#665c54;--active:#504945;--ok:#98971a;--warn:#d79921;--frontier:#b16286;--bad:#cc241d}
@@ -132,10 +139,9 @@ function packageProgress(source){
   note:`${counts.verified.toLocaleString()} of ${total.toLocaleString()} packages have passed complete acceptance. Only verified packages are green.`
  };
 }
-</script>
-<script id="openzt2-live-reload">
+</script><script id="openzt2-live-reload">
 (()=>{
- const current="aac73edd3ea705ca";
+ const current="00f3278efbcbc599";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;
