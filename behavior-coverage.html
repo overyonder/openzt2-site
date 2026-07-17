@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="00f3278efbcbc599">
+<meta name="openzt2-site-version" content="291ae6219599b2cb">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OpenZT2 - Behavior Coverage</title>
 <link rel="canonical" href="https://openzt2.over-yonder.tech/behavior-coverage">
@@ -25,8 +25,10 @@ h1{font-size:26px;line-height:1.15;margin:8px 0 4px}h2{font-size:20px;margin:28p
 code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em;background:var(--soft);padding:.05em .35em;border-radius:3px}
 pre{background:var(--soft);padding:10px 12px;border:1px solid var(--line);border-radius:4px;overflow:auto}
 pre code{background:none;padding:0}
-table{display:block;overflow-x:auto;border-collapse:collapse;width:100%;margin:10px 0;font-size:13.5px}
+.table-scroll{width:100%;margin:10px 0;overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+table{width:100%;min-width:640px;border-collapse:collapse;font-size:13.5px}
 th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+.table-scroll th:first-child,.table-scroll td:first-child{border-left:0}.table-scroll th:last-child,.table-scroll td:last-child{border-right:0}.table-scroll thead tr:first-child th{border-top:0}.table-scroll tbody tr:last-child td{border-bottom:0}
 th{background:var(--soft)}
 .plan-progress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0 18px}
 .plan-progress-card{border:1px solid var(--line);border-radius:5px;background:color-mix(in srgb,var(--soft) 55%,transparent);padding:9px 10px}
@@ -42,7 +44,7 @@ th{background:var(--soft)}
 .plan-status{display:inline-block;padding:0 6px;border:1px solid var(--control-border);border-radius:9px;font:700 11px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .plan-status-done{background:color-mix(in srgb,#79740e 28%,transparent)}.plan-status-runs{background:color-mix(in srgb,#98971a 28%,transparent)}.plan-status-loaded{background:color-mix(in srgb,#076678 24%,transparent)}.plan-status-recorded{background:color-mix(in srgb,#7c6f64 24%,transparent)}.plan-status-planned{background:color-mix(in srgb,#b57614 28%,transparent)}.plan-status-map{background:color-mix(in srgb,#9d0006 20%,transparent)}.plan-status-adapter{background:color-mix(in srgb,#8f3f71 22%,transparent)}
 .package-summary{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:14px 0 8px}.package-summary strong{font-size:18px}.package-summary span{color:var(--muted);font-size:12.5px}
-.package-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0 22px}.package-card{min-height:92px;padding:0;border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:5px;background:color-mix(in srgb,var(--soft) 45%,transparent);color:var(--fg)}.package-card:hover{background:var(--soft)}.package-card summary{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"id name" "status status" "coverage coverage";gap:3px 8px;min-height:90px;padding:9px 10px;cursor:pointer;list-style:none}.package-card summary::-webkit-details-marker{display:none}.package-card summary::after{content:"+";position:absolute;justify-self:end;color:var(--muted)}.package-card[open] summary::after{content:"−"}.package-id{grid-area:id;font:700 12px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.package-name{grid-area:name;padding-right:14px;font-weight:700;line-height:1.25}.package-state{grid-area:status;align-self:end;font:700 11px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}.package-coverage{grid-area:coverage;font:700 12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--fg)}.package-detail{padding:0 10px 10px;border-top:1px solid var(--line);font-size:12px}.package-detail dl{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin:8px 0}.package-detail dt{color:var(--muted)}.package-detail dd{margin:0;font-weight:700}.package-detail a{font-weight:700}.package-status-brief{border-left-color:var(--warn)}.package-status-active{border-left-color:var(--unk)}.package-status-implemented{border-left-color:var(--link)}.package-status-verified{border-left-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}.package-status-blocked{border-left-color:var(--bad)}.package-contract{scroll-margin-top:10px;border-top:2px solid var(--line);margin-top:38px;padding-top:4px}
+.package-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0 22px}.package-card{--coverage:0%;min-height:92px;padding:0;overflow:hidden;border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:5px;background:color-mix(in srgb,var(--soft) 45%,transparent);color:var(--fg)}.package-card summary{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"id name" "status status" "coverage coverage";gap:3px 8px;min-height:90px;padding:9px 10px;cursor:pointer;list-style:none;background:linear-gradient(90deg,color-mix(in srgb,var(--ok) 42%,transparent) 0 var(--coverage),transparent var(--coverage) 100%);transition:background-color .16s ease}.package-card summary:hover,.package-card summary:focus-visible{background-color:color-mix(in srgb,var(--soft) 58%,transparent)}.package-card summary::-webkit-details-marker{display:none}.package-card summary::after{content:"+";position:absolute;justify-self:end;color:var(--muted)}.package-card[open] summary::after{content:"−"}.package-id{grid-area:id;font:700 12px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.package-name{grid-area:name;padding-right:14px;font-weight:700;line-height:1.25}.package-state{grid-area:status;align-self:end;font:700 11px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}.package-coverage{grid-area:coverage;font:700 12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--fg)}.package-detail{padding:0 10px 10px;border-top:1px solid var(--line);font-size:12px}.package-detail dl{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin:8px 0}.package-detail dt{color:var(--muted)}.package-detail dd{margin:0;font-weight:700}.package-detail a{font-weight:700}.package-status-brief{border-left-color:var(--warn)}.package-status-active{border-left-color:var(--unk)}.package-status-implemented{border-left-color:var(--link)}.package-status-verified{border-left-color:var(--ok)}.package-status-blocked{border-left-color:var(--bad)}.package-contract{scroll-margin-top:10px;border-top:2px solid var(--line);margin-top:38px;padding-top:4px}
 .package-card summary{position:relative}
 @media(max-width:980px){.package-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.package-grid{grid-template-columns:1fr}}
 @media(max-width:880px){.plan-progress-grid{grid-template-columns:1fr}.plan-seg{font-size:10px}}
@@ -104,8 +106,7 @@ th{background:var(--soft)}
 </ul>
 <h2>Mechanically classified implementation ownership</h2>
 <p>These callables remain preserved as evidence but are provisionally assigned outside gameplay. Their classification is mechanical until reviewed.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Disposition</th>
   <th style="text-align:right">Evidence rows</th>
@@ -153,10 +154,9 @@ th{background:var(--soft)}
   <td style="text-align:right">48</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h2>By gameplay owner</h2>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Owner</th>
   <th>Bevy plugin</th>
@@ -456,7 +456,7 @@ th{background:var(--soft)}
   <td style="text-align:right">239</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h2>Coverage boundary</h2>
 <p>This report currently measures recovered binary callables. Source-authored behavior corpora—including UI documents, behavior programs, scenarios and Lua, animation events, and world definitions—remain separate evidence surfaces and must also be crosswalked before complete behavior closure can be claimed. Package-specific expandable lists below replace a duplicated global sample of unmatched callables.</p>
 <h2>How to close the crosswalk</h2>
@@ -473,8 +473,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -562,7 +561,7 @@ th{background:var(--soft)}
   <td><code>emit_setmode_payload</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g02"></a></p>
@@ -575,8 +574,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -664,7 +662,7 @@ th{background:var(--soft)}
   <td><code>parse_inline_ui_string_nonnegative_int</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g03"></a></p>
@@ -677,8 +675,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -766,7 +763,7 @@ th{background:var(--soft)}
   <td><code>add_ZTFPSUDVComponent_up_axis_input</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g04"></a></p>
@@ -779,8 +776,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -868,7 +864,7 @@ th{background:var(--soft)}
   <td><code>refresh_selected_object_multi_select_and_scene_state</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g05"></a></p>
@@ -881,8 +877,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -970,7 +965,7 @@ th{background:var(--soft)}
   <td><code>stop_active_biome_paint_sound</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g06"></a></p>
@@ -983,8 +978,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -1072,7 +1066,7 @@ th{background:var(--soft)}
   <td><code>forward_overhead_slot_260_to_child_then_receiver</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g07"></a></p>
@@ -1085,8 +1079,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -1174,7 +1167,7 @@ th{background:var(--soft)}
   <td><code>create_delete_mode_instance</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g08"></a></p>
@@ -1187,8 +1180,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -1276,7 +1268,7 @@ th{background:var(--soft)}
   <td><code>read_elevated_path_grid_data_settings</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g09"></a></p>
@@ -1289,8 +1281,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -1378,7 +1369,7 @@ th{background:var(--soft)}
   <td><code>test_BFGTraversableArea_any_map_blocks_cell</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g10"></a></p>
@@ -1391,8 +1382,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -1480,7 +1470,7 @@ th{background:var(--soft)}
   <td><code>detach_secondary_placement_preview_object_shared</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g11"></a></p>
@@ -1493,8 +1483,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -1582,7 +1571,7 @@ th{background:var(--soft)}
   <td><code>set_adoption_button_count_value</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g12"></a></p>
@@ -1595,8 +1584,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 16 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -1668,7 +1656,7 @@ th{background:var(--soft)}
   <td><code>luaK_need_value</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g13"></a></p>
@@ -1681,8 +1669,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -1770,7 +1757,7 @@ th{background:var(--soft)}
   <td><code>clear_BFAICognitiveMgr_candidate_storage</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g14"></a></p>
@@ -1783,8 +1770,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -1872,7 +1858,7 @@ th{background:var(--soft)}
   <td><code>route_adoption_heartbeat_or_fallback_payload</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g15"></a></p>
@@ -1885,8 +1871,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 3 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -1906,7 +1891,7 @@ th{background:var(--soft)}
   <td><code>find_ZTBehDockWater_drink_position</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g16"></a></p>
@@ -1919,8 +1904,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -2008,7 +1992,7 @@ th{background:var(--soft)}
   <td><code>deactivate_tranquilize_mode_and_clear_gun_ui</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g17"></a></p>
@@ -2021,8 +2005,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -2110,7 +2093,7 @@ th{background:var(--soft)}
   <td><code>dispatch_ZTViewableObjectMgr_viewable_update_to_submanagers</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g18"></a></p>
@@ -2123,8 +2106,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -2212,7 +2194,7 @@ th{background:var(--soft)}
   <td><code>populate_economy_category_label_text</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g19"></a></p>
@@ -2225,8 +2207,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 17 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -2302,7 +2283,7 @@ th{background:var(--soft)}
   <td><code>setup_show_donation_transaction</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g20"></a></p>
@@ -2315,8 +2296,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -2404,7 +2384,7 @@ th{background:var(--soft)}
   <td><code>insert_ZTFenceMode_target_assignment_entry_unique_with_hint</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g21"></a></p>
@@ -2417,8 +2397,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -2506,7 +2485,7 @@ th{background:var(--soft)}
   <td><code>open_zoopedia_hyperlink_entry</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g22"></a></p>
@@ -2519,8 +2498,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -2608,7 +2586,7 @@ th{background:var(--soft)}
   <td><code>handle_load_game_dialog</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g23"></a></p>
@@ -2621,8 +2599,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -2710,7 +2687,7 @@ th{background:var(--soft)}
   <td><code>bind_research_button_selection_and_progress_targets</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g24"></a></p>
@@ -2723,8 +2700,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -2812,7 +2788,7 @@ th{background:var(--soft)}
   <td><code>refresh_goal_panel_scenario_entries</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g25"></a></p>
@@ -2825,8 +2801,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -2914,7 +2889,7 @@ th{background:var(--soft)}
   <td><code>update_ZTWetsuitComponent_visual_state</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g26"></a></p>
@@ -2927,8 +2902,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -3016,7 +2990,7 @@ th{background:var(--soft)}
   <td><code>handle_showscheduler_request_editshow</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g27"></a></p>
@@ -3029,8 +3003,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -3118,7 +3091,7 @@ th{background:var(--soft)}
   <td><code>clear_ZTGroundTrackMode_endpoint_ref_pair</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g28"></a></p>
@@ -3131,8 +3104,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -3220,7 +3192,7 @@ th{background:var(--soft)}
   <td><code>handle_ZTPhotoManager_picture_taken</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g29"></a></p>
@@ -3233,8 +3205,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -3322,7 +3293,7 @@ th{background:var(--soft)}
   <td><code>deactivate_ZTCloningGestureMode</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g30"></a></p>
@@ -3335,8 +3306,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -3424,7 +3394,7 @@ th{background:var(--soft)}
   <td><code>read_gesture_trace_mode_base_config</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g31"></a></p>
@@ -3437,8 +3407,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -3526,7 +3495,7 @@ th{background:var(--soft)}
   <td><code>orient_first_person_target_from_point_event</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g32"></a></p>
@@ -3539,8 +3508,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 4 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -3564,7 +3532,7 @@ th{background:var(--soft)}
   <td><code>is_elapsed_session_timer_running</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g33"></a></p>
@@ -3577,8 +3545,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -3666,7 +3633,7 @@ th{background:var(--soft)}
   <td><code>update_BFAmbient3DSndGenerator</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g34"></a></p>
@@ -3679,8 +3646,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -3768,7 +3734,7 @@ th{background:var(--soft)}
   <td><code>count_ZTGfxOptionsMode_setting_value_entries_from_key</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g36"></a></p>
@@ -3781,8 +3747,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 10 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -3830,7 +3795,7 @@ th{background:var(--soft)}
   <td><code>test_BFSecondaryAnimComponent_conditions_satisfied</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 <p><a id="owner-g37"></a></p>
@@ -3843,8 +3808,7 @@ th{background:var(--soft)}
 </ul>
 <details><summary>First 20 unmatched obligations</summary>
 
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Address</th>
   <th>Recovered callable</th>
@@ -3932,7 +3896,7 @@ th{background:var(--soft)}
   <td><code>resolve_ZTPhysObjSwapComponent_action_value</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </details>
 
 
@@ -3941,7 +3905,7 @@ th{background:var(--soft)}
 
 </body><script id="openzt2-live-reload">
 (()=>{
- const current="00f3278efbcbc599";
+ const current="291ae6219599b2cb";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;

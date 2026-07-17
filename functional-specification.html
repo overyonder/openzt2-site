@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="00f3278efbcbc599">
+<meta name="openzt2-site-version" content="291ae6219599b2cb">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OpenZT2 - Functional Specification</title>
 <link rel="canonical" href="https://openzt2.over-yonder.tech/functional-specification">
@@ -25,8 +25,10 @@ h1{font-size:26px;line-height:1.15;margin:8px 0 4px}h2{font-size:20px;margin:28p
 code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em;background:var(--soft);padding:.05em .35em;border-radius:3px}
 pre{background:var(--soft);padding:10px 12px;border:1px solid var(--line);border-radius:4px;overflow:auto}
 pre code{background:none;padding:0}
-table{display:block;overflow-x:auto;border-collapse:collapse;width:100%;margin:10px 0;font-size:13.5px}
+.table-scroll{width:100%;margin:10px 0;overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+table{width:100%;min-width:640px;border-collapse:collapse;font-size:13.5px}
 th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+.table-scroll th:first-child,.table-scroll td:first-child{border-left:0}.table-scroll th:last-child,.table-scroll td:last-child{border-right:0}.table-scroll thead tr:first-child th{border-top:0}.table-scroll tbody tr:last-child td{border-bottom:0}
 th{background:var(--soft)}
 .plan-progress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0 18px}
 .plan-progress-card{border:1px solid var(--line);border-radius:5px;background:color-mix(in srgb,var(--soft) 55%,transparent);padding:9px 10px}
@@ -42,7 +44,7 @@ th{background:var(--soft)}
 .plan-status{display:inline-block;padding:0 6px;border:1px solid var(--control-border);border-radius:9px;font:700 11px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .plan-status-done{background:color-mix(in srgb,#79740e 28%,transparent)}.plan-status-runs{background:color-mix(in srgb,#98971a 28%,transparent)}.plan-status-loaded{background:color-mix(in srgb,#076678 24%,transparent)}.plan-status-recorded{background:color-mix(in srgb,#7c6f64 24%,transparent)}.plan-status-planned{background:color-mix(in srgb,#b57614 28%,transparent)}.plan-status-map{background:color-mix(in srgb,#9d0006 20%,transparent)}.plan-status-adapter{background:color-mix(in srgb,#8f3f71 22%,transparent)}
 .package-summary{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:14px 0 8px}.package-summary strong{font-size:18px}.package-summary span{color:var(--muted);font-size:12.5px}
-.package-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0 22px}.package-card{min-height:92px;padding:0;border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:5px;background:color-mix(in srgb,var(--soft) 45%,transparent);color:var(--fg)}.package-card:hover{background:var(--soft)}.package-card summary{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"id name" "status status" "coverage coverage";gap:3px 8px;min-height:90px;padding:9px 10px;cursor:pointer;list-style:none}.package-card summary::-webkit-details-marker{display:none}.package-card summary::after{content:"+";position:absolute;justify-self:end;color:var(--muted)}.package-card[open] summary::after{content:"−"}.package-id{grid-area:id;font:700 12px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.package-name{grid-area:name;padding-right:14px;font-weight:700;line-height:1.25}.package-state{grid-area:status;align-self:end;font:700 11px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}.package-coverage{grid-area:coverage;font:700 12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--fg)}.package-detail{padding:0 10px 10px;border-top:1px solid var(--line);font-size:12px}.package-detail dl{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin:8px 0}.package-detail dt{color:var(--muted)}.package-detail dd{margin:0;font-weight:700}.package-detail a{font-weight:700}.package-status-brief{border-left-color:var(--warn)}.package-status-active{border-left-color:var(--unk)}.package-status-implemented{border-left-color:var(--link)}.package-status-verified{border-left-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}.package-status-blocked{border-left-color:var(--bad)}.package-contract{scroll-margin-top:10px;border-top:2px solid var(--line);margin-top:38px;padding-top:4px}
+.package-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0 22px}.package-card{--coverage:0%;min-height:92px;padding:0;overflow:hidden;border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:5px;background:color-mix(in srgb,var(--soft) 45%,transparent);color:var(--fg)}.package-card summary{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"id name" "status status" "coverage coverage";gap:3px 8px;min-height:90px;padding:9px 10px;cursor:pointer;list-style:none;background:linear-gradient(90deg,color-mix(in srgb,var(--ok) 42%,transparent) 0 var(--coverage),transparent var(--coverage) 100%);transition:background-color .16s ease}.package-card summary:hover,.package-card summary:focus-visible{background-color:color-mix(in srgb,var(--soft) 58%,transparent)}.package-card summary::-webkit-details-marker{display:none}.package-card summary::after{content:"+";position:absolute;justify-self:end;color:var(--muted)}.package-card[open] summary::after{content:"−"}.package-id{grid-area:id;font:700 12px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.package-name{grid-area:name;padding-right:14px;font-weight:700;line-height:1.25}.package-state{grid-area:status;align-self:end;font:700 11px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}.package-coverage{grid-area:coverage;font:700 12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--fg)}.package-detail{padding:0 10px 10px;border-top:1px solid var(--line);font-size:12px}.package-detail dl{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin:8px 0}.package-detail dt{color:var(--muted)}.package-detail dd{margin:0;font-weight:700}.package-detail a{font-weight:700}.package-status-brief{border-left-color:var(--warn)}.package-status-active{border-left-color:var(--unk)}.package-status-implemented{border-left-color:var(--link)}.package-status-verified{border-left-color:var(--ok)}.package-status-blocked{border-left-color:var(--bad)}.package-contract{scroll-margin-top:10px;border-top:2px solid var(--line);margin-top:38px;padding-top:4px}
 .package-card summary{position:relative}
 @media(max-width:980px){.package-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.package-grid{grid-template-columns:1fr}}
 @media(max-width:880px){.plan-progress-grid{grid-template-columns:1fr}.plan-seg{font-size:10px}}
@@ -253,7 +255,7 @@ consumer, an approved library or preflight owner, or a reviewed omission.
 Lexical consumer candidates are leads only; a behavior is verified only after
 its trigger, conditions, state transition, timing, and observable result match
 the original evidence.</p>
-<section aria-label="Package delivery status"><div class="package-summary"><strong>54 implemented · 2 blocked · 0 verified</strong><span>Every card must be green for complete-game acceptance.</span></div><div class="package-grid"><details class="package-card package-status-implemented"><summary><span class="package-id">A01</span><span class="package-name">Launcher</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a01">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A02</span><span class="package-name">Compiled UI Document</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a02">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A03</span><span class="package-name">Species Catalogue</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a03">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A04</span><span class="package-name">GPU-ready model</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a04">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A05</span><span class="package-name">GPU-Native Texture</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a05">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A06</span><span class="package-name">Skeletal Animation</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a06">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A07</span><span class="package-name">Material</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a07">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A08</span><span class="package-name">Shader modules and variants</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a08">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A09</span><span class="package-name">Localization</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a09">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A10</span><span class="package-name">Compiled Behavior Program</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a10">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A11</span><span class="package-name">Unified audio</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a11">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A12</span><span class="package-name">System Font Integration</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a12">Open package contract ↓</a></div></details><details class="package-card package-status-blocked"><summary><span class="package-id">A13</span><span class="package-name">Video stream</span><span class="package-state">Blocked</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a13">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A14</span><span class="package-name">World Definitions</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a14">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A15</span><span class="package-name">Scene Prefab</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a15">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A16</span><span class="package-name">Streamable Terrain</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a16">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A17</span><span class="package-name">Navigation</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a17">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A18</span><span class="package-name">GPU-ready effects</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a18">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">A19</span><span class="package-name">Worlds, Scenarios and Imported Starts</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a19">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G01</span><span class="package-name">Source-driven game shell</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 61 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>92</dd><dt>Library / platform owned (mechanical)</dt><dd>1</dd><dt>Preflight owned (mechanical)</dt><dd>6</dd><dt>Language / support mechanics</dt><dd>24</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>1</dd><dt>Unmatched obligations</dt><dd>60</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g01">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g01">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G02</span><span class="package-name">Native game UI</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 613 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,076</dd><dt>Library / platform owned (mechanical)</dt><dd>67</dd><dt>Preflight owned (mechanical)</dt><dd>90</dd><dt>Language / support mechanics</dt><dd>306</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>44</dd><dt>Unmatched obligations</dt><dd>569</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g02">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g02">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G03</span><span class="package-name">Device-independent input</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 192 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>673</dd><dt>Library / platform owned (mechanical)</dt><dd>264</dd><dt>Preflight owned (mechanical)</dt><dd>44</dd><dt>Language / support mechanics</dt><dd>173</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>9</dd><dt>Unmatched obligations</dt><dd>183</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g03">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g03">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G04</span><span class="package-name">World instantiation</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 226 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>495</dd><dt>Library / platform owned (mechanical)</dt><dd>2</dd><dt>Preflight owned (mechanical)</dt><dd>71</dd><dt>Language / support mechanics</dt><dd>196</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>25</dd><dt>Unmatched obligations</dt><dd>201</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g04">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g04">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G05</span><span class="package-name">Editable terrain and water</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 551 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>791</dd><dt>Library / platform owned (mechanical)</dt><dd>74</dd><dt>Preflight owned (mechanical)</dt><dd>26</dd><dt>Language / support mechanics</dt><dd>140</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>58</dd><dt>Unmatched obligations</dt><dd>493</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g05">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g05">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G06</span><span class="package-name">Authentic game cameras</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 234 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>338</dd><dt>Library / platform owned (mechanical)</dt><dd>18</dd><dt>Preflight owned (mechanical)</dt><dd>19</dd><dt>Language / support mechanics</dt><dd>67</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>53</dd><dt>Unmatched obligations</dt><dd>181</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g06">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g06">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G07</span><span class="package-name">Construction interaction and history</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 98 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,624</dd><dt>Library / platform owned (mechanical)</dt><dd>18</dd><dt>Preflight owned (mechanical)</dt><dd>8</dd><dt>Language / support mechanics</dt><dd>1,500</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>3</dd><dt>Unmatched obligations</dt><dd>95</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g07">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g07">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G08</span><span class="package-name">Fences, paths and portals</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 361 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>600</dd><dt>Library / platform owned (mechanical)</dt><dd>42</dd><dt>Preflight owned (mechanical)</dt><dd>42</dd><dt>Language / support mechanics</dt><dd>155</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>33</dd><dt>Unmatched obligations</dt><dd>328</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g08">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g08">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G09</span><span class="package-name">Habitat containment and membership</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 109 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>160</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>15</dd><dt>Language / support mechanics</dt><dd>36</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>2</dd><dt>Unmatched obligations</dt><dd>107</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g09">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g09">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G10</span><span class="package-name">Scenery and facility placement</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 386 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>566</dd><dt>Library / platform owned (mechanical)</dt><dd>5</dd><dt>Preflight owned (mechanical)</dt><dd>24</dd><dt>Language / support mechanics</dt><dd>151</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>64</dd><dt>Unmatched obligations</dt><dd>322</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g10">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g10">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G11</span><span class="package-name">Animal lifecycle and family</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 148 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>396</dd><dt>Library / platform owned (mechanical)</dt><dd>33</dd><dt>Preflight owned (mechanical)</dt><dd>20</dd><dt>Language / support mechanics</dt><dd>195</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>12</dd><dt>Unmatched obligations</dt><dd>136</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g11">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g11">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G12</span><span class="package-name">Animal needs, welfare and suitability</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 17 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>39</dd><dt>Library / platform owned (mechanical)</dt><dd>3</dd><dt>Preflight owned (mechanical)</dt><dd>1</dd><dt>Language / support mechanics</dt><dd>18</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>1</dd><dt>Unmatched obligations</dt><dd>16</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g12">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g12">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G13</span><span class="package-name">Data-authored animal task selection</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 516 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,340</dd><dt>Library / platform owned (mechanical)</dt><dd>9</dd><dt>Preflight owned (mechanical)</dt><dd>185</dd><dt>Language / support mechanics</dt><dd>629</dd><dt>Legacy semantic source</dt><dd>1</dd><dt>Bevy consumer candidates</dt><dd>9</dd><dt>Unmatched obligations</dt><dd>507</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g13">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g13">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G14</span><span class="package-name">Navigation, steering and docking</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 404 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,009</dd><dt>Library / platform owned (mechanical)</dt><dd>13</dd><dt>Preflight owned (mechanical)</dt><dd>124</dd><dt>Language / support mechanics</dt><dd>468</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>56</dd><dt>Unmatched obligations</dt><dd>348</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g14">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g14">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G15</span><span class="package-name">Food, drink and refill transactions</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 3 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>6</dd><dt>Library / platform owned (mechanical)</dt><dd>3</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>3</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g15">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g15">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G16</span><span class="package-name">Animal Health</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 92 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>204</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>25</dd><dt>Language / support mechanics</dt><dd>86</dd><dt>Legacy semantic source</dt><dd>1</dd><dt>Bevy consumer candidates</dt><dd>4</dd><dt>Unmatched obligations</dt><dd>88</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g16">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g16">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G17</span><span class="package-name">Guests</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 106 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>241</dd><dt>Library / platform owned (mechanical)</dt><dd>13</dd><dt>Preflight owned (mechanical)</dt><dd>23</dd><dt>Language / support mechanics</dt><dd>99</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>18</dd><dt>Unmatched obligations</dt><dd>88</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g17">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g17">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G18</span><span class="package-name">Economy</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 134 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>397</dd><dt>Library / platform owned (mechanical)</dt><dd>2</dd><dt>Preflight owned (mechanical)</dt><dd>82</dd><dt>Language / support mechanics</dt><dd>179</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>7</dd><dt>Unmatched obligations</dt><dd>127</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g18">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g18">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G19</span><span class="package-name">Donations</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 22 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>30</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>8</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>5</dd><dt>Unmatched obligations</dt><dd>17</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g19">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g19">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G20</span><span class="package-name">Staff</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 345 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>772</dd><dt>Library / platform owned (mechanical)</dt><dd>41</dd><dt>Preflight owned (mechanical)</dt><dd>45</dd><dt>Language / support mechanics</dt><dd>341</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>15</dd><dt>Unmatched obligations</dt><dd>330</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g20">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g20">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G21</span><span class="package-name">Information and Catalogues</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 374 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>779</dd><dt>Library / platform owned (mechanical)</dt><dd>16</dd><dt>Preflight owned (mechanical)</dt><dd>77</dd><dt>Language / support mechanics</dt><dd>269</dd><dt>Legacy semantic source</dt><dd>43</dd><dt>Bevy consumer candidates</dt><dd>119</dd><dt>Unmatched obligations</dt><dd>255</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g21">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g21">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G22</span><span class="package-name">Persistence</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 140 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>374</dd><dt>Library / platform owned (mechanical)</dt><dd>128</dd><dt>Preflight owned (mechanical)</dt><dd>24</dd><dt>Language / support mechanics</dt><dd>82</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>14</dd><dt>Unmatched obligations</dt><dd>126</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g22">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g22">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G23</span><span class="package-name">Progression</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 128 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>236</dd><dt>Library / platform owned (mechanical)</dt><dd>1</dd><dt>Preflight owned (mechanical)</dt><dd>29</dd><dt>Language / support mechanics</dt><dd>78</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>33</dd><dt>Unmatched obligations</dt><dd>95</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g23">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g23">Coverage details →</a></div></details><details class="package-card package-status-blocked"><summary><span class="package-id">G24</span><span class="package-name">Scenarios, Campaigns, Tutorials, and Challenges</span><span class="package-state">Blocked</span><span class="package-coverage">0 / 107 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>219</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>30</dd><dt>Language / support mechanics</dt><dd>82</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>27</dd><dt>Unmatched obligations</dt><dd>80</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g24">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g24">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G25</span><span class="package-name">Aquatic Systems</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 283 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>457</dd><dt>Library / platform owned (mechanical)</dt><dd>11</dd><dt>Preflight owned (mechanical)</dt><dd>39</dd><dt>Language / support mechanics</dt><dd>124</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>14</dd><dt>Unmatched obligations</dt><dd>269</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g25">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g25">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G26</span><span class="package-name">Animal Shows</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 348 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>686</dd><dt>Library / platform owned (mechanical)</dt><dd>3</dd><dt>Preflight owned (mechanical)</dt><dd>61</dd><dt>Language / support mechanics</dt><dd>274</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>16</dd><dt>Unmatched obligations</dt><dd>332</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g26">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g26">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G27</span><span class="package-name">Transport and Tours</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 746 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,488</dd><dt>Library / platform owned (mechanical)</dt><dd>29</dd><dt>Preflight owned (mechanical)</dt><dd>114</dd><dt>Language / support mechanics</dt><dd>597</dd><dt>Legacy semantic source</dt><dd>2</dd><dt>Bevy consumer candidates</dt><dd>25</dd><dt>Unmatched obligations</dt><dd>721</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g27">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g27">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G28</span><span class="package-name">Photos</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 141 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>281</dd><dt>Library / platform owned (mechanical)</dt><dd>4</dd><dt>Preflight owned (mechanical)</dt><dd>37</dd><dt>Language / support mechanics</dt><dd>99</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>97</dd><dt>Unmatched obligations</dt><dd>44</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g28">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g28">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G29</span><span class="package-name">Extinct Animal Recovery</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 248 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>504</dd><dt>Library / platform owned (mechanical)</dt><dd>120</dd><dt>Preflight owned (mechanical)</dt><dd>25</dd><dt>Language / support mechanics</dt><dd>111</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>9</dd><dt>Unmatched obligations</dt><dd>239</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g29">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g29">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G30</span><span class="package-name">Gestures and Puzzles</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 209 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>402</dd><dt>Library / platform owned (mechanical)</dt><dd>5</dd><dt>Preflight owned (mechanical)</dt><dd>38</dd><dt>Language / support mechanics</dt><dd>149</dd><dt>Legacy semantic source</dt><dd>1</dd><dt>Bevy consumer candidates</dt><dd>7</dd><dt>Unmatched obligations</dt><dd>202</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g30">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g30">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G31</span><span class="package-name">Immersive and Special Modes</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 63 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>111</dd><dt>Library / platform owned (mechanical)</dt><dd>5</dd><dt>Preflight owned (mechanical)</dt><dd>8</dd><dt>Language / support mechanics</dt><dd>35</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>21</dd><dt>Unmatched obligations</dt><dd>42</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g31">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g31">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G32</span><span class="package-name">Simulation time and determinism</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 4 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>5</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>1</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>4</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g32">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g32">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G33</span><span class="package-name">World environment and ambient life</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 144 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>284</dd><dt>Library / platform owned (mechanical)</dt><dd>33</dd><dt>Preflight owned (mechanical)</dt><dd>24</dd><dt>Language / support mechanics</dt><dd>83</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>36</dd><dt>Unmatched obligations</dt><dd>108</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g33">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g33">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G34</span><span class="package-name">Display and graphics settings</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 32 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>53</dd><dt>Library / platform owned (mechanical)</dt><dd>6</dd><dt>Preflight owned (mechanical)</dt><dd>2</dd><dt>Language / support mechanics</dt><dd>13</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>3</dd><dt>Unmatched obligations</dt><dd>29</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g34">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g34">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G35</span><span class="package-name">Native content mapping and residency</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g35">Open package contract ↓</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G36</span><span class="package-name">Maintenance and Sanitation</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 13 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>14</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>1</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>3</dd><dt>Unmatched obligations</dt><dd>10</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g36">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g36">Coverage details →</a></div></details><details class="package-card package-status-implemented"><summary><span class="package-id">G37</span><span class="package-name">Interactive physics and attachments</span><span class="package-state">Implemented</span><span class="package-coverage">0 / 244 callable obligations verified</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>894</dd><dt>Library / platform owned (mechanical)</dt><dd>288</dd><dt>Preflight owned (mechanical)</dt><dd>84</dd><dt>Language / support mechanics</dt><dd>278</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Bevy consumer candidates</dt><dd>5</dd><dt>Unmatched obligations</dt><dd>239</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g37">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g37">Coverage details →</a></div></details></div></section>
+<section aria-label="Package delivery status"><div class="package-summary"><strong>54 implemented · 2 blocked · 0 verified</strong><span>Green fill is callable consumer coverage; package verification remains the acceptance gate.</span></div><div class="package-grid"><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A01</span><span class="package-name">Launcher</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a01">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A02</span><span class="package-name">Compiled UI Document</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a02">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A03</span><span class="package-name">Species Catalogue</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a03">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A04</span><span class="package-name">GPU-ready model</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a04">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A05</span><span class="package-name">GPU-Native Texture</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a05">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A06</span><span class="package-name">Skeletal Animation</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a06">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A07</span><span class="package-name">Material</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a07">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A08</span><span class="package-name">Shader modules and variants</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a08">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A09</span><span class="package-name">Localization</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a09">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A10</span><span class="package-name">Compiled Behavior Program</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a10">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A11</span><span class="package-name">Unified audio</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a11">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A12</span><span class="package-name">System Font Integration</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a12">Open package contract ↓</a></div></details><details class="package-card package-status-blocked" style="--coverage:0%"><summary><span class="package-id">A13</span><span class="package-name">Video stream</span><span class="package-state">Blocked</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a13">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A14</span><span class="package-name">World Definitions</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a14">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A15</span><span class="package-name">Scene Prefab</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a15">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A16</span><span class="package-name">Streamable Terrain</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a16">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A17</span><span class="package-name">Navigation</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a17">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A18</span><span class="package-name">GPU-ready effects</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a18">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A19</span><span class="package-name">Worlds, Scenarios and Imported Starts</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a19">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:2%"><summary><span class="package-id">G01</span><span class="package-name">Source-driven game shell</span><span class="package-state">Implemented</span><span class="package-coverage">2% callable coverage · 1 / 61</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>92</dd><dt>Library / platform owned (mechanical)</dt><dd>1</dd><dt>Preflight owned (mechanical)</dt><dd>6</dd><dt>Language / support mechanics</dt><dd>24</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>1 / 61</dd><dt>Unmatched obligations</dt><dd>60</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g01">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g01">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:7%"><summary><span class="package-id">G02</span><span class="package-name">Native game UI</span><span class="package-state">Implemented</span><span class="package-coverage">7% callable coverage · 44 / 613</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,076</dd><dt>Library / platform owned (mechanical)</dt><dd>67</dd><dt>Preflight owned (mechanical)</dt><dd>90</dd><dt>Language / support mechanics</dt><dd>306</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>44 / 613</dd><dt>Unmatched obligations</dt><dd>569</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g02">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g02">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:5%"><summary><span class="package-id">G03</span><span class="package-name">Device-independent input</span><span class="package-state">Implemented</span><span class="package-coverage">5% callable coverage · 9 / 192</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>673</dd><dt>Library / platform owned (mechanical)</dt><dd>264</dd><dt>Preflight owned (mechanical)</dt><dd>44</dd><dt>Language / support mechanics</dt><dd>173</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>9 / 192</dd><dt>Unmatched obligations</dt><dd>183</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g03">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g03">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:11%"><summary><span class="package-id">G04</span><span class="package-name">World instantiation</span><span class="package-state">Implemented</span><span class="package-coverage">11% callable coverage · 25 / 226</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>495</dd><dt>Library / platform owned (mechanical)</dt><dd>2</dd><dt>Preflight owned (mechanical)</dt><dd>71</dd><dt>Language / support mechanics</dt><dd>196</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>25 / 226</dd><dt>Unmatched obligations</dt><dd>201</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g04">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g04">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:11%"><summary><span class="package-id">G05</span><span class="package-name">Editable terrain and water</span><span class="package-state">Implemented</span><span class="package-coverage">11% callable coverage · 58 / 551</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>791</dd><dt>Library / platform owned (mechanical)</dt><dd>74</dd><dt>Preflight owned (mechanical)</dt><dd>26</dd><dt>Language / support mechanics</dt><dd>140</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>58 / 551</dd><dt>Unmatched obligations</dt><dd>493</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g05">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g05">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:23%"><summary><span class="package-id">G06</span><span class="package-name">Authentic game cameras</span><span class="package-state">Implemented</span><span class="package-coverage">23% callable coverage · 53 / 234</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>338</dd><dt>Library / platform owned (mechanical)</dt><dd>18</dd><dt>Preflight owned (mechanical)</dt><dd>19</dd><dt>Language / support mechanics</dt><dd>67</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>53 / 234</dd><dt>Unmatched obligations</dt><dd>181</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g06">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g06">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:3%"><summary><span class="package-id">G07</span><span class="package-name">Construction interaction and history</span><span class="package-state">Implemented</span><span class="package-coverage">3% callable coverage · 3 / 98</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,624</dd><dt>Library / platform owned (mechanical)</dt><dd>18</dd><dt>Preflight owned (mechanical)</dt><dd>8</dd><dt>Language / support mechanics</dt><dd>1,500</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>3 / 98</dd><dt>Unmatched obligations</dt><dd>95</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g07">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g07">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:9%"><summary><span class="package-id">G08</span><span class="package-name">Fences, paths and portals</span><span class="package-state">Implemented</span><span class="package-coverage">9% callable coverage · 33 / 361</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>600</dd><dt>Library / platform owned (mechanical)</dt><dd>42</dd><dt>Preflight owned (mechanical)</dt><dd>42</dd><dt>Language / support mechanics</dt><dd>155</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>33 / 361</dd><dt>Unmatched obligations</dt><dd>328</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g08">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g08">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:2%"><summary><span class="package-id">G09</span><span class="package-name">Habitat containment and membership</span><span class="package-state">Implemented</span><span class="package-coverage">2% callable coverage · 2 / 109</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>160</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>15</dd><dt>Language / support mechanics</dt><dd>36</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>2 / 109</dd><dt>Unmatched obligations</dt><dd>107</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g09">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g09">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:17%"><summary><span class="package-id">G10</span><span class="package-name">Scenery and facility placement</span><span class="package-state">Implemented</span><span class="package-coverage">17% callable coverage · 64 / 386</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>566</dd><dt>Library / platform owned (mechanical)</dt><dd>5</dd><dt>Preflight owned (mechanical)</dt><dd>24</dd><dt>Language / support mechanics</dt><dd>151</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>64 / 386</dd><dt>Unmatched obligations</dt><dd>322</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g10">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g10">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:8%"><summary><span class="package-id">G11</span><span class="package-name">Animal lifecycle and family</span><span class="package-state">Implemented</span><span class="package-coverage">8% callable coverage · 12 / 148</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>396</dd><dt>Library / platform owned (mechanical)</dt><dd>33</dd><dt>Preflight owned (mechanical)</dt><dd>20</dd><dt>Language / support mechanics</dt><dd>195</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>12 / 148</dd><dt>Unmatched obligations</dt><dd>136</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g11">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g11">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:6%"><summary><span class="package-id">G12</span><span class="package-name">Animal needs, welfare and suitability</span><span class="package-state">Implemented</span><span class="package-coverage">6% callable coverage · 1 / 17</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>39</dd><dt>Library / platform owned (mechanical)</dt><dd>3</dd><dt>Preflight owned (mechanical)</dt><dd>1</dd><dt>Language / support mechanics</dt><dd>18</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>1 / 17</dd><dt>Unmatched obligations</dt><dd>16</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g12">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g12">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:2%"><summary><span class="package-id">G13</span><span class="package-name">Data-authored animal task selection</span><span class="package-state">Implemented</span><span class="package-coverage">2% callable coverage · 9 / 516</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,340</dd><dt>Library / platform owned (mechanical)</dt><dd>9</dd><dt>Preflight owned (mechanical)</dt><dd>185</dd><dt>Language / support mechanics</dt><dd>629</dd><dt>Legacy semantic source</dt><dd>1</dd><dt>Mapped Bevy consumer candidates</dt><dd>9 / 516</dd><dt>Unmatched obligations</dt><dd>507</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g13">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g13">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:14%"><summary><span class="package-id">G14</span><span class="package-name">Navigation, steering and docking</span><span class="package-state">Implemented</span><span class="package-coverage">14% callable coverage · 56 / 404</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,009</dd><dt>Library / platform owned (mechanical)</dt><dd>13</dd><dt>Preflight owned (mechanical)</dt><dd>124</dd><dt>Language / support mechanics</dt><dd>468</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>56 / 404</dd><dt>Unmatched obligations</dt><dd>348</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g14">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g14">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">G15</span><span class="package-name">Food, drink and refill transactions</span><span class="package-state">Implemented</span><span class="package-coverage">0% callable coverage · 0 / 3</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>6</dd><dt>Library / platform owned (mechanical)</dt><dd>3</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 3</dd><dt>Unmatched obligations</dt><dd>3</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g15">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g15">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:4%"><summary><span class="package-id">G16</span><span class="package-name">Animal Health</span><span class="package-state">Implemented</span><span class="package-coverage">4% callable coverage · 4 / 92</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>204</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>25</dd><dt>Language / support mechanics</dt><dd>86</dd><dt>Legacy semantic source</dt><dd>1</dd><dt>Mapped Bevy consumer candidates</dt><dd>4 / 92</dd><dt>Unmatched obligations</dt><dd>88</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g16">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g16">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:17%"><summary><span class="package-id">G17</span><span class="package-name">Guests</span><span class="package-state">Implemented</span><span class="package-coverage">17% callable coverage · 18 / 106</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>241</dd><dt>Library / platform owned (mechanical)</dt><dd>13</dd><dt>Preflight owned (mechanical)</dt><dd>23</dd><dt>Language / support mechanics</dt><dd>99</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>18 / 106</dd><dt>Unmatched obligations</dt><dd>88</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g17">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g17">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:5%"><summary><span class="package-id">G18</span><span class="package-name">Economy</span><span class="package-state">Implemented</span><span class="package-coverage">5% callable coverage · 7 / 134</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>397</dd><dt>Library / platform owned (mechanical)</dt><dd>2</dd><dt>Preflight owned (mechanical)</dt><dd>82</dd><dt>Language / support mechanics</dt><dd>179</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>7 / 134</dd><dt>Unmatched obligations</dt><dd>127</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g18">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g18">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:23%"><summary><span class="package-id">G19</span><span class="package-name">Donations</span><span class="package-state">Implemented</span><span class="package-coverage">23% callable coverage · 5 / 22</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>30</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>8</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>5 / 22</dd><dt>Unmatched obligations</dt><dd>17</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g19">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g19">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:4%"><summary><span class="package-id">G20</span><span class="package-name">Staff</span><span class="package-state">Implemented</span><span class="package-coverage">4% callable coverage · 15 / 345</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>772</dd><dt>Library / platform owned (mechanical)</dt><dd>41</dd><dt>Preflight owned (mechanical)</dt><dd>45</dd><dt>Language / support mechanics</dt><dd>341</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>15 / 345</dd><dt>Unmatched obligations</dt><dd>330</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g20">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g20">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:32%"><summary><span class="package-id">G21</span><span class="package-name">Information and Catalogues</span><span class="package-state">Implemented</span><span class="package-coverage">32% callable coverage · 119 / 374</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>779</dd><dt>Library / platform owned (mechanical)</dt><dd>16</dd><dt>Preflight owned (mechanical)</dt><dd>77</dd><dt>Language / support mechanics</dt><dd>269</dd><dt>Legacy semantic source</dt><dd>43</dd><dt>Mapped Bevy consumer candidates</dt><dd>119 / 374</dd><dt>Unmatched obligations</dt><dd>255</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g21">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g21">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:10%"><summary><span class="package-id">G22</span><span class="package-name">Persistence</span><span class="package-state">Implemented</span><span class="package-coverage">10% callable coverage · 14 / 140</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>374</dd><dt>Library / platform owned (mechanical)</dt><dd>128</dd><dt>Preflight owned (mechanical)</dt><dd>24</dd><dt>Language / support mechanics</dt><dd>82</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>14 / 140</dd><dt>Unmatched obligations</dt><dd>126</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g22">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g22">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:26%"><summary><span class="package-id">G23</span><span class="package-name">Progression</span><span class="package-state">Implemented</span><span class="package-coverage">26% callable coverage · 33 / 128</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>236</dd><dt>Library / platform owned (mechanical)</dt><dd>1</dd><dt>Preflight owned (mechanical)</dt><dd>29</dd><dt>Language / support mechanics</dt><dd>78</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>33 / 128</dd><dt>Unmatched obligations</dt><dd>95</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g23">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g23">Coverage details →</a></div></details><details class="package-card package-status-blocked" style="--coverage:25%"><summary><span class="package-id">G24</span><span class="package-name">Scenarios, Campaigns, Tutorials, and Challenges</span><span class="package-state">Blocked</span><span class="package-coverage">25% callable coverage · 27 / 107</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>219</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>30</dd><dt>Language / support mechanics</dt><dd>82</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>27 / 107</dd><dt>Unmatched obligations</dt><dd>80</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g24">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g24">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:5%"><summary><span class="package-id">G25</span><span class="package-name">Aquatic Systems</span><span class="package-state">Implemented</span><span class="package-coverage">5% callable coverage · 14 / 283</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>457</dd><dt>Library / platform owned (mechanical)</dt><dd>11</dd><dt>Preflight owned (mechanical)</dt><dd>39</dd><dt>Language / support mechanics</dt><dd>124</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>14 / 283</dd><dt>Unmatched obligations</dt><dd>269</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g25">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g25">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:5%"><summary><span class="package-id">G26</span><span class="package-name">Animal Shows</span><span class="package-state">Implemented</span><span class="package-coverage">5% callable coverage · 16 / 348</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>686</dd><dt>Library / platform owned (mechanical)</dt><dd>3</dd><dt>Preflight owned (mechanical)</dt><dd>61</dd><dt>Language / support mechanics</dt><dd>274</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>16 / 348</dd><dt>Unmatched obligations</dt><dd>332</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g26">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g26">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:3%"><summary><span class="package-id">G27</span><span class="package-name">Transport and Tours</span><span class="package-state">Implemented</span><span class="package-coverage">3% callable coverage · 25 / 746</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,488</dd><dt>Library / platform owned (mechanical)</dt><dd>29</dd><dt>Preflight owned (mechanical)</dt><dd>114</dd><dt>Language / support mechanics</dt><dd>597</dd><dt>Legacy semantic source</dt><dd>2</dd><dt>Mapped Bevy consumer candidates</dt><dd>25 / 746</dd><dt>Unmatched obligations</dt><dd>721</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g27">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g27">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:69%"><summary><span class="package-id">G28</span><span class="package-name">Photos</span><span class="package-state">Implemented</span><span class="package-coverage">69% callable coverage · 97 / 141</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>281</dd><dt>Library / platform owned (mechanical)</dt><dd>4</dd><dt>Preflight owned (mechanical)</dt><dd>37</dd><dt>Language / support mechanics</dt><dd>99</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>97 / 141</dd><dt>Unmatched obligations</dt><dd>44</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g28">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g28">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:4%"><summary><span class="package-id">G29</span><span class="package-name">Extinct Animal Recovery</span><span class="package-state">Implemented</span><span class="package-coverage">4% callable coverage · 9 / 248</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>504</dd><dt>Library / platform owned (mechanical)</dt><dd>120</dd><dt>Preflight owned (mechanical)</dt><dd>25</dd><dt>Language / support mechanics</dt><dd>111</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>9 / 248</dd><dt>Unmatched obligations</dt><dd>239</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g29">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g29">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:3%"><summary><span class="package-id">G30</span><span class="package-name">Gestures and Puzzles</span><span class="package-state">Implemented</span><span class="package-coverage">3% callable coverage · 7 / 209</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>402</dd><dt>Library / platform owned (mechanical)</dt><dd>5</dd><dt>Preflight owned (mechanical)</dt><dd>38</dd><dt>Language / support mechanics</dt><dd>149</dd><dt>Legacy semantic source</dt><dd>1</dd><dt>Mapped Bevy consumer candidates</dt><dd>7 / 209</dd><dt>Unmatched obligations</dt><dd>202</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g30">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g30">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:33%"><summary><span class="package-id">G31</span><span class="package-name">Immersive and Special Modes</span><span class="package-state">Implemented</span><span class="package-coverage">33% callable coverage · 21 / 63</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>111</dd><dt>Library / platform owned (mechanical)</dt><dd>5</dd><dt>Preflight owned (mechanical)</dt><dd>8</dd><dt>Language / support mechanics</dt><dd>35</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>21 / 63</dd><dt>Unmatched obligations</dt><dd>42</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g31">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g31">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">G32</span><span class="package-name">Simulation time and determinism</span><span class="package-state">Implemented</span><span class="package-coverage">0% callable coverage · 0 / 4</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>5</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>1</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 4</dd><dt>Unmatched obligations</dt><dd>4</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g32">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g32">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:25%"><summary><span class="package-id">G33</span><span class="package-name">World environment and ambient life</span><span class="package-state">Implemented</span><span class="package-coverage">25% callable coverage · 36 / 144</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>284</dd><dt>Library / platform owned (mechanical)</dt><dd>33</dd><dt>Preflight owned (mechanical)</dt><dd>24</dd><dt>Language / support mechanics</dt><dd>83</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>36 / 144</dd><dt>Unmatched obligations</dt><dd>108</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g33">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g33">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:9%"><summary><span class="package-id">G34</span><span class="package-name">Display and graphics settings</span><span class="package-state">Implemented</span><span class="package-coverage">9% callable coverage · 3 / 32</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>53</dd><dt>Library / platform owned (mechanical)</dt><dd>6</dd><dt>Preflight owned (mechanical)</dt><dd>2</dd><dt>Language / support mechanics</dt><dd>13</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>3 / 32</dd><dt>Unmatched obligations</dt><dd>29</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g34">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g34">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">G35</span><span class="package-name">Native content mapping and residency</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g35">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:23%"><summary><span class="package-id">G36</span><span class="package-name">Maintenance and Sanitation</span><span class="package-state">Implemented</span><span class="package-coverage">23% callable coverage · 3 / 13</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>14</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>1</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>3 / 13</dd><dt>Unmatched obligations</dt><dd>10</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g36">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g36">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:2%"><summary><span class="package-id">G37</span><span class="package-name">Interactive physics and attachments</span><span class="package-state">Implemented</span><span class="package-coverage">2% callable coverage · 5 / 244</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>894</dd><dt>Library / platform owned (mechanical)</dt><dd>288</dd><dt>Preflight owned (mechanical)</dt><dd>84</dd><dt>Language / support mechanics</dt><dd>278</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>5 / 244</dd><dt>Unmatched obligations</dt><dd>239</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g37">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g37">Coverage details →</a></div></details></div></section>
 
 <h1>Detailed package contracts</h1>
 <p><a id="package-a01"></a></p>
@@ -384,8 +386,7 @@ data needed to spawn ordinary Bevy <code>Node</code>, image, text and interactio
 components. It must not define a parallel layout tree, widget engine, focus
 engine, retained XML document, or generic UI runtime.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -539,7 +540,7 @@ engine, retained XML document, or generic UI runtime.</p>
   <td>Registers asset and loader only.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p>Little-endian rkyv root at alignment required by rkyv; frozen <code>TableRange</code>
 indexes typed records while <code>AssetRange</code> is reserved for payload bytes. Strings are UTF-8 in one blob and
@@ -611,8 +612,7 @@ per-animal copies. It replaces the bootstrap species schema. Integration wave
 <code>native/src/species.rs</code> and <code>converter/src/species.rs</code> are read-only migration
 inputs; root moves/deletes them and registers modules/loaders.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -736,7 +736,7 @@ inputs; root moves/deletes them and registers modules/loaders.</p>
   <td>Registers asset/loader only.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p>rkyv, little-endian target, 16-byte stable IDs and frozen <code>TableRange</code> typed-table ranges. Archived
 vectors are traversed directly. Repeated display/source strings are interned;
@@ -807,8 +807,7 @@ own render assets, GPU buffers, extraction, culling, batching and draw commands.
 No OpenZT2 mesh optimizer, renderer, scene graph, render world, or generic model
 runtime is permitted.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -878,7 +877,7 @@ runtime is permitted.</p>
   <td>Registers loader and normal Bevy render-asset preparation only.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>The Bevy preparation path reads mapped ranges and uploads directly to wgpu
 buffers. Private prepared-render values may retain GPU handles/accounting, not
 copied CPU vertices or an OpenZT2 renderer abstraction.</p>
@@ -934,8 +933,7 @@ own source image decoding/transcoding in preflight; Bevy/wgpu own runtime images
 GPU textures and upload. This package must not write an image codec, runtime
 source decoder, texture renderer, or second CPU pixel cache.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -1047,7 +1045,7 @@ source decoder, texture renderer, or second CPU pixel cache.</p>
   <td>Registers asset/loader plus complete render extraction, preparation and eviction accounting.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p>Metadata is rkyv; payload is contiguous, tightly packed block-compressed data in
 the same archive. Ranges are bytes relative to payload. Little-endian metadata;
@@ -1115,8 +1113,7 @@ the mapped source-authentic track sampler, selection/transition policy and
 presentation markers only. It must not create another scene graph, skeleton
 world, transform hierarchy, render extraction path, or generic animation host.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -1300,7 +1297,7 @@ world, transform hierarchy, render extraction path, or generic animation host.</
   <td>Registers asset/loader, playback components and narrow systems.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p>rkyv tables with frozen <code>TableRange</code> spans; integer milliseconds prevent float search drift.
 Joint indexes are A04 skeleton order. Sampling binary-searches mapped keys and
@@ -1368,8 +1365,7 @@ state, pipelines and drawing. A07 supplies compact parameters, references and
 typed specialization keys; it must not create a material renderer, pipeline
 registry, graphics abstraction, or copied texture/material graph.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -1493,7 +1489,7 @@ registry, graphics abstraction, or copied texture/material graph.</p>
   <td>Registers asset/loader and complete material extraction, preparation and eviction accounting.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p>One rkyv root per material; fixed enums/numeric rows map to a cached Bevy/wgpu
 pipeline and bind group. No maps, strings or boxed values. Texture/shader IDs
@@ -1553,8 +1549,7 @@ driver compilation and render-world integration. This package must not write a
 shader parser/compiler, SPIR-V/WGSL translator, pipeline cache, renderer backend,
 or string-based runtime variant system.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -1624,7 +1619,7 @@ or string-based runtime variant system.</p>
   <td>Registers loader and ordinary Bevy shader/pipeline preparation only.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout and ownership</h3>
 <p>Modules are stored in the exact representation accepted for the selected
 backend profile, aligned and referenced by <code>AssetRange</code>. Binding/variant tables
@@ -1675,8 +1670,7 @@ contract only.</p>
 <code>converter/src/families/localization.rs</code>, <code>game/src/assets/localization.rs</code>, and
 <code>preflight/tests/localization_contract.rs</code> only.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -1758,7 +1752,7 @@ contract only.</p>
   <td>Registers asset/loader only.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p>UTF-8 key/value/literal text is interned once in <code>strings</code>; <code>StringRange</code> is
 byte-based and validated on UTF-8 boundaries. <code>AssetId::from_key</code> hashes the
@@ -1810,8 +1804,7 @@ general Lua VM. Integration wave 3; depends on A14 definitions.</p>
 <code>game/src/assets/behavior_program.rs</code>, and
 <code>preflight/tests/behavior_program_contract.rs</code> only.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -1983,7 +1976,7 @@ general Lua VM. Integration wave 3; depends on A14 definitions.</p>
   <td>Registers only asset/loader.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p>All variable collections, including behavior-set program IDs, gesture templates and puzzle steps, are
 typed flat tables and frozen <code>TableRange</code>s. Fixed
@@ -2060,8 +2053,7 @@ a parallel channel world, or copied playback registry. Kira is not added while
 Bevy Audio meets the recovered behavior; a missing measured behavior requires a
 root decision before changing backend.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -2137,7 +2129,7 @@ root decision before changing backend.</p>
   <td>Registers asset/source adapter and focused cue lifecycle systems.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Live playback uses Bevy's <code>AudioPlayer</code>, <code>PlaybackSettings</code>, <code>AudioSink</code>,
 <code>SpatialAudioSink</code>, and <code>SpatialListener</code> directly. OpenZT2 does not wrap or
 mirror their state. A small global policy resource may hold recovered per-usage
@@ -2236,8 +2228,7 @@ not write a codec, runtime container parser, general media graph, or per-frame
 texture allocator. A mandatory dependency failure is configured or narrowly
 forked before the bespoke baseline at <code>68a4c481</code> is considered.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -2313,7 +2304,7 @@ forked before the bespoke baseline at <code>68a4c481</code> is considered.</p>
   <td>Registers asset, decoder pool and focused start/decode/upload/sync/cleanup systems.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout and ECS ownership</h3>
 <p>Seek metadata and AV1 packets remain mapped. Dav1d receives slices from the
 mapped block through an input owner that retains <code>Arc&lt;MappedPack&gt;</code>. Its custom
@@ -2370,8 +2361,7 @@ presentation families.</p>
 read-only. Root owns module/asset/plugin registration and any shared-type moves.</p>
 <h3>3. Frozen public contract</h3>
 <h4>Root and common construction catalogues</h4>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -2483,10 +2473,9 @@ read-only. Root owns module/asset/plugin registration and any shared-type moves.
   <td>Exactly one resolved G36/G23 integer aggregation policy; total weight nonzero.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h4>Staff and guests</h4>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -2610,10 +2599,9 @@ read-only. Root owns module/asset/plugin registration and any shared-type moves.
   <td>Fixed inline-ring replacement behavior recovered from evidence.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h4>Topology, terrain and health</h4>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -2695,10 +2683,9 @@ read-only. Root owns module/asset/plugin registration and any shared-type moves.
   <td>Changed-fact rule; no runtime guessed chance.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h4>Information and progression</h4>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -2792,10 +2779,9 @@ read-only. Root owns module/asset/plugin registration and any shared-type moves.
   <td>Shared native comparison.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h4>Expansion definitions</h4>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -2883,10 +2869,9 @@ read-only. Root owns module/asset/plugin registration and any shared-type moves.
   <td>Cloning contract; successful animal placement is relative to the lab and validated inside its G09 habitat.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h4>Modes, time and environment</h4>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -3004,10 +2989,9 @@ read-only. Root owns module/asset/plugin registration and any shared-type moves.
   <td>Prefab/biome links index <code>asset_links</code>; all bounds ordered.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h4>Mapped/producer/Bevy surface</h4>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -3059,7 +3043,7 @@ read-only. Root owns module/asset/plugin registration and any shared-type moves.
   <td>Registers asset/loader only.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p><code>WorldDefinitionsArchive</code> has this exact root shape and field order:</p>
 <pre><code class="language-rust">pub struct WorldDefinitionsArchive {
@@ -3218,8 +3202,7 @@ property bag. Integration wave 1; depends on A04, A07 and A14.</p>
 <code>converter/src/families/scene_prefab.rs</code>, <code>game/src/assets/scene_prefab.rs</code>, and
 <code>preflight/tests/scene_prefab_contract.rs</code> only.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -3355,7 +3338,7 @@ property bag. Integration wave 1; depends on A04, A07 and A14.</p>
   <td>Registers asset/loader only.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p>All relation spans use frozen
 <code>TableRange</code>; strings use <code>StringRange</code>; byte <code>AssetRange</code> is not needed. Tables
@@ -3410,8 +3393,7 @@ world. Integration wave 1; depends on A05, A07 and A14.</p>
 <p>This package owns <code>native/src/families/terrain.rs</code>, <code>converter/src/families/terrain.rs</code>,
 <code>game/src/assets/terrain.rs</code>, <code>preflight/tests/terrain_contract.rs</code> only.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -3523,7 +3505,7 @@ world. Integration wave 1; depends on A05, A07 and A14.</p>
   <td>Registers the mapped asset and loader only; G05 owns terrain presentation, preparation, eviction and GPU accounting.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p>rkyv metadata is followed by aligned payload ranges: u16 height grids,
 R8/RGBA8 biome blend blocks, <code>TerrainVertex</code>, u32 indices and compact collision
@@ -3586,8 +3568,7 @@ borrowed graph representation; it must not retain a library nav world. A small
 algorithm crate is acceptable only after root proves it operates directly on
 borrowed mapped slices without retained graph state.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -3699,7 +3680,7 @@ borrowed mapped slices without retained graph state.</p>
   <td>Registers asset/loader only.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p>rkyv fixed records and frozen <code>TableRange</code> adjacency/spatial spans. Centimetre/mm
 integer coordinates/costs make graph traversal deterministic. Runtime dynamic
@@ -3758,8 +3739,7 @@ emitter simulation kernels, particle extraction, or a second effect renderer.
 Configuration or a narrow Hanabi fork precedes any bespoke fallback; the deleted
 custom design remains only at commit <code>68a4c481</code>.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -3841,7 +3821,7 @@ custom design remains only at commit <code>68a4c481</code>.</p>
   <td>Registers mapped asset loading and one-time Hanabi preparation/integration only.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>The Bevy bridge creates/caches one Hanabi <code>EffectAsset</code> per native emitter during
 asset preparation. This one-time small configuration construction is analogous
 to GPU resource preparation and is not a second content graph. Live instances
@@ -3901,8 +3881,7 @@ Integration wave 4; depends on A14–A17.</p>
 <code>game/src/assets/world_scenario.rs</code>, and
 <code>preflight/tests/world_scenario_contract.rs</code> only.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -4086,7 +4065,7 @@ Integration wave 4; depends on A14–A17.</p>
   <td>Registers asset/loader only.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p>The exact root declaration is the <code>WorldScenarioArchive</code> shape above. All
 variable record spans use frozen <code>TableRange</code>; text uses <code>StringRange</code>. Maps reference A14–A17
@@ -4170,8 +4149,7 @@ A11 owns audio settings and G03 owns input bindings.</p>
 <p>The worker owns <code>game/src/plugins/shell/</code> and no other path. Crate declarations,
 plugin registration, state initialization and ordering are root handoffs.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -4229,7 +4207,7 @@ plugin registration, state initialization and ordering are root handoffs.</p>
   <td>Source-defined splash sequence finished or authentic skip succeeded.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Root contract requests: A02 exposes <code>UiDocumentRole</code> semantic discovery,
 A19 must expose <code>WorldScenarioAsset</code> and allocation-free <code>AssetId</code> lookup, G02
 must expose <code>ShowUiRole</code>/<code>UiCommandActivated</code>, G22 owns <code>ProfileIndex</code> and every
@@ -4240,8 +4218,7 @@ graphics settings; G01 owns only navigation into/out of the options document.</p
 <h3>4. ECS ownership</h3>
 <p><code>ShellSelection</code> is genuinely global bounded navigation state. <code>ShellScreen</code>,
 <code>ProfileChoice</code>, and <code>WorldChoice</code> are facts on projected UI entities.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -4343,7 +4320,7 @@ graphics settings; G01 owns only navigation into/out of the options document.</p
   <td>before loading</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -4401,8 +4378,7 @@ automatic directional navigation directly. G02 owns document projection and
 Zoo Tycoon bindings/commands only; no custom layout pass, widget hierarchy,
 focus graph, UI scene, or egui/third-party UI world is permitted.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -4580,7 +4556,7 @@ focus graph, UI scene, or egui/third-party UI world is permitted.</p>
   <td>Closed projection failures used by notifications and shell error presentation.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>A02 freezes <code>UiDocumentAsset</code>, <code>UiCommand</code>, <code>UiBinding</code> and its typed source
 enums, archived node/style
 records, zero-copy indexed accessors, and
@@ -4596,8 +4572,7 @@ source through preparation; A12 resolves the recovered system-font policy into o
 <h3>4. ECS ownership</h3>
 <p>All live UI is Bevy <code>Node</code>, <code>Text</code>, <code>ImageNode</code>, interaction and small marker
 components. Only per-screen focus is retained.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -4685,7 +4660,7 @@ components. Only per-screen focus is retained.</p>
   <td>matching owner only; load/projection failure can never emit <code>NotificationPresented</code></td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -4742,8 +4717,7 @@ discovery and raw device state. G03 only maps those facts to <code>GameAction</c
 rebinding and active-device policy. It must not add an input backend, poll an OS
 API, or mirror device state through Leafwing or another input framework.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -4807,14 +4781,13 @@ API, or mirror device state through Leafwing or another input framework.</p>
   <td>Explicit rebinding failure, never silent.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p><code>ActionRequest</code>, <code>ActionSource</code>, <code>GameAction</code> are the sole shared semantic
 actions. Domain-specific input remains owned by its feature, not added here.</p>
 <h3>4. ECS ownership</h3>
 <p>Resources are genuinely global device/configuration facts and fixed-size during
 settled play. No entity input state is mirrored.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -4853,7 +4826,7 @@ settled play. No entity input state is mirrored.</p>
   <td>active controller absent</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -4899,8 +4872,7 @@ Integration wave 2. Prerequisites: A14, A15 and A19.</p>
 <p>The package worker owns <code>game/src/plugins/world_spawn/</code> only. Root owns declarations, registrations,
 schedule wiring and cross-plugin type registration.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -5042,7 +5014,7 @@ schedule wiring and cross-plugin type registration.</p>
   <td>Despawns every matching <code>WorldMember</code> then the root.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>G04 consumes G01's already frozen <code>PlayMode</code>; the load request/result messages
 above remain G04-owned and must not be redeclared by G01. A15/A19 expose
 <code>ScenePrefabAsset</code>, <code>WorldScenarioAsset</code>, fixed spawn-kind records and
@@ -5053,8 +5025,7 @@ one focused coordination resource for the active world and contains only its
 root and monotonic cursor. A bounded <code>PendingWorldSpawn</code>
 resource may privately retain one scenario handle and next record index during
 loading; it must be removed at completion and is not a world representation.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -5114,7 +5085,7 @@ loading; it must be removed at completion and is not a world representation.</p>
   <td>after persistence capture; hierarchy only for natural transforms</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -5172,8 +5143,7 @@ G07's frozen atomic edit protocol and G18's <code>Money</code>.</p>
 <p>The package worker owns <code>game/src/plugins/terrain/</code> only. Root owns module/plugin/render feature and
 schedule registration. Do not edit A16 or G07.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -5333,7 +5303,7 @@ schedule registration. Do not edit A16 or G07.</p>
   <td>Render-world-only bounded queue and staging storage; capacities grow during load/edit warm-up, then remain stable.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>A16 freezes <code>TerrainAsset</code> archived grids/GPU payload and biome layer IDs. G07
 owns <code>PrepareConstruction</code>, <code>EditApplication</code>, payment/rollback coordination and
 history; G18's <code>Money</code> is the only cost type.</p>
@@ -5344,8 +5314,7 @@ through the handle. Each chunk also has the unit <code>TerrainRenderChunk</code>
 <code>TerrainDirty</code> is a monotonic change fact: collision and render consumers compare
 its revision with their last-applied revision, so retaining it cannot cause idle
 work or repeated upload.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -5405,7 +5374,7 @@ work or repeated upload.</p>
   <td>after extraction; no buffer recreation or full upload</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -5460,8 +5429,7 @@ wave 2. Prerequisites: G03 and G05.</p>
 <h3>2. Exclusive ownership</h3>
 <p>The package worker owns <code>game/src/plugins/camera/</code> only. Root owns registration/schedule/reflection.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -5555,15 +5523,14 @@ wave 2. Prerequisites: G03 and G05.</p>
   <td>G06-owned projection of G03 raw <code>PointerInput</code> through the authoritative camera; absent outside viewport/no camera.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Camera tuning comes directly from A14 <code>CameraTuningDefinition</code> selected by the
 A19 map/scenario record; an absent or invalid reference is a load failure, never
 a runtime default.</p>
 <h3>4. ECS ownership</h3>
 <p>Rig/tuning/bounds/transition are facts on the actual Bevy camera entity; there
 is no camera resource shadowing its transform.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -5644,7 +5611,7 @@ is no camera resource shadowing its transform.</p>
   <td>changed pose only</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -5692,8 +5659,7 @@ this protocol; they are not prerequisites of G07.</p>
 <p>The package worker owns <code>game/src/plugins/construction/</code> only. Root owns registrations, schedules and
 cross-domain transaction ordering.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -5871,7 +5837,7 @@ cross-domain transaction ordering.</p>
   <td>Exact player/error surface; no partial mutation is reported as success.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>G10 owns placement-rule evaluation; G05 owns <code>TerrainEdit</code>,
 <code>TerrainEditPrepared</code>/<code>TerrainEditPreparationRejected</code>, <code>CommitTerrainEdit</code> and
 <code>TerrainEditAcknowledged</code>; G08 owns the corresponding <code>Topology*</code> types; G10
@@ -5883,8 +5849,7 @@ there is no unresolved root decision, <code>Box&lt;dyn Command&gt;</code>, closu
 <h3>4. ECS ownership</h3>
 <p>Only current tool and bounded entity-ID history are resources. Preview and
 transaction facts are entities/components, enabling typed domain systems.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -6007,7 +5972,7 @@ transaction facts are entities/components, enabling typed domain systems.</p>
   <td>accepted aggregate result only; redo transfer precedes domain application and undo compensation follows successful inverse application</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -6059,8 +6024,7 @@ Integration wave 2. Prerequisites: A14, A15, A17, G04, G07 and G18.</p>
 <p>The package worker owns <code>game/src/plugins/topology/</code> only. Root owns declarations, registration,
 schedules and operation integration.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -6196,7 +6160,7 @@ schedules and operation integration.</p>
   <td>One all-or-none G08 result.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Definition grid scale, fence/path placement constraints and navigation-link
 records come from A14/A17. Every <code>HashMap</code> above is exactly
 <code>bevy::platform::collections::HashMap</code>. G07 owns the payment gate and
@@ -6206,8 +6170,7 @@ directly and never mutates topology from <code>PlaceFence</code>/<code>PlacePath
 <h3>4. ECS ownership</h3>
 <p>Topology facts live on actual nodes/edges/tiles. The resource is only a spatial
 index, rebuilt from components on load and never authoritative over them.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -6274,7 +6237,7 @@ index, rebuilt from components on load and never authoritative over them.</p>
   <td>changed topology only</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -6318,8 +6281,7 @@ G05 and G08.</p>
 <h3>2. Exclusive ownership</h3>
 <p>The package worker owns <code>game/src/plugins/habitat/</code> only. Root owns module/plugin/message ordering.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -6401,15 +6363,14 @@ G05 and G08.</p>
   <td>Allocation-free canonical floor conversion and lookup.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Cell conversion uses the active A16 <code>TerrainArchive.cell_size_cm</code>; preflight
 validates that G08 topology cells use that same grid. Do not add a second
 grid-scale resource or generic membership trait.</p>
 <h3>4. ECS ownership</h3>
 <p>Regions/summaries are live components on habitat entities; index is derived
 bounded acceleration data. Objects and animals carry one direct relationship.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -6448,7 +6409,7 @@ bounded acceleration data. Objects and animals carry one direct relationship.</p
   <td>changed habitat only</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -6490,8 +6451,7 @@ G04, G05, G07–G09 and G18.</p>
 <p>The package worker owns <code>game/src/plugins/placement/</code> only. Root owns registrations/order and G18/G23
 integration.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -6597,15 +6557,14 @@ integration.</p>
   <td>Pure, allocation-free rule evaluation in authoritative order.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>A14 must freeze <code>ArchivedPlaceableDefinition</code> including footprint cells, pivot,
 rotation increments, constraints, cost, unlock and entrance. G18/G23 provide
 affordable/unlocked facts without G10 owning money/progression copies.</p>
 <h3>4. ECS ownership</h3>
 <p>Placed entities carry their own definition, transform, footprint and entrance.
 The resource accelerates occupancy only and is reconstructed from components.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -6665,7 +6624,7 @@ The resource accelerates occupancy only and is reconstructed from components.</p
   <td>validates every cell/entity first, then applies all or rejects all; initial/redo only after G07's G18 payment gate</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -6711,8 +6670,7 @@ and can be released. Integration wave 3. Prerequisites: A03, A14, G04 and G09.</
 <p>The package worker owns <code>game/src/plugins/animal_lifecycle/</code> only. Root owns declarations,
 registrations, schedules and later economy/health/persistence wiring.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -6854,7 +6812,7 @@ registrations, schedules and later economy/health/persistence wiring.</p>
   <td>Stable completion fact after cleanup.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>A03 owns <code>Sex</code>, <code>LifeStage</code>, <code>SpeciesCatalogAsset</code>, variant probabilities,
 <code>stage_start_ticks</code>, breeding compatibility, <code>gestation_ticks</code> and litter ranges.
 Exact adoption inventory/cost requires an A14/A03 evidence-backed extension;
@@ -6862,8 +6820,7 @@ G11 must not invent it. G18 owns <code>Money</code>; G09 membership is reused.</
 <h3>4. ECS ownership</h3>
 <p>Each component is one animal fact. There is no animal collection resource;
 lineage is queried from <code>Parents</code>, not mirrored child vectors.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -6958,7 +6915,7 @@ lineage is queried from <code>Parents</code>, not mirrored child vectors.</p>
   <td>removal events only</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -7003,8 +6960,7 @@ and G11 plus A03 species data.</p>
 <p>The package worker owns <code>game/src/plugins/animal_welfare/</code> only. Root owns registration, scheduling
 and information/health integration.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -7170,14 +7126,13 @@ and information/health integration.</p>
   <td>Material band transition.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>A03 owns <code>NeedKind</code>, <code>SpeciesNeedRecord</code> and exact signed Q16 permille/tick units; A10
 references that same type. G09 supplies habitat facts.</p>
 <h3>4. ECS ownership</h3>
 <p>Every need is independently queryable. Suitability/welfare are derived
 components retained only because multiple systems/UI consume them.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -7349,7 +7304,7 @@ components retained only because multiple systems/UI consume them.</p>
   <td>changed facts only; this one formula genuinely consumes every A03 need</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -7393,8 +7348,7 @@ Prerequisites: A03, A10, G09, G11, G12, G14, G15 and G32.</p>
 <p>The package worker owns <code>game/src/plugins/animal_behavior/</code> only. Root owns registrations, ordering
 and command-executor integration.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -7500,7 +7454,7 @@ and command-executor integration.</p>
   <td>No strings or opaque codes.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>A10 owns <code>BehaviorProgramAsset</code>, exact <code>BehaviorSet</code>, <code>BehaviorAction</code>,
 <code>BehaviorInput</code> and A03 <code>NeedKind</code> references. <code>BehaviorHandle::set</code> resolves by
 <code>MappedBehaviorArchive::set</code>, and scorers traverse only
@@ -7511,8 +7465,7 @@ only the current mapped action on <code>Changed&lt;ActiveTask&gt;</code> and att
 <p>An animal carries an archive/set reference, inline disjoint candidate
 components, active task and RNG. Candidate writers touch different component
 types and can run in parallel. No manager/vector/blackboard exists.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -7586,7 +7539,7 @@ types and can run in parallel. No manager/vector/blackboard exists.</p>
   <td>owner-requested typed reason</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>The selector tuple above is complete for the recovered animal task families.
 Any newly evidenced family requires a reviewed schema/brief revision before
 implementation; runtime registration or a shared mutable score bag is forbidden.
@@ -7641,8 +7594,7 @@ because its Archipelago/Island/Agent state would duplicate the native graph and
 live ECS movement facts; <code>oxidized_navigation</code> is forbidden at runtime. Do not
 hide either library behind an adapter or reproduce a navigation manager.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -7736,15 +7688,14 @@ hide either library behind an adapter or reproduce a navigation manager.</p>
   <td>Fixed evidence-backed reasons.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>A17 owns <code>NavigationAsset</code>, <code>NavFlags</code>, <code>TraversalKind</code>, direct graph/tile access and path
 capacity bounds. G08 supplies live links/gate state; G09 containment. Route
 scratch is per agent, never one locked global manager.</p>
 <h3>4. ECS ownership</h3>
 <p>Motion facts live on each actual entity. <code>SpatialGrid</code> is a bounded derived
 accelerator reconstructed from transforms; route vectors retain capacity.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -7818,7 +7769,7 @@ accelerator reconstructed from transforms; route vectors retain capacity.</p>
   <td>within recovered dock tolerance</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p><code>Time&lt;Fixed&gt;</code> supplies only physical seconds for integration; G32 controls
 whether fixed simulation runs and its deterministic ordering.</p>
 <h3>5. Preflight producer contract</h3>
@@ -7865,8 +7816,7 @@ A03, A14 and G12–G14.</p>
 <p>The package worker owns <code>game/src/plugins/feeding/</code> only. Root owns declarations, schedules and
 staff/economy integration.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -7972,7 +7922,7 @@ staff/economy integration.</p>
   <td>Checks thirst preferences plus A14 water/<code>DRINK</code>.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>A03 owns diet/feeding vocabulary and need kinds; A14 owns food/drink/container
 object definitions/affordances; exact portion, capacity and refill fields are an
 A14 root contract extension required before implementation. A10 owns the action
@@ -7980,8 +7930,7 @@ sequence <code>ChooseTarget</code>, <code>MoveToTarget</code>, <code>Consume { n
 <h3>4. ECS ownership</h3>
 <p>Containers own only live amount/reservation/refill status. Animal execution uses
 short-lived focused components, not an internal feeding state machine.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -8055,7 +8004,7 @@ short-lived focused components, not an internal feeding state machine.</p>
   <td>before G13 completion and before lifecycle despawn; never scans sources</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.</p>
 <h3>6. Behavioral evidence and disposition</h3>
@@ -8112,8 +8061,7 @@ requested from earlier packages. Report collisions; do not broaden ownership.</p
 <p>All scalar health ratios use finite <code>f32</code> in inclusive <code>0.0..=1.0</code>; durable
 durations are integer G32 simulation ticks. An <code>AssetId</code> names an immutable
 native definition.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -8213,7 +8161,7 @@ native definition.</p>
   <td>Emitted after disease/treatment state is actually cleared.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Root contract requests: align direct names for G11 <code>Animal</code>, G12 welfare facts,
 G13 authored behavior selection, G14 navigation/motion facts, G09 containment,
 G20 staff role/availability, and the A10/A14 mapped definition handles. Do not
@@ -8221,8 +8169,7 @@ substitute local traits or mirror components when their final names differ.</p>
 <h3>4. ECS ownership</h3>
 <p>Each component is one live per-animal fact. There is no disease manager,
 health registry, animal snapshot, or package world.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -8303,7 +8250,7 @@ health registry, animal snapshot, or package world.</p>
   <td>Contained and docked after G09/G14.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.
 This package must not add filesystem discovery, Z2F, XML, original codecs,
@@ -8383,8 +8330,7 @@ ownership.</p>
 use exact integer permille (<code>u16</code> absolute, <code>i16</code> signed delta). Durable simulation time uses G32 ticks. A14 owns the one recovered
 <code>GUEST_MEMORY_CAPACITY</code> literal and rejects a definition exceeding it; this
 package imports that constant directly rather than redeclaring it.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -8532,14 +8478,13 @@ package imports that constant directly rather than redeclaring it.</p>
   <td>Closed runtime failure vocabulary after archive validation.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Root contract requests: align G04 entrance/spawn-table facts, G14 navigation
 target/reached facts, A14 definition handle, G09/G08 traversability, and G18
 <code>Wallet</code>. Do not create a local navigation API, facility facade, or economy
 copy.</p>
 <h3>4. ECS ownership</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -8627,7 +8572,7 @@ copy.</p>
   <td>Only when <code>ZooClock.tick</code> reaches the next exact A14 interval boundary.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.
 No original source parsing or filesystem discovery belongs here.</p>
@@ -8700,8 +8645,7 @@ and aligns earlier symbols. Report collisions.</p>
 <h3>3. Frozen public contract</h3>
 <p><code>Money</code> is signed integer hundredths of the displayed base currency. Arithmetic
 must be checked; no floating-point money enters live state.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -8825,7 +8769,7 @@ must be checked; no floating-point money enters live state.</p>
   <td>Lives only on the G18-owned operation entity between transfer request and matching result.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Root contract requests: align G10 facility/placed definitions and affordances,
 G17 <code>Guest</code>/destination facts, G14 reached-target facts, and A14 price/duration/
 capacity records. Other packages must use <code>Money</code>, <code>Wallet</code>, <code>ZooCash</code>, and
@@ -8835,8 +8779,7 @@ capacity records. Other packages must use <code>Money</code>, <code>Wallet</code
 no ledger vector, transaction manager, facility world, or per-frame finance
 snapshot. Historical reports, if required, are bounded aggregates on their
 natural reporting owner rather than retained transactions.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -8910,7 +8853,7 @@ natural reporting owner rather than retained transactions.</p>
   <td>Exactly once per zoo-day event using authored <code>inventory_restock_per_zoo_day</code>.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.
 No XML/Z2F/filesystem/source precedence belongs here.</p>
@@ -8975,8 +8918,7 @@ feature, while accounting remains owned by G18.</p>
 is read-only. Root owns declarations, plugin/schedule/message/reflection wiring
 and cross-package alignment.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -9052,7 +8994,7 @@ and cross-package alignment.</p>
   <td>Fixed reason vocabulary.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Root contract requests: align G17 guest needs/satisfaction/destination and G14
 reach/spatial facts; consume G18 <code>Money</code>, <code>Wallet</code>, <code>Account</code>,
 <code>TransactionRequest</code>, and <code>TransactionCompleted</code> directly. A14/G26/G27 must
@@ -9061,8 +9003,7 @@ provide authored donation category/value facts without a local catalogue copy.</
 <p>No donation manager, candidate list resource, ledger copy, or guest snapshot is
 allowed. Candidate/progress lives on the donating guest and totals on the
 acceptor.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -9122,7 +9063,7 @@ acceptor.</p>
   <td>Broken relation.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.
 No original formats or filesystem access.</p>
@@ -9179,8 +9120,7 @@ locomotion, G15 feeding, and G18 economy. G16 health requests treatment work.</p
 Root owns declarations, registration, schedules, reflection, dependencies, and
 cross-package symbol alignment. Report collisions.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -9304,7 +9244,7 @@ cross-package symbol alignment. Report collisions.</p>
   <td>Emitted before invalid-job cleanup removes a still-live target's job, allowing its natural owner to re-evaluate unresolved work.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p><code>StaffJob</code>, <code>StaffJobRequest</code>, and <code>StaffJobCompleted</code> use A14's exact
 <code>StaffJobKind::{Feed,RefillWater,CleanHabitat,EmptyBin,SweepLitter,Repair,Treat, Educate,Entertain,Tranquilize,Capture,MaintainTank,OperateShow}</code>; G20 declares no
 second enum. Root aligns G14 navigation target/reached/spatial facts,
@@ -9315,8 +9255,7 @@ Do not introduce provider/facility traits or copies.</p>
 <p>Jobs are entities because they have lifecycle, contention, target, claim, and
 save relevance. There is no global queue; spatial lookup may index unclaimed
 job entities through G14's bounded index.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -9432,7 +9371,7 @@ job entities through G14's bounded index.</p>
   <td>Result <code>operation</code> must equal the operation entity.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: engine consumes only native assets produced before launch. No
 source parsing, filesystem discovery, or original codecs.</p>
@@ -9486,8 +9425,7 @@ G02 UI runtime, and G07 construction.</p>
 read-only. Root owns registrations, loader/plugin wiring, schedule ordering,
 dependencies, and cross-package alignment.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -9563,7 +9501,7 @@ dependencies, and cross-package alignment.</p>
   <td>UI node points into mapped localized native content.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p><code>CataloguePanel</code>/<code>CatalogueCommand</code> consume A14's exact <code>CatalogueCategory</code>
 directly; this package declares no second category enum. A14 exposes direct
 indexed catalogue/Zoopedia records; G02 exposes node binding targets/fixed
@@ -9572,8 +9510,7 @@ consume <code>PurchaseChoice</code>; G18/G23 expose direct cash/unlock facts; en
 provide small live status components. Do not create an <code>EntityInfo</code> map,
 reflection property bag, UI model tree, or copied catalogue resource.</p>
 <h3>4. ECS ownership</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -9717,7 +9654,7 @@ reflection property bag, UI model tree, or copied catalogue resource.</p>
   <td>No runtime markup parsing.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: engine consumes only native assets produced before launch.
 Search normalization, indexes, UI commands, and Zoopedia markup are compiled by
@@ -9780,8 +9717,7 @@ pipeline through G36 now; integration must not add a registration facade or a
 later catch-all serializer. Worker may not edit source components to make them
 serializable.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -9959,7 +9895,7 @@ serializable.</p>
   <td>Fixed native-profile failure vocabulary.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>G22 consumes G04's naturally owned <code>PersistentId</code>: G04 assigns the nonzero,
 world-unique stable identity at authoritative spawn, and G22 persists it. Every
 snapshot-eligible entity already carries <code>PersistentId</code> and <code>WorldMember</code>
@@ -9985,8 +9921,7 @@ neither snapshot records nor ambiguous resumable transfers.</p>
 an explicit save so section bytes remain canonical; its queries stay narrow and
 do not force unrelated gameplay systems or normal frames into one access set.</p>
 <h4>Save section systems</h4>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -10186,7 +10121,7 @@ do not force unrelated gameplay systems or normal frames into one access set.</p
   <td>After environment; explicit I/O exception.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h4>Load, spawn, repair, and profile systems</h4>
 <p>The two private asynchronous operation components named below are fixed rather
 than left as a storage abstraction: <code>ProfileIoTask(Task&lt;io::Result&lt;ProfileIoCompletion&gt;&gt;)</code>
@@ -10202,8 +10137,7 @@ binary lookup in that map. All mandatory and optional reference policy was
 already proven against <code>saved_ids</code> before despawn; repair cannot discover an
 ordinary data failure after mutation. Derived G09
 habitat/index facts and G21 UI selection are rebuilt by their natural systems.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -10767,7 +10701,7 @@ habitat/index facts and G21 UI selection are rebuilt by their natural systems.</
   <td>Any listed resource <code>is_changed()</code> and no active profile task; G22 retains no settings mirror.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable to gameplay. Engine consumes native assets. Original Zoo Tycoon
 2 save/map import is exclusively A19 preflight. This package may perform only
@@ -10837,8 +10771,7 @@ G18–G22, G32 time, and G36 cleanliness facts.</p>
 read-only. Root owns declarations, plugin/schedule/reflection wiring,
 dependencies, and persistence section integration.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -10956,7 +10889,7 @@ dependencies, and persistence section integration.</p>
   <td>O(1), allocation-free, returns false out of range.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Root requests A14 stable definition-index lookup and compiled rating/fame/
 research/award rules; direct G18 transactions, G17 guest outcomes, G11/G12
 animal facts, and G22 persistence. Never copy catalogues or world summaries.</p>
@@ -10968,8 +10901,7 @@ The private <code>AwardCandidate { definition: AssetId }</code> message is emitt
 seven independent evaluators. One materializer owns uniqueness and entity
 creation, so those evaluators remain parallel and never contend on the
 <code>PersistentIdAllocator</code>.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -11148,7 +11080,7 @@ creation, so those evaluators remain parallel and never contend on the
   <td>After all seven evaluators; non-repeatable definition only.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: only native assets are consumed. Preflight A14 compiles rules,
 stable indexes and dependency closure; no runtime XML/script/filesystem.</p>
@@ -11203,8 +11135,7 @@ persistence, and G23 progression.</p>
 Root owns declarations, plugin/schedule/state/reflection/persistence wiring,
 dependencies, and alignment with A19's final archived rule enum.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -11388,7 +11319,7 @@ dependencies, and alignment with A19's final archived rule enum.</p>
   <td>Fixed action observation; never arbitrary command string.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>This package consumes A19 exactly as frozen: <code>ObjectiveRecord.rule_index</code>,
 <code>ScenarioRule { kind, subject, comparison, target, children }</code>, the exact
 <code>ScenarioRuleKind</code> enum, and every exact <code>ScenarioAction</code> variant. It compares
@@ -11400,8 +11331,7 @@ snapshot.</p>
 <p>The active scenario and bounded campaign bitset are genuinely global. Each
 objective/offer/tutorial step is an entity. Evaluators are split by fixed rule
 kind and query only relevant live components.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -11692,7 +11622,7 @@ kind and query only relevant live components.</p>
   <td>Only when no pending action component carries the same scenario.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: engine consumes only native A19 records. Preflight compiles
 original rule trees/scripts into the fixed exhaustive rule vocabulary, resolves
@@ -11755,8 +11685,7 @@ dependencies, and cross-package symbol alignment.</p>
 <h3>3. Frozen public contract</h3>
 <p>World distances/heights are finite meters; volumes are cubic meters; normalized
 quality is <code>0.0..=1.0</code>. All authored rates/limits come from native definitions.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -11838,7 +11767,7 @@ quality is <code>0.0..=1.0</code>. All authored rates/limits come from native de
   <td>Fixed validated reasons.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Root requests direct G09 habitat boundary/membership and containment; G05
 terrain/water/collision dirty-region facts; G07 transaction grouping; G11 animal
 spawn/species; G12 welfare; G14 aquatic navigation; A14/A16 definitions; and
@@ -11847,8 +11776,7 @@ animal state.</p>
 <h3>4. ECS ownership</h3>
 <p>Tank geometry lives on the habitat/tank entity; marine requirements/home live on
 the animal. There is no tank manager or separate water world.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -11901,7 +11829,7 @@ the animal. There is no tank manager or separate water world.</p>
   <td>Before tank despawn.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: engine consumes native definitions/chunks. Source tank XML,
 materials, entity records and commands are compiled by A14–A18; no runtime
@@ -11961,8 +11889,7 @@ G11–G18. G25 supplies aquatic show-stage suitability where applicable.</p>
 Root owns registrations, schedule/reflection/persistence wiring, dependencies,
 and cross-package alignment.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -12056,7 +11983,7 @@ and cross-package alignment.</p>
   <td>Emitted once after final effects in exact A14 fixed score units.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Root requests direct G11 animal/species, G13 behavior exclusion, G14 docking,
 G17 reactions, G18 transactions, G19 donation category, G20 training job, G25
 tank/stage compatibility, A06 animation handles, and A14 show/trick/stage
@@ -12065,8 +11992,7 @@ records. No show manager, animation copy, audience list, or UI mixer model.</p>
 <p>Schedules/states live on stage; training is a relation entity; performance and
 watching live on participants. Variable schedule capacity is native-derived and
 reserved once.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -12154,7 +12080,7 @@ reserved once.</p>
   <td>Before referenced despawn.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: A06/A10/A14 compile show/trick/stage/animation contracts. No
 runtime XML, scripts, paths, filesystem or source command dispatch.</p>
@@ -12207,8 +12133,7 @@ G14 locomotion, G17 guests, and G18 economy.</p>
 paths read-only. Root owns registrations, schedules, reflection/persistence,
 dependencies, and cross-package alignment.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -12314,7 +12239,7 @@ dependencies, and cross-package alignment.</p>
   <td>Emitted once after disembark/payment/tour effects.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Root requests G08 topology/build transaction facts, G14 spatial/navigation and
 docking, G17 destination/reaction, G18 price/service/transaction, A14/A17
 station/track/vehicle/view records, and G19 donation category where proven. Do
@@ -12323,8 +12248,7 @@ not create a circuit manager, passenger vector, route world, or copied graph.</p
 <p>Graph nodes/edges/vehicles/riders are entities/components. Counts are derived
 and maintained transactionally; rider membership is on guests, never a vehicle
 <code>Vec&lt;Entity&gt;</code>.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -12398,7 +12322,7 @@ and maintained transactionally; rider membership is on guests, never a vehicle
   <td>Before despawn; authentic evacuation/refund is an evidence gate.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: A14/A15/A17 compile station endpoints, graph/track geometry,
 vehicle motion and tour scoring. No runtime XML/Z2F/filesystem/source merging.</p>
@@ -12452,8 +12376,7 @@ camera, and G24 scenario.</p>
 Root owns module/plugin/render-graph/schedule/reflection/persistence registration,
 dependencies, and cross-package alignment.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -12553,7 +12476,7 @@ dependencies, and cross-package alignment.</p>
   <td>Removes album entity/image persistence through explicit action.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p><code>PhotoSubjects</code> imports A19's one recovered <code>PHOTO_SUBJECT_CAPACITY</code> constant;
 G28 declares no duplicate. Root aligns G06 active camera and frustum, render
 graph extraction/readback, G31 mode, G24 typed photo objective observation, A19
@@ -12565,8 +12488,7 @@ GPU resources. The only resource is reusable staging, not album state.
 The private zero-sized <code>PendingPhotoScore</code> component is inserted only on a
 freshly captured photo and removed by <code>score_photo</code>; restored <code>Photo</code> entities
 never carry it and therefore never replay scoring/challenge messages.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -12619,7 +12541,7 @@ never carry it and therefore never replay scoring/challenge messages.</p>
   <td>Explicit valid request; <code>DeleteGeneratedImage</code> is the root-frozen G22 storage message, not a filesystem call.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: A19 compiles photo scoring/challenge records and A02 commands.
 No source XML, filesystem discovery, Z2F, or image transcoding occurs in ordinary
@@ -12678,8 +12600,7 @@ G11 animal lifecycle, G23 progression, and G24 scenario.</p>
 read-only. Root owns registrations, schedules, reflection/persistence,
 dependencies, and cross-package alignment.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -12797,7 +12718,7 @@ dependencies, and cross-package alignment.</p>
   <td>Emitted only when authored probability/rules produce failure.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Root requests A14 stable fossil piece/set/slot/lab definitions; G30 puzzle/gesture
 observations; G31 fossil/cloning modes; G18 costs; G23 unlocks; G24 typed events;
 and G11 adoption/spawn request. Do not copy species definitions or create an
@@ -12809,8 +12730,7 @@ counts and do not grow in steady play.</p>
 <p>The implementation-private <code>CloneSpawnPending { operation: Entity }</code> component
 lives on a lab only between <code>SpawnAnimalRequest</code> and the matching G11 result. It
 is a narrow correlation marker, not durable clone state, and G22 never saves it.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -12884,7 +12804,7 @@ is a narrow correlation marker, not durable clone state, and G22 never saves it.
   <td>Before despawn; refund behavior is an explicit evidence gate.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: A03/A10/A14 compile species, fossil layouts, discovery/cloning
 rules and fixed commands. No runtime XML, scripts, source assets or filesystem.</p>
@@ -12941,8 +12861,7 @@ dependencies, and alignment with A10 command/template representation.</p>
 <p>Gesture points are normalized viewport coordinates in <code>[-1.0, 1.0]</code> and carry
 monotonic simulation-independent input seconds. Sample capacity comes from the
 active compiled gesture template/profile and is reserved before capture.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -13042,7 +12961,7 @@ active compiled gesture template/profile and is reserved before capture.</p>
   <td>Emitted once after final step effects.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>G30 consumes A10 <code>GestureTemplateKind</code>, <code>GestureTemplatePoint</code>,
 <code>GestureTemplate</code>, <code>PuzzleDefinition</code>, <code>PuzzleStep</code>, and <code>PuzzleCommand</code> directly;
 it declares no archived-template variants. Root aligns G03 pointer/controller
@@ -13052,8 +12971,7 @@ callback traits, or copied gesture documents.</p>
 <h3>4. ECS ownership</h3>
 <p>Stroke belongs to the active input cursor; puzzle state belongs to puzzle entity.
 No gesture manager, minigame world, action registry, or unbounded sample queue.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -13106,7 +13024,7 @@ No gesture manager, minigame world, action registry, or unbounded sample queue.<
   <td>Before relationship despawn.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: A10 compiles source gesture paths/templates, normalization
 parameters, thresholds, commands and puzzle steps into fixed native records.
@@ -13165,8 +13083,7 @@ shows, G28 photos, G29 extinct animals, and G30 gestures/puzzles.</p>
 read-only. Root owns module/plugin/state/schedule/reflection/persistence wiring,
 dependencies, and cross-package symbol alignment.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -13260,7 +13177,7 @@ dependencies, and cross-package symbol alignment.</p>
   <td>Emitted once after full cleanup/return.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>G06 exclusively creates, reads, restores, and removes <code>CameraReturnState</code> on the
 actual camera. G31 only emits G06 <code>SetCameraMode</code> and <code>RestoreCameraMode</code>
 messages; it never queries or mutates that component. Root also aligns G06
@@ -13270,8 +13187,7 @@ their state.</p>
 <h3>4. ECS ownership</h3>
 <p>Only one small active-mode resource coordinates a global mutually exclusive
 mode. Actual camera/input/subject/tool facts remain on their natural entities.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -13436,7 +13352,7 @@ mode. Actual camera/input/subject/tool facts remain on their natural entities.</
   <td>Before world teardown.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>The eight entry validators and eight mode-control systems above are the frozen
 registration lists. They may
 share private pure math helpers, but must not be recombined into a match-based
@@ -13501,8 +13417,7 @@ and A19 starting-world facts. G04 initializes it and G22 persists it.</p>
 path is read-only. Root owns module/plugin registration, fixed-schedule cadence,
 state wiring, reflection/persistence registration, and Cargo dependencies.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -13584,7 +13499,7 @@ state wiring, reflection/persistence registration, and Cargo dependencies.</p>
   <td>True exactly when in-game simulation is not paused.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>A14 must expose a mapped <code>SimulationTimingDefinition</code> containing evidenced fixed
 frequency, ticks per zoo day, ordered speed multipliers, and calendar policy.
 A19 must expose starting tick/day/calendar and optional imported seed. Each
@@ -13596,8 +13511,7 @@ collect those streams in a resource or component bag.</p>
 belongs to the entity and stochastic domain that consumes it. There is no timer
 manager, global mutable random queue, callback scheduler, or list of domain
 timers.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -13636,7 +13550,7 @@ timers.</p>
   <td>After persistence/world-exit consumers have finished.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.
 A14 preflight recovers and validates time scale, speed tiers, and calendar rules;
@@ -13711,8 +13625,7 @@ rendering and GPU state. G33 owns recovered environmental selection and timing
 policy only; it must not build a renderer, scene world, weather host, or copied
 presentation state.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -13818,7 +13731,7 @@ presentation state.</p>
   <td>Emitted once after a weather transition actually commits.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>A14 must expose typed <code>EnvironmentDefinition</code>, <code>LightKeyframe</code>, <code>FogKeyframe</code>,
 <code>SkyKeyframe</code>, <code>WeatherDefinition</code>, <code>WeatherTransitionRule</code>,
 <code>AmbientSpawnDefinition</code>, its exact <code>AmbientClass</code>, and their <code>TableRange</code> link tables, including
@@ -13832,8 +13745,7 @@ share lifecycle. Lights, sky and fog are actual Bevy presentation entities.
 Each ambient rule is a spawner entity and each ambient animal a normal entity.
 There is no environment resource, ambient population collection, copied render
 state, source-document object, or global random stream.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -13907,7 +13819,7 @@ state, source-document object, or global random stream.</p>
   <td>Before world teardown completes; G04 world unload remains an idempotent backstop through <code>WorldMember</code>.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.
 A14 preflight resolves environment maps, light rigs, fog, sky, weather, ambient
@@ -13988,8 +13900,7 @@ targets. G34 validates policy and applies changed values directly; it must not
 introduce a platform window backend, graphics abstraction, settings host, or
 mirrored renderer/device state.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -14077,15 +13988,14 @@ mirrored renderer/device state.</p>
   <td>Fixed localizable failure vocabulary.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>G01 owns options-screen navigation, G02 owns UI projection, G22 owns durable
 profile I/O, A11 owns mix volumes, and G03 owns bindings. This package consumes
 those owners directly and must not aggregate them into another options object.</p>
 <h3>4. ECS ownership</h3>
 <p>The two resources are genuinely process-global presentation policy. Actual
 window, camera and renderer objects remain Bevy-owned.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -14138,7 +14048,7 @@ window, camera and renderer objects remain Bevy-owned.</p>
   <td>Graphics settings changed only; no source/pipeline compilation.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h3>5. Preflight producer contract</h3>
 <p>Not applicable: the engine consumes only native assets produced before launch.
 Target-profile texture/shader/codec decisions remain preflight-owned. Runtime
@@ -14207,8 +14117,7 @@ G35 may add page-fault policy and Bevy asset-source integration only. It must no
 copy the mapping into <code>Arc&lt;[u8]&gt;</code>, decode a second content graph, introduce an
 asset store, or add another filesystem/cache layer.</p>
 <h3>3. Frozen public contract</h3>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -14272,7 +14181,7 @@ asset store, or add another filesystem/cache layer.</p>
   <td><code>Off=[]</code>; <code>Core=[Bootstrap,Menu,Zoo,Resident]</code>; <code>AllEnabled=[Bootstrap,Menu,Zoo,Resident,OnDemand,Stream]</code>.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Root extends <code>MappedPack</code> once with
 <code>pub fn pack_id(&amp;self) -&gt; AssetId</code>, <code>pub fn target_profile(&amp;self) -&gt; TargetProfile</code> and
 <code>pub fn prefault_budgeted(&amp;self, groups:&amp;[LoadGroup], budget_bytes:u64)-&gt;u64</code>.
@@ -14285,8 +14194,7 @@ nothing, retains nothing, and cannot see original pack/DLC/mod layers.</p>
 <p><code>ContentMap</code> is genuine immutable global ownership of the mapping used by every
 typed loader. No asset catalogue, decoded record graph, residency mirror, byte
 cache or background content world is retained.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -14311,7 +14219,7 @@ cache or background content world is retained.</p>
   <td>Once; after source installation and before shell bootstrap requests.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>The asset reader returns borrowed <code>SliceReader</code> views into <code>MappedPack</code>; family
 loaders acquire <code>MappedAsset</code> owners from the same <code>Arc</code>. Bevy <code>Handle&lt;T&gt;</code> and
 <code>Assets&lt;T&gt;</code> remain the only asset lifecycle/cache authority.</p>
@@ -14396,8 +14304,7 @@ the worker's ownership.</p>
 <p>All amounts and thresholds are exact native integer units. Permille values are
 always <code>0..=1000</code>. Only this package mutates <code>Condition</code>, <code>WasteContainer</code>, or
 <code>Litter</code> during normal gameplay; G22 may insert their validated saved values.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -14449,7 +14356,7 @@ always <code>0..=1000</code>. Only this package mutates <code>Condition</code>, 
   <td>Derived zoo cleanliness permille. It is the sole G23 cleanliness input, changes only when a contributing live fact changes, and is rebuilt rather than saved.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Root must freeze these exact additions in A14 rather than allowing the worker to
 define a second asset schema:</p>
 <ul>
@@ -14505,8 +14412,7 @@ total capacity is zero and otherwise
 <code>1000 - min(1000, round(litter_units * 1000 / litter_reference_units))</code>. <code>ZooCleanliness</code> is the nearest-integer weighted
 mean of those three scores using the A14 policy. Intermediate arithmetic uses
 checked <code>u64</code>; invalid archive bounds never reach the engine.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/set</th>
@@ -14629,7 +14535,7 @@ checked <code>u64</code>; invalid archive bounds never reach the engine.</p>
   <td>After all maintenance mutation systems and component hooks; G23 reads it later in the same set/order.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Job urgency is the direct severity in the target's own unit: repair uses
 <code>1000 - condition</code>, emptying uses rounded container fullness permille, and
 sweeping uses <code>min(amount_units, 1000)</code>. There is no priority tier table or
@@ -14800,8 +14706,7 @@ bespoke design archived at commit <code>68a4c481</code>.</p>
 <code>AngularVelocity</code>, <code>CollisionLayers</code>, <code>Friction</code>, <code>Restitution</code>, <code>Sleeping</code>,
 <code>FixedJoint</code>, <code>DistanceJoint</code>, <code>CollisionEventsEnabled</code>, and external
 force/impulse components are used directly and are not wrapped.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>Symbol</th>
   <th>Kind</th>
@@ -14895,7 +14800,7 @@ force/impulse components are used directly and are not wrapped.</p>
   <td>Fixed failure vocabulary.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>A14 owns physical material/layer/socket policy. A15 emits prefab records that
 G04 translates directly into Avian components and G37 domain components. G14
 owns intentional locomotion; Avian owns collision response.</p>
@@ -14903,8 +14808,7 @@ owns intentional locomotion; Avian owns collision response.</p>
 <p>There is one entity for each physical object. Avian components on that entity
 are authoritative mechanical state. OpenZT2 components contain only zoo-game
 facts Avian cannot know.</p>
-<table>
-<thead>
+<div class="table-scroll"><table><thead>
 <tr>
   <th>System</th>
   <th>Schedule/order</th>
@@ -14943,7 +14847,7 @@ facts Avian cannot know.</p>
   <td>Remove dead-endpoint joints/relations and restore evidenced detach state exactly once.</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Avian's <code>ContactGraph</code> and solver resources are legitimate bounded algorithm
 state. OpenZT2 must not copy them into a resource or event log.</p>
 <h3>5. Preflight producer contract</h3>
@@ -14991,7 +14895,7 @@ allocation/contact-count results.</p>
 
 </body><script id="openzt2-live-reload">
 (()=>{
- const current="00f3278efbcbc599";
+ const current="291ae6219599b2cb";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;
