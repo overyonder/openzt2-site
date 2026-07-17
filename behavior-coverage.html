@@ -1,0 +1,4311 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="openzt2-site-version" content="8331f1439fe2c095">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenZT2 - Behavior Coverage</title>
+<style>
+/* shared-site-nav */.tabs{box-sizing:border-box;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr)) 34px 26px;gap:5px;width:min(calc(100vw - 24px),1120px);margin:5px auto 6px!important;transform:none!important;font:12px/1.05 system-ui,sans-serif!important}.tabs a,.tabs button.nav-tab{box-sizing:border-box;display:flex!important;align-items:center;justify-content:center;min-height:24px;padding:2px 6px!important;text-align:center;white-space:nowrap;color:var(--fg)!important;text-decoration:none!important;border:1px solid var(--line)!important;border-radius:4px;background:var(--panel)!important;font:inherit!important;cursor:pointer}.tabs a.active{outline:2px solid currentColor;outline-offset:1px}.tabs a.gstart{margin-left:9px;position:relative}.tabs a.gstart::before{content:"";position:absolute;left:-5px;top:2px;bottom:2px;border-left:1px solid var(--control-border)}.nav-icon{display:none}.nav-label{display:inline}@media(min-width:881px){.tabs{grid-template-columns:minmax(72px,.7fr) minmax(110px,.9fr) minmax(96px,.8fr) minmax(230px,1.7fr) 34px 26px!important;width:min(calc(100vw - 24px),1120px)!important}.tabs a[href="functional-specification.html"]{min-width:230px}}@media(max-width:880px){body{padding-bottom:62px}.tabs{position:fixed!important;left:0!important;right:0!important;bottom:0!important;z-index:50!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:5px!important;width:100%!important;margin:0!important;padding:6px 8px!important;background:var(--panel)!important;border-top:1px solid var(--control-border)!important;font:11px/1 system-ui,sans-serif!important}.tabs a,.tabs button.nav-tab{min-height:48px!important;padding:0!important;white-space:normal!important;border-radius:4px!important;min-width:0!important}.tabs a.gstart{margin-left:0!important}.tabs a.gstart::before{display:none!important}.nav-icon{display:block!important;font:22px/1 system-ui,sans-serif!important}.nav-label{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important}.tabs .theme-toggle,.tabs .reload-toggle{width:48px!important;height:48px!important;font-size:22px!important;justify-self:stretch!important}main{padding-bottom:74px}}/* end-shared-site-nav */
+/* shared-gruvbox-theme */
+:root{color-scheme:light;--fg:#3c3836;--muted:#7c6f64;--line:#d5c4a1;--panel:#fbf1c7;--soft:#ebdbb2;--link:#076678;--ok:#79740e;--warn:#b57614;--bad:#9d0006;--unk:#8f3f71;--control:#f2e5bc;--control-border:#a89984;--active:#ebdbb2;--code-kw:#9d0006;--code-ty:#076678;--code-st:#79740e;--code-cm:#7c6f64;--code-at:#8f3f71}
+:root[data-theme="dark"]{color-scheme:dark;--fg:#ebdbb2;--muted:#a89984;--line:#504945;--panel:#282828;--soft:#3c3836;--link:#83a598;--ok:#98971a;--warn:#d79921;--bad:#cc241d;--unk:#b16286;--control:#3c3836;--control-border:#665c54;--active:#504945;--code-kw:#cc241d;--code-ty:#458588;--code-st:#98971a;--code-cm:#928374;--code-at:#b16286}
+html,body{background:var(--panel);color:var(--fg);overscroll-behavior:none}*{box-sizing:border-box}body{margin:0;font:15px/1.55 system-ui,sans-serif}a{color:var(--link)}button,input,select,textarea{background:var(--control)!important;color:var(--fg)!important;border-color:var(--control-border)!important}.tabs a,.tabs button.nav-tab{color:var(--fg)!important;background:var(--panel)!important;border-color:var(--control-border)!important}.tabs a.active{background:var(--active)!important}.theme-toggle,.reload-toggle{position:static;z-index:20;width:24px;height:24px;display:flex;align-items:center;justify-content:center;justify-self:center;align-self:center;background:var(--control)!important;color:var(--fg)!important;border:1px solid var(--control-border)!important;border-radius:4px;padding:0;font:15px/1 system-ui,sans-serif;cursor:pointer}.reload-toggle{--reload-progress:0;background:conic-gradient(var(--link) calc(var(--reload-progress)*1%),var(--control) 0)!important}.reload-toggle.paused{background:var(--active)!important}
+/* end-shared-gruvbox-theme */
+main{max-width:1120px;margin:0 auto;padding:14px 20px 60px}
+h1{font-size:26px;line-height:1.15;margin:8px 0 4px}h2{font-size:20px;margin:28px 0 8px;border-bottom:1px solid var(--line);padding-bottom:3px}h3{font-size:16px;margin:20px 0 6px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em;background:var(--soft);padding:.05em .35em;border-radius:3px}
+pre{background:var(--soft);padding:10px 12px;border:1px solid var(--line);border-radius:4px;overflow:auto}
+pre code{background:none;padding:0}
+table{display:block;overflow-x:auto;border-collapse:collapse;width:100%;margin:10px 0;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+.plan-progress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0 18px}
+.plan-progress-card{border:1px solid var(--line);border-radius:5px;background:color-mix(in srgb,var(--soft) 55%,transparent);padding:9px 10px}
+.plan-progress-card.primary{grid-column:1/-1}
+.plan-progress-card h3{margin:0 0 7px;font-size:15px}
+.plan-stacked-bar{display:flex;width:100%;height:28px;overflow:hidden;border:1px solid var(--control-border);border-radius:4px;background:var(--panel)}
+.plan-seg{display:flex;align-items:center;justify-content:center;min-width:2px;color:#fbf1c7;font:700 11px/1 system-ui,sans-serif;white-space:nowrap}
+.plan-seg-done{background:#79740e}.plan-seg-runs{background:#98971a}.plan-seg-loaded{background:#076678}.plan-seg-recorded{background:#7c6f64}.plan-seg-planned{background:#b57614}.plan-seg-map{background:#9d0006}.plan-seg-adapter{background:#8f3f71}
+.plan-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:3px 12px;margin:7px 0 0;font-size:12px;color:var(--muted)}
+.plan-legend-row{display:flex;align-items:center;gap:6px}.plan-swatch{width:10px;height:10px;border-radius:2px;display:inline-block;flex:0 0 auto}
+.plan-progress-note{font-size:12.5px;color:var(--muted);margin:8px 0 0!important}
+.plan-metric-list{display:grid;grid-template-columns:1fr auto;gap:4px 12px;margin:0;font-size:12.5px}.plan-metric-list dt{color:var(--muted)}.plan-metric-list dd{margin:0;font-weight:700}
+.plan-status{display:inline-block;padding:0 6px;border:1px solid var(--control-border);border-radius:9px;font:700 11px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.plan-status-done{background:color-mix(in srgb,#79740e 28%,transparent)}.plan-status-runs{background:color-mix(in srgb,#98971a 28%,transparent)}.plan-status-loaded{background:color-mix(in srgb,#076678 24%,transparent)}.plan-status-recorded{background:color-mix(in srgb,#7c6f64 24%,transparent)}.plan-status-planned{background:color-mix(in srgb,#b57614 28%,transparent)}.plan-status-map{background:color-mix(in srgb,#9d0006 20%,transparent)}.plan-status-adapter{background:color-mix(in srgb,#8f3f71 22%,transparent)}
+.package-summary{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:14px 0 8px}.package-summary strong{font-size:18px}.package-summary span{color:var(--muted);font-size:12.5px}
+.package-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0 22px}.package-card{min-height:92px;padding:0;border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:5px;background:color-mix(in srgb,var(--soft) 45%,transparent);color:var(--fg)}.package-card:hover{background:var(--soft)}.package-card summary{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"id name" "status status" "coverage coverage";gap:3px 8px;min-height:90px;padding:9px 10px;cursor:pointer;list-style:none}.package-card summary::-webkit-details-marker{display:none}.package-card summary::after{content:"+";position:absolute;justify-self:end;color:var(--muted)}.package-card[open] summary::after{content:"−"}.package-id{grid-area:id;font:700 12px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.package-name{grid-area:name;padding-right:14px;font-weight:700;line-height:1.25}.package-state{grid-area:status;align-self:end;font:700 11px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}.package-coverage{grid-area:coverage;font:700 12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--fg)}.package-detail{padding:0 10px 10px;border-top:1px solid var(--line);font-size:12px}.package-detail dl{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin:8px 0}.package-detail dt{color:var(--muted)}.package-detail dd{margin:0;font-weight:700}.package-detail a{font-weight:700}.package-status-brief{border-left-color:var(--warn)}.package-status-active{border-left-color:var(--unk)}.package-status-implemented{border-left-color:var(--link)}.package-status-verified{border-left-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}.package-status-blocked{border-left-color:var(--bad)}.package-contract{scroll-margin-top:10px;border-top:2px solid var(--line);margin-top:38px;padding-top:4px}
+.package-card summary{position:relative}
+@media(max-width:980px){.package-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.package-grid{grid-template-columns:1fr}}
+@media(max-width:880px){.plan-progress-grid{grid-template-columns:1fr}.plan-seg{font-size:10px}}
+.source-progress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0 18px}
+.source-progress-card{border:1px solid var(--line);border-radius:5px;background:color-mix(in srgb,var(--soft) 55%,transparent);padding:9px 10px}
+.source-progress-card.primary{grid-column:1/-1}.source-progress-card h3{margin:0 0 7px;font-size:15px}
+.source-stacked-bar{display:flex;width:100%;height:26px;overflow:hidden;border:1px solid var(--control-border);border-radius:4px;background:var(--panel)}
+.source-seg{display:flex;align-items:center;justify-content:center;min-width:2px;color:#fbf1c7;font:700 11px/1 system-ui,sans-serif;white-space:nowrap}
+.source-seg-done{background:#79740e}.source-seg-generic{background:#b57614}.source-seg-open{background:#9d0006}.source-seg-evidence{background:#076678}
+.source-progress-note{font-size:12.5px;color:var(--muted);margin:8px 0 0!important}
+.source-metric-list{display:grid;grid-template-columns:1fr auto;gap:4px 12px;margin:0;font-size:12.5px}.source-metric-list dt{color:var(--muted)}.source-metric-list dd{margin:0;font-weight:700}
+.source-progress-grid.inactive .source-stacked-bar{filter:grayscale(1);opacity:.48}
+.source-resume-card{margin:14px 0 10px;padding:10px 12px;border:1px solid color-mix(in srgb,#689d6a 55%,var(--line));border-radius:5px;background:color-mix(in srgb,#689d6a 14%,var(--panel));color:var(--fg)}
+.source-resume-card p{margin:0;font-weight:600}
+@media(max-width:880px){.source-progress-grid{grid-template-columns:1fr}.source-seg{font-size:10px}}
+.spec-diagram{display:block;width:100%;height:auto;margin:14px 0 22px;border:1px solid var(--line);border-radius:4px;background:transparent;color:var(--fg)}
+.mermaid{margin:14px 0 22px;text-align:center;background:transparent}.mermaid svg{max-width:100%;height:auto}
+.spec-diagram text{font-family:system-ui,sans-serif}
+.doc-source{max-width:980px;margin:0 auto 4px;padding:0 20px;color:var(--muted);font-size:12px}
+.modal[hidden]{display:none}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal-box{background:var(--panel);width:min(92vw,1000px);height:min(88vh,900px);border:1px solid var(--line);border-radius:6px;display:flex;flex-direction:column}
+.modal-box header{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid var(--line)}
+.modal-box iframe{flex:1;border:0;width:100%}
+</style>
+<link rel="stylesheet" href="site-shell.css?v=1">
+<script>
+(()=>{
+ const key="zt2-theme";
+ const storedTheme=()=>{try{return localStorage.getItem(key)}catch(_){return null}};
+ const saveTheme=theme=>{try{localStorage.setItem(key,theme)}catch(_){ }};
+ const root=document.documentElement;
+ const syncFrames=theme=>{for(const frame of document.querySelectorAll("iframe.legal-frame")){try{if(frame.contentDocument)frame.contentDocument.documentElement.dataset.theme=theme}catch(_){ }}};
+ const apply=(theme,persist=false)=>{root.dataset.theme=theme;if(persist)saveTheme(theme);const b=document.querySelector(".theme-toggle");if(b){b.textContent=theme==="dark"?"☀":"☾";b.title=theme==="dark"?"Switch to light mode":"Switch to dark mode";b.setAttribute("aria-label",b.title)};syncFrames(theme)};
+ const initial=storedTheme()==="light"?"light":"dark";
+ apply(initial);
+ window.addEventListener("DOMContentLoaded",()=>{const b=document.createElement("button");b.type="button";b.className="theme-toggle";b.onclick=()=>apply(root.dataset.theme==="dark"?"light":"dark",true);const nav=document.querySelector(".tabs");if(nav)nav.append(b);for(const frame of document.querySelectorAll("iframe.legal-frame"))frame.addEventListener("load",()=>syncFrames(root.dataset.theme||initial));apply(root.dataset.theme||initial)});
+})();
+</script>
+<body>
+<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="index.html">OpenZT2</a><a href="index.html"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map.html"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter.html"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a href="asset-lineage.html"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a class="gstart " href="functional-specification.html"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a class="active" href="behavior-coverage.html"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-label">Behavior Coverage</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
+<div class="doc-source">Rendered from <code>docs/BEHAVIOR-COVERAGE.md and docs/BEHAVIOR-CROSSWALK.tsv</code></div>
+<main>
+<h1>Original Behavior Coverage</h1>
+<blockquote>
+<p>Generated by <code>tools/build-behavior-crosswalk.py</code>. Do not hand-edit counts.</p>
+</blockquote>
+<p>This report mechanically crosswalks gameplay-assigned recovered binary functions to focused Bevy plugin source. It defines the known <strong>callable evidence circumference</strong>; it does not pretend that one recovered function equals one player-visible behavior.</p>
+<p>A <code>consumer-candidate</code> is only a conservative lexical lead for review. It is <strong>not</strong> evidence that the original trigger, conditions, state transition, timing, and observable result have been reproduced. Only a later semantic review may mark an obligation implemented or behaviorally verified.</p>
+<h2>Current circumference</h2>
+<ul>
+<li>Gameplay-assigned original callable evidence: <strong>17,636 rows / 17,636 occurrences</strong></li>
+<li>Candidate behavior obligations after explicit ABI/type/container exclusions: <strong>7,842 rows / 7,842 occurrences</strong></li>
+<li>Mechanically normalized obligation keys (not yet human-merged behaviors): <strong>7,798</strong></li>
+<li>Original support/mechanical evidence retained separately: <strong>9,794 rows</strong></li>
+<li>Obligations with at least one plausible Bevy consumer: <strong>848</strong></li>
+<li>Obligations with no plausible Bevy consumer: <strong>6,994</strong></li>
+<li>Semantically reviewed obligations: <strong>0</strong></li>
+</ul>
+<h2>Excluded implementation ownership</h2>
+<p>These callables remain preserved as evidence but are not gameplay recreation obligations.</p>
+<table>
+<thead>
+<tr>
+  <th>Disposition</th>
+  <th style="text-align:right">Evidence rows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>avian3d</code></td>
+  <td style="text-align:right">198</td>
+</tr>
+<tr>
+  <td><code>bevy-animation</code></td>
+  <td style="text-align:right">282</td>
+</tr>
+<tr>
+  <td><code>bevy-render</code></td>
+  <td style="text-align:right">503</td>
+</tr>
+<tr>
+  <td><code>bevy-time</code></td>
+  <td style="text-align:right">2</td>
+</tr>
+<tr>
+  <td><code>bevy-ui</code></td>
+  <td style="text-align:right">231</td>
+</tr>
+<tr>
+  <td><code>codec-library</code></td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td><code>platform</code></td>
+  <td style="text-align:right">25</td>
+</tr>
+<tr>
+  <td><code>preflight</code></td>
+  <td style="text-align:right">1,442</td>
+</tr>
+<tr>
+  <td><code>rust-support</code></td>
+  <td style="text-align:right">7,047</td>
+</tr>
+<tr>
+  <td><code>semantic-source</code></td>
+  <td style="text-align:right">48</td>
+</tr>
+</tbody>
+</table>
+<h2>By gameplay owner</h2>
+<table>
+<thead>
+<tr>
+  <th>Owner</th>
+  <th>Bevy plugin</th>
+  <th style="text-align:right">Original evidence</th>
+  <th style="text-align:right">Behavior obligations</th>
+  <th style="text-align:right">Consumer candidates</th>
+  <th style="text-align:right">Unmatched</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>G01</td>
+  <td><code>shell</code></td>
+  <td style="text-align:right">92</td>
+  <td style="text-align:right">61</td>
+  <td style="text-align:right">1</td>
+  <td style="text-align:right">60</td>
+</tr>
+<tr>
+  <td>G02</td>
+  <td><code>ui</code></td>
+  <td style="text-align:right">1,076</td>
+  <td style="text-align:right">613</td>
+  <td style="text-align:right">44</td>
+  <td style="text-align:right">569</td>
+</tr>
+<tr>
+  <td>G03</td>
+  <td><code>input</code></td>
+  <td style="text-align:right">673</td>
+  <td style="text-align:right">192</td>
+  <td style="text-align:right">9</td>
+  <td style="text-align:right">183</td>
+</tr>
+<tr>
+  <td>G04</td>
+  <td><code>world_spawn</code></td>
+  <td style="text-align:right">495</td>
+  <td style="text-align:right">226</td>
+  <td style="text-align:right">25</td>
+  <td style="text-align:right">201</td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>terrain</code></td>
+  <td style="text-align:right">791</td>
+  <td style="text-align:right">551</td>
+  <td style="text-align:right">58</td>
+  <td style="text-align:right">493</td>
+</tr>
+<tr>
+  <td>G06</td>
+  <td><code>camera</code></td>
+  <td style="text-align:right">338</td>
+  <td style="text-align:right">234</td>
+  <td style="text-align:right">53</td>
+  <td style="text-align:right">181</td>
+</tr>
+<tr>
+  <td>G07</td>
+  <td><code>construction</code></td>
+  <td style="text-align:right">1,624</td>
+  <td style="text-align:right">98</td>
+  <td style="text-align:right">3</td>
+  <td style="text-align:right">95</td>
+</tr>
+<tr>
+  <td>G08</td>
+  <td><code>topology</code></td>
+  <td style="text-align:right">600</td>
+  <td style="text-align:right">361</td>
+  <td style="text-align:right">33</td>
+  <td style="text-align:right">328</td>
+</tr>
+<tr>
+  <td>G09</td>
+  <td><code>habitat</code></td>
+  <td style="text-align:right">160</td>
+  <td style="text-align:right">109</td>
+  <td style="text-align:right">2</td>
+  <td style="text-align:right">107</td>
+</tr>
+<tr>
+  <td>G10</td>
+  <td><code>placement</code></td>
+  <td style="text-align:right">566</td>
+  <td style="text-align:right">386</td>
+  <td style="text-align:right">64</td>
+  <td style="text-align:right">322</td>
+</tr>
+<tr>
+  <td>G11</td>
+  <td><code>animal_lifecycle</code></td>
+  <td style="text-align:right">396</td>
+  <td style="text-align:right">148</td>
+  <td style="text-align:right">12</td>
+  <td style="text-align:right">136</td>
+</tr>
+<tr>
+  <td>G12</td>
+  <td><code>animal_welfare</code></td>
+  <td style="text-align:right">39</td>
+  <td style="text-align:right">17</td>
+  <td style="text-align:right">1</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td>G13</td>
+  <td><code>animal_behavior</code></td>
+  <td style="text-align:right">1,340</td>
+  <td style="text-align:right">516</td>
+  <td style="text-align:right">9</td>
+  <td style="text-align:right">507</td>
+</tr>
+<tr>
+  <td>G14</td>
+  <td><code>locomotion</code></td>
+  <td style="text-align:right">1,009</td>
+  <td style="text-align:right">404</td>
+  <td style="text-align:right">56</td>
+  <td style="text-align:right">348</td>
+</tr>
+<tr>
+  <td>G15</td>
+  <td><code>feeding</code></td>
+  <td style="text-align:right">6</td>
+  <td style="text-align:right">3</td>
+  <td style="text-align:right">0</td>
+  <td style="text-align:right">3</td>
+</tr>
+<tr>
+  <td>G16</td>
+  <td><code>animal_health</code></td>
+  <td style="text-align:right">204</td>
+  <td style="text-align:right">92</td>
+  <td style="text-align:right">4</td>
+  <td style="text-align:right">88</td>
+</tr>
+<tr>
+  <td>G17</td>
+  <td><code>guests</code></td>
+  <td style="text-align:right">241</td>
+  <td style="text-align:right">106</td>
+  <td style="text-align:right">18</td>
+  <td style="text-align:right">88</td>
+</tr>
+<tr>
+  <td>G18</td>
+  <td><code>economy</code></td>
+  <td style="text-align:right">397</td>
+  <td style="text-align:right">134</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:right">127</td>
+</tr>
+<tr>
+  <td>G19</td>
+  <td><code>donations</code></td>
+  <td style="text-align:right">30</td>
+  <td style="text-align:right">22</td>
+  <td style="text-align:right">5</td>
+  <td style="text-align:right">17</td>
+</tr>
+<tr>
+  <td>G20</td>
+  <td><code>staff</code></td>
+  <td style="text-align:right">772</td>
+  <td style="text-align:right">345</td>
+  <td style="text-align:right">15</td>
+  <td style="text-align:right">330</td>
+</tr>
+<tr>
+  <td>G21</td>
+  <td><code>information</code></td>
+  <td style="text-align:right">779</td>
+  <td style="text-align:right">374</td>
+  <td style="text-align:right">119</td>
+  <td style="text-align:right">255</td>
+</tr>
+<tr>
+  <td>G22</td>
+  <td><code>persistence</code></td>
+  <td style="text-align:right">374</td>
+  <td style="text-align:right">140</td>
+  <td style="text-align:right">14</td>
+  <td style="text-align:right">126</td>
+</tr>
+<tr>
+  <td>G23</td>
+  <td><code>progression</code></td>
+  <td style="text-align:right">236</td>
+  <td style="text-align:right">128</td>
+  <td style="text-align:right">33</td>
+  <td style="text-align:right">95</td>
+</tr>
+<tr>
+  <td>G24</td>
+  <td><code>scenario</code></td>
+  <td style="text-align:right">219</td>
+  <td style="text-align:right">107</td>
+  <td style="text-align:right">27</td>
+  <td style="text-align:right">80</td>
+</tr>
+<tr>
+  <td>G25</td>
+  <td><code>aquatic</code></td>
+  <td style="text-align:right">457</td>
+  <td style="text-align:right">283</td>
+  <td style="text-align:right">14</td>
+  <td style="text-align:right">269</td>
+</tr>
+<tr>
+  <td>G26</td>
+  <td><code>shows</code></td>
+  <td style="text-align:right">686</td>
+  <td style="text-align:right">348</td>
+  <td style="text-align:right">16</td>
+  <td style="text-align:right">332</td>
+</tr>
+<tr>
+  <td>G27</td>
+  <td><code>transport_tours</code></td>
+  <td style="text-align:right">1,488</td>
+  <td style="text-align:right">746</td>
+  <td style="text-align:right">25</td>
+  <td style="text-align:right">721</td>
+</tr>
+<tr>
+  <td>G28</td>
+  <td><code>photos</code></td>
+  <td style="text-align:right">281</td>
+  <td style="text-align:right">141</td>
+  <td style="text-align:right">97</td>
+  <td style="text-align:right">44</td>
+</tr>
+<tr>
+  <td>G29</td>
+  <td><code>extinct_animals</code></td>
+  <td style="text-align:right">504</td>
+  <td style="text-align:right">248</td>
+  <td style="text-align:right">9</td>
+  <td style="text-align:right">239</td>
+</tr>
+<tr>
+  <td>G30</td>
+  <td><code>gestures_puzzles</code></td>
+  <td style="text-align:right">402</td>
+  <td style="text-align:right">209</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:right">202</td>
+</tr>
+<tr>
+  <td>G31</td>
+  <td><code>immersive_modes</code></td>
+  <td style="text-align:right">111</td>
+  <td style="text-align:right">63</td>
+  <td style="text-align:right">21</td>
+  <td style="text-align:right">42</td>
+</tr>
+<tr>
+  <td>G32</td>
+  <td><code>simulation_time</code></td>
+  <td style="text-align:right">5</td>
+  <td style="text-align:right">4</td>
+  <td style="text-align:right">0</td>
+  <td style="text-align:right">4</td>
+</tr>
+<tr>
+  <td>G33</td>
+  <td><code>environment</code></td>
+  <td style="text-align:right">284</td>
+  <td style="text-align:right">144</td>
+  <td style="text-align:right">36</td>
+  <td style="text-align:right">108</td>
+</tr>
+<tr>
+  <td>G34</td>
+  <td><code>settings</code></td>
+  <td style="text-align:right">53</td>
+  <td style="text-align:right">32</td>
+  <td style="text-align:right">3</td>
+  <td style="text-align:right">29</td>
+</tr>
+<tr>
+  <td>G36</td>
+  <td><code>maintenance</code></td>
+  <td style="text-align:right">14</td>
+  <td style="text-align:right">13</td>
+  <td style="text-align:right">3</td>
+  <td style="text-align:right">10</td>
+</tr>
+<tr>
+  <td>G37</td>
+  <td><code>physics</code></td>
+  <td style="text-align:right">894</td>
+  <td style="text-align:right">244</td>
+  <td style="text-align:right">5</td>
+  <td style="text-align:right">239</td>
+</tr>
+</tbody>
+</table>
+<h2>First unmatched obligations</h2>
+<p>These are deterministic starting points, not a priority ranking.</p>
+<table>
+<thead>
+<tr>
+  <th>Owner</th>
+  <th>Original identity</th>
+  <th>Recovered name</th>
+  <th>Intended plugin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>G02</td>
+  <td><code>0x00401000</code></td>
+  <td><code>assign_shared_inline_ui_typed_value_ref_and_return_first_arg</code></td>
+  <td><code>ui</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x004014f5</code></td>
+  <td><code>activate_biome_mode_tool</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00401640</code></td>
+  <td><code>deactivate_biome_mode_tool</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x0040170c</code></td>
+  <td><code>update_biome_mode_frame</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x004017a5</code></td>
+  <td><code>request_biome_mode_cursor_refresh_value</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x004017ce</code></td>
+  <td><code>refresh_biome_mode_brush_cursor</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00401ee6</code></td>
+  <td><code>handle_biome_mode_active_cursor_payload</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00401f38</code></td>
+  <td><code>handle_biome_mode_paint_drag</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00402243</code></td>
+  <td><code>handle_biome_mode_paint_drag_value</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x004022fc</code></td>
+  <td><code>read_biome_mode_cursor_config</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00402380</code></td>
+  <td><code>setup_terrain_biome_brush</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G02</td>
+  <td><code>0x0040286a</code></td>
+  <td><code>set_ui_control_enabled</code></td>
+  <td><code>ui</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x004028a7</code></td>
+  <td><code>update_biome_mode_toggle_controls</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G21</td>
+  <td><code>0x0040296c</code></td>
+  <td><code>update_biome_paint_filter_control_availability</code></td>
+  <td><code>information</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00402a21</code></td>
+  <td><code>update_biome_mode_cursor_pick</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00402c81</code></td>
+  <td><code>adjust_biome_mode_brush_size</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00402d3b</code></td>
+  <td><code>read_terrain_paint_mode_config</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00402fce</code></td>
+  <td><code>refresh_biome_mode_panel</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00403219</code></td>
+  <td><code>handle_brush_size_control</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x0040354a</code></td>
+  <td><code>handle_biome_mode_brush_step_command</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G21</td>
+  <td><code>0x00403e78</code></td>
+  <td><code>update_biome_paint_object_filter_cell</code></td>
+  <td><code>information</code></td>
+</tr>
+<tr>
+  <td>G21</td>
+  <td><code>0x0040478c</code></td>
+  <td><code>apply_biome_paint_object_filter_cells</code></td>
+  <td><code>information</code></td>
+</tr>
+<tr>
+  <td>G21</td>
+  <td><code>0x0040480b</code></td>
+  <td><code>collect_biome_paint_object_filter_cells</code></td>
+  <td><code>information</code></td>
+</tr>
+<tr>
+  <td>G18</td>
+  <td><code>0x00404ae8</code></td>
+  <td><code>handle_bfterrain_charge_undo_transaction</code></td>
+  <td><code>economy</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00404d8f</code></td>
+  <td><code>refresh_biome_paint_sound_resource</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00404df4</code></td>
+  <td><code>update_biome_paint_sound_pan</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00404e8d</code></td>
+  <td><code>stop_active_biome_paint_sound</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00405096</code></td>
+  <td><code>refresh_biome_paint_projection_components</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x004052a0</code></td>
+  <td><code>set_biome_mode_brush_query_flag</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G21</td>
+  <td><code>0x004052e0</code></td>
+  <td><code>apply_biome_paint_filter_mask</code></td>
+  <td><code>information</code></td>
+</tr>
+<tr>
+  <td>G21</td>
+  <td><code>0x00405332</code></td>
+  <td><code>set_biome_paint_filter_mask_bit</code></td>
+  <td><code>information</code></td>
+</tr>
+<tr>
+  <td>G21</td>
+  <td><code>0x00405375</code></td>
+  <td><code>set_biome_paint_trees_filter_value</code></td>
+  <td><code>information</code></td>
+</tr>
+<tr>
+  <td>G21</td>
+  <td><code>0x004053ba</code></td>
+  <td><code>set_biome_paint_plants_filter_value</code></td>
+  <td><code>information</code></td>
+</tr>
+<tr>
+  <td>G21</td>
+  <td><code>0x004053ff</code></td>
+  <td><code>set_biome_paint_rocks_filter_value</code></td>
+  <td><code>information</code></td>
+</tr>
+<tr>
+  <td>G07</td>
+  <td><code>0x0040592e</code></td>
+  <td><code>remove_biome_brush_cell_objects_from_undo_mgr</code></td>
+  <td><code>construction</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00405a63</code></td>
+  <td><code>recreate_and_track_biome_brush_flattening_groups</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G07</td>
+  <td><code>0x00405cf3</code></td>
+  <td><code>handle_biome_undo_delete_flattening</code></td>
+  <td><code>construction</code></td>
+</tr>
+<tr>
+  <td>G07</td>
+  <td><code>0x00405d8d</code></td>
+  <td><code>handle_biome_undo_recreate_flattening</code></td>
+  <td><code>construction</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00405e2b</code></td>
+  <td><code>set_biome_mode_painting_active</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00405e87</code></td>
+  <td><code>set_biome_paint_object_mode</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G02</td>
+  <td><code>0x00407afe</code></td>
+  <td><code>clear_inline_ui_typed_value_tree_storage</code></td>
+  <td><code>ui</code></td>
+</tr>
+<tr>
+  <td>G05</td>
+  <td><code>0x00407db1</code></td>
+  <td><code>assign_BFGBiome_safe_handle_value</code></td>
+  <td><code>terrain</code></td>
+</tr>
+<tr>
+  <td>G02</td>
+  <td><code>0x00407edf</code></td>
+  <td><code>keep_component_if_in_current_ui_context</code></td>
+  <td><code>ui</code></td>
+</tr>
+<tr>
+  <td>G20</td>
+  <td><code>0x00408029</code></td>
+  <td><code>copy_named_ui_value_assignment_ref_range</code></td>
+  <td><code>staff</code></td>
+</tr>
+<tr>
+  <td>G20</td>
+  <td><code>0x004080e6</code></td>
+  <td><code>copy_named_ui_value_assignment_ref_range_b</code></td>
+  <td><code>staff</code></td>
+</tr>
+<tr>
+  <td>G01</td>
+  <td><code>0x00408138</code></td>
+  <td><code>set_current_mode_from_receiver_context</code></td>
+  <td><code>shell</code></td>
+</tr>
+<tr>
+  <td>G04</td>
+  <td><code>0x004081a3</code></td>
+  <td><code>assign_BFComponent_safe_handle_value</code></td>
+  <td><code>world_spawn</code></td>
+</tr>
+<tr>
+  <td>G02</td>
+  <td><code>0x0040821a</code></td>
+  <td><code>assign_inline_ui_string_from_view</code></td>
+  <td><code>ui</code></td>
+</tr>
+<tr>
+  <td>G02</td>
+  <td><code>0x00408231</code></td>
+  <td><code>assign_inline_ui_string_chars</code></td>
+  <td><code>ui</code></td>
+</tr>
+<tr>
+  <td>G02</td>
+  <td><code>0x00408285</code></td>
+  <td><code>update_inline_ui_string_length</code></td>
+  <td><code>ui</code></td>
+</tr>
+</tbody>
+</table>
+<h2>How to close the crosswalk</h2>
+<p>For each obligation, inspect the C++ oracle, source data, and live behavior, then normalize related callables into one semantic contract: trigger, conditions, state read, state written, timing/order, randomness, and player-visible outcome. Link that contract to the exact Bevy systems/components/messages that implement it. Helper callables may be marked support only with a recorded reason. Behavioral verification remains a separate final status.</p>
+<p>Regenerate with <code>python tools/build-behavior-crosswalk.py</code>; verify determinism and references with <code>python tools/audit-behavior-crosswalk.py</code>.</p>
+<h1>Package details</h1>
+<p><a id="owner-g01"></a></p>
+<h2>G01</h2>
+<ul>
+<li><strong>0 / 61 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>1</strong></li>
+<li>Unmatched obligations: <strong>60</strong></li>
+<li>Assigned outside gameplay: <code>bevy-ui</code> 1, <code>preflight</code> 6, <code>rust-support</code> 24</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x00408138</code></td>
+  <td><code>set_current_mode_from_receiver_context</code></td>
+</tr>
+<tr>
+  <td><code>0x00418e84</code></td>
+  <td><code>set_mode_selected_target_handle</code></td>
+</tr>
+<tr>
+  <td><code>0x0042c40c</code></td>
+  <td><code>forward_value_to_current_mode_receiver_when_source_differs</code></td>
+</tr>
+<tr>
+  <td><code>0x00438c64</code></td>
+  <td><code>find_ZTMainMode_map_entry_payload_by_key</code></td>
+</tr>
+<tr>
+  <td><code>0x00438c9f</code></td>
+  <td><code>populate_ZTMainMode_credits_timed_events</code></td>
+</tr>
+<tr>
+  <td><code>0x0043933d</code></td>
+  <td><code>deactivate_ZTMainMode_and_cleanup_localdata</code></td>
+</tr>
+<tr>
+  <td><code>0x0043943f</code></td>
+  <td><code>read_ZTMainMode_config</code></td>
+</tr>
+<tr>
+  <td><code>0x0043948a</code></td>
+  <td><code>handle_ZTMainMode_load_map_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00439ff6</code></td>
+  <td><code>update_ZTMainMode_frame</code></td>
+</tr>
+<tr>
+  <td><code>0x0043a15e</code></td>
+  <td><code>handle_ZTMainMode_motd_items_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0043a1de</code></td>
+  <td><code>forward_ZTMainMode_value_to_motd_receiver</code></td>
+</tr>
+<tr>
+  <td><code>0x0043a29b</code></td>
+  <td><code>trap_invalid_ZTMainMode_value_handler</code></td>
+</tr>
+<tr>
+  <td><code>0x0043a2a9</code></td>
+  <td><code>handle_ZTMainMode_confirm_exit_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0043a31c</code></td>
+  <td><code>handle_ZTMainMode_set_binderroot_reloadable_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0043a635</code></td>
+  <td><code>handle_ZTMainMode_setmode_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0043c235</code></td>
+  <td><code>LAB_refresh_map_list_and_globe_consumers</code></td>
+</tr>
+<tr>
+  <td><code>0x0043c481</code></td>
+  <td><code>handle_ZTMainMode_set_game_mode_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00440fae</code></td>
+  <td><code>handle_UIKeyData_code13_accept_current_mode</code></td>
+</tr>
+<tr>
+  <td><code>0x00443271</code></td>
+  <td><code>count_and_clear_mode_pointer_state_tree</code></td>
+</tr>
+<tr>
+  <td><code>0x00453593</code></td>
+  <td><code>emit_setmode_payload</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g02"></a></p>
+<h2>G02</h2>
+<ul>
+<li><strong>0 / 613 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>44</strong></li>
+<li>Unmatched obligations: <strong>569</strong></li>
+<li>Assigned outside gameplay: <code>bevy-render</code> 3, <code>bevy-ui</code> 56, <code>platform</code> 8, <code>preflight</code> 90, <code>rust-support</code> 306</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x00401000</code></td>
+  <td><code>assign_shared_inline_ui_typed_value_ref_and_return_first_arg</code></td>
+</tr>
+<tr>
+  <td><code>0x0040286a</code></td>
+  <td><code>set_ui_control_enabled</code></td>
+</tr>
+<tr>
+  <td><code>0x00407afe</code></td>
+  <td><code>clear_inline_ui_typed_value_tree_storage</code></td>
+</tr>
+<tr>
+  <td><code>0x00407edf</code></td>
+  <td><code>keep_component_if_in_current_ui_context</code></td>
+</tr>
+<tr>
+  <td><code>0x0040821a</code></td>
+  <td><code>assign_inline_ui_string_from_view</code></td>
+</tr>
+<tr>
+  <td><code>0x00408231</code></td>
+  <td><code>assign_inline_ui_string_chars</code></td>
+</tr>
+<tr>
+  <td><code>0x00408285</code></td>
+  <td><code>update_inline_ui_string_length</code></td>
+</tr>
+<tr>
+  <td><code>0x00408407</code></td>
+  <td><code>set_inline_ui_string_length_and_terminator</code></td>
+</tr>
+<tr>
+  <td><code>0x00408423</code></td>
+  <td><code>assign_inline_ui_string_substr</code></td>
+</tr>
+<tr>
+  <td><code>0x004084b5</code></td>
+  <td><code>erase_inline_ui_string_range</code></td>
+</tr>
+<tr>
+  <td><code>0x00408582</code></td>
+  <td><code>grow_inline_ui_string_storage</code></td>
+</tr>
+<tr>
+  <td><code>0x004086aa</code></td>
+  <td><code>assign_inline_ui_string_from_cstr_length</code></td>
+</tr>
+<tr>
+  <td><code>0x004086cd</code></td>
+  <td><code>assign_inline_ui_string_checked_chars</code></td>
+</tr>
+<tr>
+  <td><code>0x0040873f</code></td>
+  <td><code>inline_ui_string_storage_contains_pointer</code></td>
+</tr>
+<tr>
+  <td><code>0x00408a1e</code></td>
+  <td><code>assign_UIComponent_safe_handle_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00408aa2</code></td>
+  <td><code>format_bool_to_inline_ui_string</code></td>
+</tr>
+<tr>
+  <td><code>0x00408b53</code></td>
+  <td><code>format_float_or_int_to_inline_ui_string</code></td>
+</tr>
+<tr>
+  <td><code>0x00408dcd</code></td>
+  <td><code>is_inline_ui_string_empty</code></td>
+</tr>
+<tr>
+  <td><code>0x00408de0</code></td>
+  <td><code>compare_inline_ui_string_to_cstr</code></td>
+</tr>
+<tr>
+  <td><code>0x00408f07</code></td>
+  <td><code>parse_inline_ui_string_nonnegative_int</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g03"></a></p>
+<h2>G03</h2>
+<ul>
+<li><strong>0 / 192 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>9</strong></li>
+<li>Unmatched obligations: <strong>183</strong></li>
+<li>Assigned outside gameplay: <code>bevy-animation</code> 224, <code>bevy-render</code> 31, <code>bevy-ui</code> 1, <code>codec-library</code> 5, <code>platform</code> 3, <code>preflight</code> 44, <code>rust-support</code> 173</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x004208a3</code></td>
+  <td><code>handle_setworldposofmouse</code></td>
+</tr>
+<tr>
+  <td><code>0x00420958</code></td>
+  <td><code>handle_is_type_on_cursor</code></td>
+</tr>
+<tr>
+  <td><code>0x0042aa92</code></td>
+  <td><code>finish_ZTGameMode_globe_drag_cursor_forwarding</code></td>
+</tr>
+<tr>
+  <td><code>0x0042ab81</code></td>
+  <td><code>forward_UIMouseData_to_current_mode_object</code></td>
+</tr>
+<tr>
+  <td><code>0x0043a20f</code></td>
+  <td><code>show_ZTMainMode_wait_cursor</code></td>
+</tr>
+<tr>
+  <td><code>0x00441a62</code></td>
+  <td><code>read_tool_mode_input_config</code></td>
+</tr>
+<tr>
+  <td><code>0x0044766d</code></td>
+  <td><code>handle_setworldposofmouse</code></td>
+</tr>
+<tr>
+  <td><code>0x0044c344</code></td>
+  <td><code>handle_is_type_on_cursor</code></td>
+</tr>
+<tr>
+  <td><code>0x00450535</code></td>
+  <td><code>emit_userclicked_clickableobj_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x00450674</code></td>
+  <td><code>emit_user_dragging_off_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x004508bb</code></td>
+  <td><code>emit_user_dragging_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x0046a9f8</code></td>
+  <td><code>emit_user_dragging_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x004793c5</code></td>
+  <td><code>handle_reinitialize_mouse_prompt</code></td>
+</tr>
+<tr>
+  <td><code>0x004793e8</code></td>
+  <td><code>handle_hide_mouse_prompt</code></td>
+</tr>
+<tr>
+  <td><code>0x004c943d</code></td>
+  <td><code>advance_feedback_alert_timer_cursor</code></td>
+</tr>
+<tr>
+  <td><code>0x004d77c7</code></td>
+  <td><code>add_ZTFPSUDVComponent_forward_axis_input</code></td>
+</tr>
+<tr>
+  <td><code>0x004d77e8</code></td>
+  <td><code>add_ZTFPSUDVComponent_reverse_axis_input</code></td>
+</tr>
+<tr>
+  <td><code>0x004d780b</code></td>
+  <td><code>add_ZTFPSUDVComponent_right_axis_input</code></td>
+</tr>
+<tr>
+  <td><code>0x004d781e</code></td>
+  <td><code>add_ZTFPSUDVComponent_left_axis_input</code></td>
+</tr>
+<tr>
+  <td><code>0x004d7889</code></td>
+  <td><code>add_ZTFPSUDVComponent_up_axis_input</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g04"></a></p>
+<h2>G04</h2>
+<ul>
+<li><strong>0 / 226 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>25</strong></li>
+<li>Unmatched obligations: <strong>201</strong></li>
+<li>Assigned outside gameplay: <code>bevy-ui</code> 2, <code>preflight</code> 71, <code>rust-support</code> 196</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x004081a3</code></td>
+  <td><code>assign_BFComponent_safe_handle_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0040efce</code></td>
+  <td><code>dispatch_field38_nested_object_vtable70</code></td>
+</tr>
+<tr>
+  <td><code>0x004100dc</code></td>
+  <td><code>assign_BFXMLObj_safe_handle_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00412468</code></td>
+  <td><code>query_BFGEntity_from_handle_ref</code></td>
+</tr>
+<tr>
+  <td><code>0x00412493</code></td>
+  <td><code>find_safe_handle_target_in_pointer_range</code></td>
+</tr>
+<tr>
+  <td><code>0x00417ca4</code></td>
+  <td><code>query_BFGEntity_from_handle_ref</code></td>
+</tr>
+<tr>
+  <td><code>0x00417ec5</code></td>
+  <td><code>assign_BFBinder_safe_handle_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0041990c</code></td>
+  <td><code>handle_mode_object_rotate_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00419b0e</code></td>
+  <td><code>handle_mode_set_entity_position_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00420271</code></td>
+  <td><code>handle_object_rotate</code></td>
+</tr>
+<tr>
+  <td><code>0x0042b05b</code></td>
+  <td><code>apply_zoo_time_fraction_and_clear_output</code></td>
+</tr>
+<tr>
+  <td><code>0x0042cf12</code></td>
+  <td><code>forward_value_to_current_game_object_slot54_or_shared</code></td>
+</tr>
+<tr>
+  <td><code>0x0042cf94</code></td>
+  <td><code>link_missing_entity_refs_for_crate_nodes</code></td>
+</tr>
+<tr>
+  <td><code>0x0042d4b5</code></td>
+  <td><code>assign_BFGEntity_safe_handle_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0044ecd3</code></td>
+  <td><code>select_entity</code></td>
+</tr>
+<tr>
+  <td><code>0x0044f4ed</code></td>
+  <td><code>emit_crate_entity_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x0045e088</code></td>
+  <td><code>populate_entity_location_display</code></td>
+</tr>
+<tr>
+  <td><code>0x00462a02</code></td>
+  <td><code>emit_crate_entity_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x00462eb3</code></td>
+  <td><code>update_selected_object_parenting_node_transform</code></td>
+</tr>
+<tr>
+  <td><code>0x004630b3</code></td>
+  <td><code>refresh_selected_object_multi_select_and_scene_state</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g05"></a></p>
+<h2>G05</h2>
+<ul>
+<li><strong>0 / 551 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>58</strong></li>
+<li>Unmatched obligations: <strong>493</strong></li>
+<li>Assigned outside gameplay: <code>bevy-render</code> 67, <code>bevy-ui</code> 7, <code>preflight</code> 26, <code>rust-support</code> 140</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x004014f5</code></td>
+  <td><code>activate_biome_mode_tool</code></td>
+</tr>
+<tr>
+  <td><code>0x00401640</code></td>
+  <td><code>deactivate_biome_mode_tool</code></td>
+</tr>
+<tr>
+  <td><code>0x0040170c</code></td>
+  <td><code>update_biome_mode_frame</code></td>
+</tr>
+<tr>
+  <td><code>0x004017a5</code></td>
+  <td><code>request_biome_mode_cursor_refresh_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004017ce</code></td>
+  <td><code>refresh_biome_mode_brush_cursor</code></td>
+</tr>
+<tr>
+  <td><code>0x00401ee6</code></td>
+  <td><code>handle_biome_mode_active_cursor_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x00401f38</code></td>
+  <td><code>handle_biome_mode_paint_drag</code></td>
+</tr>
+<tr>
+  <td><code>0x00402243</code></td>
+  <td><code>handle_biome_mode_paint_drag_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004022fc</code></td>
+  <td><code>read_biome_mode_cursor_config</code></td>
+</tr>
+<tr>
+  <td><code>0x00402380</code></td>
+  <td><code>setup_terrain_biome_brush</code></td>
+</tr>
+<tr>
+  <td><code>0x004028a7</code></td>
+  <td><code>update_biome_mode_toggle_controls</code></td>
+</tr>
+<tr>
+  <td><code>0x00402a21</code></td>
+  <td><code>update_biome_mode_cursor_pick</code></td>
+</tr>
+<tr>
+  <td><code>0x00402c81</code></td>
+  <td><code>adjust_biome_mode_brush_size</code></td>
+</tr>
+<tr>
+  <td><code>0x00402d3b</code></td>
+  <td><code>read_terrain_paint_mode_config</code></td>
+</tr>
+<tr>
+  <td><code>0x00402fce</code></td>
+  <td><code>refresh_biome_mode_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x00403219</code></td>
+  <td><code>handle_brush_size_control</code></td>
+</tr>
+<tr>
+  <td><code>0x0040354a</code></td>
+  <td><code>handle_biome_mode_brush_step_command</code></td>
+</tr>
+<tr>
+  <td><code>0x00404d8f</code></td>
+  <td><code>refresh_biome_paint_sound_resource</code></td>
+</tr>
+<tr>
+  <td><code>0x00404df4</code></td>
+  <td><code>update_biome_paint_sound_pan</code></td>
+</tr>
+<tr>
+  <td><code>0x00404e8d</code></td>
+  <td><code>stop_active_biome_paint_sound</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g06"></a></p>
+<h2>G06</h2>
+<ul>
+<li><strong>0 / 234 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>53</strong></li>
+<li>Unmatched obligations: <strong>181</strong></li>
+<li>Assigned outside gameplay: <code>bevy-render</code> 11, <code>bevy-ui</code> 7, <code>preflight</code> 19, <code>rust-support</code> 67</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x004096c7</code></td>
+  <td><code>camera_compass_direction_matches_move_command</code></td>
+</tr>
+<tr>
+  <td><code>0x00409886</code></td>
+  <td><code>activate_camera_command_reader</code></td>
+</tr>
+<tr>
+  <td><code>0x00409922</code></td>
+  <td><code>deactivate_camera_command_reader</code></td>
+</tr>
+<tr>
+  <td><code>0x00409ec0</code></td>
+  <td><code>handle_camera_mouselook_mouse_delta_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0040a069</code></td>
+  <td><code>handle_camera_mouse_wheel_zoom_delta</code></td>
+</tr>
+<tr>
+  <td><code>0x0040a114</code></td>
+  <td><code>handle_camera_zoom_command_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0040a211</code></td>
+  <td><code>handle_camera_rotate_command_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0040a4c2</code></td>
+  <td><code>update_camera_look_command_prompt_state</code></td>
+</tr>
+<tr>
+  <td><code>0x0040a7cd</code></td>
+  <td><code>clear_camera_mouselook_if_active_and_assign_shared_result</code></td>
+</tr>
+<tr>
+  <td><code>0x0040a7f0</code></td>
+  <td><code>set_camera_mouselook_active</code></td>
+</tr>
+<tr>
+  <td><code>0x0040a94d</code></td>
+  <td><code>reset_camera_mouselook_cursor_anchor</code></td>
+</tr>
+<tr>
+  <td><code>0x0040aa60</code></td>
+  <td><code>handle_camera_move_command_event</code></td>
+</tr>
+<tr>
+  <td><code>0x0040abef</code></td>
+  <td><code>write_camera_command_reader_settings</code></td>
+</tr>
+<tr>
+  <td><code>0x0040ac57</code></td>
+  <td><code>read_camera_command_reader_settings</code></td>
+</tr>
+<tr>
+  <td><code>0x004427ec</code></td>
+  <td><code>emit_camera_position_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x00443945</code></td>
+  <td><code>resolve_ZTOverheadMode_registered_ui_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00443ea1</code></td>
+  <td><code>forward_overhead_child_slot_258_and_enable_receiver_capture</code></td>
+</tr>
+<tr>
+  <td><code>0x00443f18</code></td>
+  <td><code>forward_overhead_slot_25c_and_disable_receiver_capture</code></td>
+</tr>
+<tr>
+  <td><code>0x00443f7b</code></td>
+  <td><code>forward_overhead_slot_264_with_prompt_refresh</code></td>
+</tr>
+<tr>
+  <td><code>0x00443ff7</code></td>
+  <td><code>forward_overhead_slot_260_to_child_then_receiver</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g07"></a></p>
+<h2>G07</h2>
+<ul>
+<li><strong>0 / 98 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>3</strong></li>
+<li>Unmatched obligations: <strong>95</strong></li>
+<li>Assigned outside gameplay: <code>bevy-render</code> 10, <code>bevy-ui</code> 8, <code>preflight</code> 8, <code>rust-support</code> 1,500</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0040592e</code></td>
+  <td><code>remove_biome_brush_cell_objects_from_undo_mgr</code></td>
+</tr>
+<tr>
+  <td><code>0x00405cf3</code></td>
+  <td><code>handle_biome_undo_delete_flattening</code></td>
+</tr>
+<tr>
+  <td><code>0x00405d8d</code></td>
+  <td><code>handle_biome_undo_recreate_flattening</code></td>
+</tr>
+<tr>
+  <td><code>0x0040b537</code></td>
+  <td><code>activate_delete_mode_tool</code></td>
+</tr>
+<tr>
+  <td><code>0x0040b6dc</code></td>
+  <td><code>deactivate_delete_mode_and_clear_targets</code></td>
+</tr>
+<tr>
+  <td><code>0x0040b70f</code></td>
+  <td><code>handle_delete_mode_primary_action_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0040b850</code></td>
+  <td><code>handle_delete_mode_pending_event_capture</code></td>
+</tr>
+<tr>
+  <td><code>0x0040b8cb</code></td>
+  <td><code>handle_delete_mode_mouse_move_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0040be00</code></td>
+  <td><code>update_delete_mode_frame</code></td>
+</tr>
+<tr>
+  <td><code>0x0040c156</code></td>
+  <td><code>read_delete_tool_cursor_config</code></td>
+</tr>
+<tr>
+  <td><code>0x0040c60e</code></td>
+  <td><code>lookup_delete_mode_grid_key_target</code></td>
+</tr>
+<tr>
+  <td><code>0x0040c63a</code></td>
+  <td><code>collect_delete_mode_adjacent_grid_targets</code></td>
+</tr>
+<tr>
+  <td><code>0x0040cf86</code></td>
+  <td><code>delete_mode_target_lists_empty</code></td>
+</tr>
+<tr>
+  <td><code>0x0040cffd</code></td>
+  <td><code>handle_structure_delete_confirmation</code></td>
+</tr>
+<tr>
+  <td><code>0x0040db35</code></td>
+  <td><code>select_delete_mode_delete_group_for_key</code></td>
+</tr>
+<tr>
+  <td><code>0x0040dbc8</code></td>
+  <td><code>sum_delete_mode_all_target_values</code></td>
+</tr>
+<tr>
+  <td><code>0x0040dc85</code></td>
+  <td><code>sum_delete_mode_direct_target_values</code></td>
+</tr>
+<tr>
+  <td><code>0x0040df74</code></td>
+  <td><code>delete_group_contains_key</code></td>
+</tr>
+<tr>
+  <td><code>0x0040e1bc</code></td>
+  <td><code>checked_delete_group_vector_at</code></td>
+</tr>
+<tr>
+  <td><code>0x0040e204</code></td>
+  <td><code>create_delete_mode_instance</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g08"></a></p>
+<h2>G08</h2>
+<ul>
+<li><strong>0 / 361 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>33</strong></li>
+<li>Unmatched obligations: <strong>328</strong></li>
+<li>Assigned outside gameplay: <code>bevy-animation</code> 1, <code>bevy-render</code> 20, <code>bevy-ui</code> 20, <code>platform</code> 1, <code>preflight</code> 42, <code>rust-support</code> 155</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0041022d</code></td>
+  <td><code>set_elevated_curb_preview_transform</code></td>
+</tr>
+<tr>
+  <td><code>0x004105c6</code></td>
+  <td><code>deactivate_elevated_curb_mode_and_clear_preview</code></td>
+</tr>
+<tr>
+  <td><code>0x004107f3</code></td>
+  <td><code>ensure_elevated_curb_preview_attached</code></td>
+</tr>
+<tr>
+  <td><code>0x0041089f</code></td>
+  <td><code>detach_elevated_curb_preview</code></td>
+</tr>
+<tr>
+  <td><code>0x00410916</code></td>
+  <td><code>update_elevated_curb_preview_from_cursor</code></td>
+</tr>
+<tr>
+  <td><code>0x00410cff</code></td>
+  <td><code>set_elevated_curb_target_23c_world_membership</code></td>
+</tr>
+<tr>
+  <td><code>0x00410d96</code></td>
+  <td><code>set_elevated_curb_target_240_world_membership</code></td>
+</tr>
+<tr>
+  <td><code>0x00410dea</code></td>
+  <td><code>reset_elevated_curb_preview_state</code></td>
+</tr>
+<tr>
+  <td><code>0x00410e47</code></td>
+  <td><code>commit_elevated_curb_place_fence_preview</code></td>
+</tr>
+<tr>
+  <td><code>0x004113a6</code></td>
+  <td><code>append_or_update_elevated_curb_preview_segment</code></td>
+</tr>
+<tr>
+  <td><code>0x00411528</code></td>
+  <td><code>trim_elevated_curb_preview_segments</code></td>
+</tr>
+<tr>
+  <td><code>0x004115cf</code></td>
+  <td><code>remember_elevated_curb_source_handle</code></td>
+</tr>
+<tr>
+  <td><code>0x0041166e</code></td>
+  <td><code>clear_elevated_curb_source_handles</code></td>
+</tr>
+<tr>
+  <td><code>0x00411a07</code></td>
+  <td><code>refresh_elevated_curb_endpoint_candidate_from_cursor</code></td>
+</tr>
+<tr>
+  <td><code>0x00411c83</code></td>
+  <td><code>find_nearest_elevated_curb_candidate_in_adjacent_slots</code></td>
+</tr>
+<tr>
+  <td><code>0x00411d7e</code></td>
+  <td><code>prepare_elevated_curb_endpoint_targets</code></td>
+</tr>
+<tr>
+  <td><code>0x00411ddd</code></td>
+  <td><code>refresh_elevated_curb_preview_from_endpoint_state</code></td>
+</tr>
+<tr>
+  <td><code>0x00411ebc</code></td>
+  <td><code>handle_elevated_curb_mode_primary_action_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00412675</code></td>
+  <td><code>read_elevated_path_mode_grid_settings</code></td>
+</tr>
+<tr>
+  <td><code>0x0041272f</code></td>
+  <td><code>read_elevated_path_grid_data_settings</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g09"></a></p>
+<h2>G09</h2>
+<ul>
+<li><strong>0 / 109 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>2</strong></li>
+<li>Unmatched obligations: <strong>107</strong></li>
+<li>Assigned outside gameplay: <code>preflight</code> 15, <code>rust-support</code> 36</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0046ef1c</code></td>
+  <td><code>assign_if_BFGTraversableArea_safe_handle</code></td>
+</tr>
+<tr>
+  <td><code>0x004d3498</code></td>
+  <td><code>refresh_fence_traversability_records</code></td>
+</tr>
+<tr>
+  <td><code>0x00551349</code></td>
+  <td><code>flush_area_membership_traversability_refresh</code></td>
+</tr>
+<tr>
+  <td><code>0x0057cbd6</code></td>
+  <td><code>resolve_traversability_candidate_payload_for_key</code></td>
+</tr>
+<tr>
+  <td><code>0x0057cd8a</code></td>
+  <td><code>resolve_traversability_target_at_point</code></td>
+</tr>
+<tr>
+  <td><code>0x005f320e</code></td>
+  <td><code>test_current_BFAI_traversability_manager_valid</code></td>
+</tr>
+<tr>
+  <td><code>0x00603b58</code></td>
+  <td><code>test_BFGTraversabilityMgr_primary_lookup_valid</code></td>
+</tr>
+<tr>
+  <td><code>0x00603b8b</code></td>
+  <td><code>test_BFGTraversabilityMgr_cached_key_match</code></td>
+</tr>
+<tr>
+  <td><code>0x00603bec</code></td>
+  <td><code>test_BFGTraversabilityMgr_secondary_lookup_valid</code></td>
+</tr>
+<tr>
+  <td><code>0x006c54de</code></td>
+  <td><code>dispatch_BFGTraversableArea_invalid_event</code></td>
+</tr>
+<tr>
+  <td><code>0x006da74f</code></td>
+  <td><code>clear_BFGTraversabilityMgr_record_list</code></td>
+</tr>
+<tr>
+  <td><code>0x006da8f9</code></td>
+  <td><code>resolve_BFGTraversableArea_container_data_value</code></td>
+</tr>
+<tr>
+  <td><code>0x006dd1c9</code></td>
+  <td><code>merge_BFGTraversableArea_span_range</code></td>
+</tr>
+<tr>
+  <td><code>0x006dd36b</code></td>
+  <td><code>rebuild_BFGTraversableArea_span_maps_and_bins</code></td>
+</tr>
+<tr>
+  <td><code>0x006dd71e</code></td>
+  <td><code>test_BFGTraversableArea_any_span_overlaps_range</code></td>
+</tr>
+<tr>
+  <td><code>0x006dd821</code></td>
+  <td><code>test_BFGTraversableArea_cell_blocked</code></td>
+</tr>
+<tr>
+  <td><code>0x006dd8d0</code></td>
+  <td><code>test_BFGTraversableArea_record_cell_blocked</code></td>
+</tr>
+<tr>
+  <td><code>0x006dd8ea</code></td>
+  <td><code>test_BFGTraversableArea_packed_cell_blocked</code></td>
+</tr>
+<tr>
+  <td><code>0x006dd92d</code></td>
+  <td><code>test_BFGTraversableArea_optional_packed_cell_blocked</code></td>
+</tr>
+<tr>
+  <td><code>0x006dd97d</code></td>
+  <td><code>test_BFGTraversableArea_any_map_blocks_cell</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g10"></a></p>
+<h2>G10</h2>
+<ul>
+<li><strong>0 / 386 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>64</strong></li>
+<li>Unmatched obligations: <strong>322</strong></li>
+<li>Assigned outside gameplay: <code>bevy-render</code> 2, <code>bevy-ui</code> 3, <code>preflight</code> 24, <code>rust-support</code> 151</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0040db0a</code></td>
+  <td><code>detach_secondary_placement_preview_object</code></td>
+</tr>
+<tr>
+  <td><code>0x00410559</code></td>
+  <td><code>emit_setplacementfence_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x004105ed</code></td>
+  <td><code>read_placement_anchor_colors</code></td>
+</tr>
+<tr>
+  <td><code>0x00412035</code></td>
+  <td><code>handle_setplacementfence</code></td>
+</tr>
+<tr>
+  <td><code>0x00414a61</code></td>
+  <td><code>handle_elevated_path_placement_mode</code></td>
+</tr>
+<tr>
+  <td><code>0x00414aea</code></td>
+  <td><code>handle_elevated_path_placement_height</code></td>
+</tr>
+<tr>
+  <td><code>0x00414cfd</code></td>
+  <td><code>handle_setplacementobject</code></td>
+</tr>
+<tr>
+  <td><code>0x00418a64</code></td>
+  <td><code>emit_placement_cloud_feedback_at_point</code></td>
+</tr>
+<tr>
+  <td><code>0x00418bfe</code></td>
+  <td><code>enumerate_mode_placement_target_candidates_at_point</code></td>
+</tr>
+<tr>
+  <td><code>0x00418fa6</code></td>
+  <td><code>refresh_selected_target_placement_state</code></td>
+</tr>
+<tr>
+  <td><code>0x00419dbc</code></td>
+  <td><code>emit_placement_failure_feedback_event</code></td>
+</tr>
+<tr>
+  <td><code>0x00419f15</code></td>
+  <td><code>update_mode_placement_preview_at_point</code></td>
+</tr>
+<tr>
+  <td><code>0x0041a4e5</code></td>
+  <td><code>read_placement_cursor_config</code></td>
+</tr>
+<tr>
+  <td><code>0x0041b41f</code></td>
+  <td><code>read_placement_color_entry_config</code></td>
+</tr>
+<tr>
+  <td><code>0x0041b48e</code></td>
+  <td><code>read_placement_grid_cursor_config</code></td>
+</tr>
+<tr>
+  <td><code>0x0041b604</code></td>
+  <td><code>clear_mode_placement_preview_objects</code></td>
+</tr>
+<tr>
+  <td><code>0x0041b647</code></td>
+  <td><code>attach_primary_placement_preview_object</code></td>
+</tr>
+<tr>
+  <td><code>0x0041b680</code></td>
+  <td><code>detach_mode_placement_preview_objects</code></td>
+</tr>
+<tr>
+  <td><code>0x0041b704</code></td>
+  <td><code>attach_secondary_placement_preview_object</code></td>
+</tr>
+<tr>
+  <td><code>0x0041b743</code></td>
+  <td><code>detach_secondary_placement_preview_object_shared</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g11"></a></p>
+<h2>G11</h2>
+<ul>
+<li><strong>0 / 148 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>12</strong></li>
+<li>Unmatched obligations: <strong>136</strong></li>
+<li>Assigned outside gameplay: <code>bevy-animation</code> 7, <code>bevy-render</code> 17, <code>bevy-ui</code> 1, <code>codec-library</code> 5, <code>platform</code> 3, <code>preflight</code> 20, <code>rust-support</code> 195</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0040b7c0</code></td>
+  <td><code>handle_delete_mode_primary_release_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0040c415</code></td>
+  <td><code>can_place_animal_entity</code></td>
+</tr>
+<tr>
+  <td><code>0x0044c68a</code></td>
+  <td><code>assign_animal_placement_target_handle</code></td>
+</tr>
+<tr>
+  <td><code>0x00452e9a</code></td>
+  <td><code>populate_family_members_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x004532ae</code></td>
+  <td><code>populate_animal_family_tree_list</code></td>
+</tr>
+<tr>
+  <td><code>0x00453ae9</code></td>
+  <td><code>queue_selected_animal_mode_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x0045fcfb</code></td>
+  <td><code>populate_egg_timer_ui</code></td>
+</tr>
+<tr>
+  <td><code>0x004619e9</code></td>
+  <td><code>populate_animal_gender_display</code></td>
+</tr>
+<tr>
+  <td><code>0x0046206f</code></td>
+  <td><code>update_animal_ride_swim_with_controls</code></td>
+</tr>
+<tr>
+  <td><code>0x0046489d</code></td>
+  <td><code>handle_selectnext_rampaging_animal</code></td>
+</tr>
+<tr>
+  <td><code>0x0047c3e1</code></td>
+  <td><code>deactivate_action_mode_and_release_prompt_handles</code></td>
+</tr>
+<tr>
+  <td><code>0x0047ece3</code></td>
+  <td><code>handle_training_target_animal_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x0048e4eb</code></td>
+  <td><code>resolve_adoption_button_action_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0048e5ff</code></td>
+  <td><code>forward_adoption_button_slot44_to_base</code></td>
+</tr>
+<tr>
+  <td><code>0x0048e613</code></td>
+  <td><code>forward_adoption_button_slot45_to_base</code></td>
+</tr>
+<tr>
+  <td><code>0x0048e627</code></td>
+  <td><code>send_adoption_button_string_to_resolved_target</code></td>
+</tr>
+<tr>
+  <td><code>0x0048e6bc</code></td>
+  <td><code>set_adoption_button_primary_icon_layout</code></td>
+</tr>
+<tr>
+  <td><code>0x0048e778</code></td>
+  <td><code>set_adoption_button_secondary_icon_layout</code></td>
+</tr>
+<tr>
+  <td><code>0x0048e834</code></td>
+  <td><code>update_adoption_button_option_states</code></td>
+</tr>
+<tr>
+  <td><code>0x0048ecac</code></td>
+  <td><code>set_adoption_button_count_value</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g12"></a></p>
+<h2>G12</h2>
+<ul>
+<li><strong>0 / 17 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>1</strong></li>
+<li>Unmatched obligations: <strong>16</strong></li>
+<li>Assigned outside gameplay: <code>bevy-render</code> 2, <code>bevy-ui</code> 1, <code>preflight</code> 1, <code>rust-support</code> 18</li>
+</ul>
+<details><summary>First 16 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x00497693</code></td>
+  <td><code>compare_multilist_need_sort_values</code></td>
+</tr>
+<tr>
+  <td><code>0x0049c3b8</code></td>
+  <td><code>sort_multilist_entries_by_need</code></td>
+</tr>
+<tr>
+  <td><code>0x0049c69d</code></td>
+  <td><code>introsort_multilist_entries_by_need</code></td>
+</tr>
+<tr>
+  <td><code>0x0049cf24</code></td>
+  <td><code>partition_multilist_entries_by_need</code></td>
+</tr>
+<tr>
+  <td><code>0x0049dce5</code></td>
+  <td><code>select_multilist_need_sort_pivot</code></td>
+</tr>
+<tr>
+  <td><code>0x0049dd77</code></td>
+  <td><code>make_heap_multilist_entries_by_need</code></td>
+</tr>
+<tr>
+  <td><code>0x0049e540</code></td>
+  <td><code>order_multilist_need_pivot_triple</code></td>
+</tr>
+<tr>
+  <td><code>0x0049ecc4</code></td>
+  <td><code>place_heap_hole_multilist_by_need</code></td>
+</tr>
+<tr>
+  <td><code>0x00510873</code></td>
+  <td><code>detect_ZTPathElevated_curb_overlay_need</code></td>
+</tr>
+<tr>
+  <td><code>0x00597905</code></td>
+  <td><code>free_owned_registry_node_payload_if_needed</code></td>
+</tr>
+<tr>
+  <td><code>0x005f3bf6</code></td>
+  <td><code>resolve_BFAINeedAdjusts_script_component_context_value</code></td>
+</tr>
+<tr>
+  <td><code>0x006133f0</code></td>
+  <td><code>dispatch_active_ai_runtime_need_point_refresh</code></td>
+</tr>
+<tr>
+  <td><code>0x00616809</code></td>
+  <td><code>copy_BFAIEntityComponent_active_need_branch_ref</code></td>
+</tr>
+<tr>
+  <td><code>0x007074b1</code></td>
+  <td><code>tick_BFGEnvironmentComponent_space_need_timer</code></td>
+</tr>
+<tr>
+  <td><code>0x007074e6</code></td>
+  <td><code>compute_BFGEnvironmentComponent_space_need_score_ratio</code></td>
+</tr>
+<tr>
+  <td><code>0x0087be57</code></td>
+  <td><code>luaK_need_value</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g13"></a></p>
+<h2>G13</h2>
+<ul>
+<li><strong>0 / 516 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>9</strong></li>
+<li>Unmatched obligations: <strong>507</strong></li>
+<li>Assigned outside gameplay: <code>bevy-render</code> 1, <code>bevy-ui</code> 8, <code>preflight</code> 185, <code>rust-support</code> 629, <code>semantic-source</code> 1</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0045d414</code></td>
+  <td><code>update_entity_task_label</code></td>
+</tr>
+<tr>
+  <td><code>0x0046718a</code></td>
+  <td><code>resolve_ZTAIViewAnimals_from_virtual_slot6c</code></td>
+</tr>
+<tr>
+  <td><code>0x004673ce</code></td>
+  <td><code>matches_ui_context_relation_predicate</code></td>
+</tr>
+<tr>
+  <td><code>0x004f81b7</code></td>
+  <td><code>collect_matching_task_template_actor_names_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x004f89d3</code></td>
+  <td><code>collect_beh_animate_tap_animation_names_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x004f8dd6</code></td>
+  <td><code>resolve_task_entry_field_14_localized_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004f8ea8</code></td>
+  <td><code>refresh_task_entry_child_lookup_side_effect</code></td>
+</tr>
+<tr>
+  <td><code>0x004fa25f</code></td>
+  <td><code>query_BFBehavior_from_handle_ref</code></td>
+</tr>
+<tr>
+  <td><code>0x00538e34</code></td>
+  <td><code>resolve_BFBehaviorMgr_from_component_query</code></td>
+</tr>
+<tr>
+  <td><code>0x005638c5</code></td>
+  <td><code>evaluate_ZTEntityTypePredicate</code></td>
+</tr>
+<tr>
+  <td><code>0x005bda39</code></td>
+  <td><code>dispatch_BFResourceMgr_entry_predicate_by_key</code></td>
+</tr>
+<tr>
+  <td><code>0x005f78e0</code></td>
+  <td><code>BFBehSetMap_write_behavior_path_entries</code></td>
+</tr>
+<tr>
+  <td><code>0x005f795a</code></td>
+  <td><code>populate_BFBehSetMap_from_behavior_path</code></td>
+</tr>
+<tr>
+  <td><code>0x005f7a2a</code></td>
+  <td><code>import_BFBehSetMap_behavior_path_entries</code></td>
+</tr>
+<tr>
+  <td><code>0x005f7a4c</code></td>
+  <td><code>find_BFBehSetMap_matching_behavior_entry</code></td>
+</tr>
+<tr>
+  <td><code>0x005f7b9d</code></td>
+  <td><code>import_BFBehSetMap_subject_behavior_bindings</code></td>
+</tr>
+<tr>
+  <td><code>0x005f7cab</code></td>
+  <td><code>assign_BFBehSetMap_entry_subject_behavior</code></td>
+</tr>
+<tr>
+  <td><code>0x005f9492</code></td>
+  <td><code>test_BFAICognitiveMgr_cached_key_present</code></td>
+</tr>
+<tr>
+  <td><code>0x005f9614</code></td>
+  <td><code>resolve_BFAICognitiveMgr_handler_value</code></td>
+</tr>
+<tr>
+  <td><code>0x005f9a79</code></td>
+  <td><code>clear_BFAICognitiveMgr_candidate_storage</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g14"></a></p>
+<h2>G14</h2>
+<ul>
+<li><strong>0 / 404 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>56</strong></li>
+<li>Unmatched obligations: <strong>348</strong></li>
+<li>Assigned outside gameplay: <code>bevy-animation</code> 1, <code>bevy-render</code> 5, <code>bevy-ui</code> 7, <code>preflight</code> 124, <code>rust-support</code> 468</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0040acfd</code></td>
+  <td><code>sync_camera_crouch_ground_fit_height</code></td>
+</tr>
+<tr>
+  <td><code>0x0040ada2</code></td>
+  <td><code>compute_camera_crouch_ground_fit_height</code></td>
+</tr>
+<tr>
+  <td><code>0x00413252</code></td>
+  <td><code>place_path mode action</code></td>
+</tr>
+<tr>
+  <td><code>0x004136c0</code></td>
+  <td><code>has_clearance_above_existing_path_height</code></td>
+</tr>
+<tr>
+  <td><code>0x00413cd8</code></td>
+  <td><code>validate_diagonal_elevated_path_route</code></td>
+</tr>
+<tr>
+  <td><code>0x0041409a</code></td>
+  <td><code>validate_cardinal_elevated_path_route</code></td>
+</tr>
+<tr>
+  <td><code>0x00414353</code></td>
+  <td><code>seed_elevated_path_route_height_samples</code></td>
+</tr>
+<tr>
+  <td><code>0x004143e1</code></td>
+  <td><code>select_elevated_path_route_endpoint</code></td>
+</tr>
+<tr>
+  <td><code>0x004145c8</code></td>
+  <td><code>validate_and_record_elevated_path_route_branch</code></td>
+</tr>
+<tr>
+  <td><code>0x004189bb</code></td>
+  <td><code>activate_ZTEntityMovementMode</code></td>
+</tr>
+<tr>
+  <td><code>0x00418a16</code></td>
+  <td><code>deactivate_ZTEntityMovementMode</code></td>
+</tr>
+<tr>
+  <td><code>0x00419152</code></td>
+  <td><code>handle_ZTEntityMovementMode_mouse_move_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00419200</code></td>
+  <td><code>reset_ZTEntityMovementMode_placement_vector_state</code></td>
+</tr>
+<tr>
+  <td><code>0x00419265</code></td>
+  <td><code>handle_ZTEntityMovementMode_primary_action_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0041929c</code></td>
+  <td><code>handle_ZTEntityMovementMode_primary_release_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00419653</code></td>
+  <td><code>update_ZTEntityMovementMode_frame</code></td>
+</tr>
+<tr>
+  <td><code>0x00432469</code></td>
+  <td><code>is_path_endpoint_diagonal_mode</code></td>
+</tr>
+<tr>
+  <td><code>0x0044411e</code></td>
+  <td><code>route_overhead_mouse_payload_through_child_or_receiver</code></td>
+</tr>
+<tr>
+  <td><code>0x00450ec7</code></td>
+  <td><code>route_selected_entity_context_string_to_object_state</code></td>
+</tr>
+<tr>
+  <td><code>0x00490d37</code></td>
+  <td><code>route_adoption_heartbeat_or_fallback_payload</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g15"></a></p>
+<h2>G15</h2>
+<ul>
+<li><strong>0 / 3 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>0</strong></li>
+<li>Unmatched obligations: <strong>3</strong></li>
+<li>Assigned outside gameplay: <code>codec-library</code> 3</li>
+</ul>
+<details><summary>First 3 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x00461d81</code></td>
+  <td><code>populate_food_level_display</code></td>
+</tr>
+<tr>
+  <td><code>0x0085cdea</code></td>
+  <td><code>validate_ZTBehDockWater_drink_position</code></td>
+</tr>
+<tr>
+  <td><code>0x0085cf56</code></td>
+  <td><code>find_ZTBehDockWater_drink_position</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g16"></a></p>
+<h2>G16</h2>
+<ul>
+<li><strong>0 / 92 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>4</strong></li>
+<li>Unmatched obligations: <strong>88</strong></li>
+<li>Assigned outside gameplay: <code>preflight</code> 25, <code>rust-support</code> 86, <code>semantic-source</code> 1</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0044aed9</code></td>
+  <td><code>update_placement_target_escape_state_and_handle</code></td>
+</tr>
+<tr>
+  <td><code>0x0045932a</code></td>
+  <td><code>handle_enter_disease_mode</code></td>
+</tr>
+<tr>
+  <td><code>0x00459498</code></td>
+  <td><code>handle_enter_tranq_mode</code></td>
+</tr>
+<tr>
+  <td><code>0x0046465d</code></td>
+  <td><code>handle_selectnext_diseased_animal</code></td>
+</tr>
+<tr>
+  <td><code>0x0047634c</code></td>
+  <td><code>dispatch_ZTCureDiseaseMode_handler_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00476f98</code></td>
+  <td><code>update_ZTCureDiseaseMode_frame</code></td>
+</tr>
+<tr>
+  <td><code>0x00477094</code></td>
+  <td><code>refresh_cure_disease_sample_prompt</code></td>
+</tr>
+<tr>
+  <td><code>0x0047745e</code></td>
+  <td><code>refresh_cure_sample_button_enabled_state</code></td>
+</tr>
+<tr>
+  <td><code>0x004774e9</code></td>
+  <td><code>read_cure_disease_mode_config</code></td>
+</tr>
+<tr>
+  <td><code>0x0047767a</code></td>
+  <td><code>refresh_cure_disease_mode_ui_controls</code></td>
+</tr>
+<tr>
+  <td><code>0x004778eb</code></td>
+  <td><code>send_cure_disease_control_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00477937</code></td>
+  <td><code>update_cure_disease_sample_indicator_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00477a5d</code></td>
+  <td><code>update_cure_disease_sample_timer_display</code></td>
+</tr>
+<tr>
+  <td><code>0x00477b44</code></td>
+  <td><code>cure_disease_ignore_sample_type_matches_entity</code></td>
+</tr>
+<tr>
+  <td><code>0x00477bae</code></td>
+  <td><code>find_nearest_cure_disease_sample_entity</code></td>
+</tr>
+<tr>
+  <td><code>0x00477f11</code></td>
+  <td><code>append_ZTCureDiseaseMode_handler_entry</code></td>
+</tr>
+<tr>
+  <td><code>0x0048aa32</code></td>
+  <td><code>is_tranquilizer_charge_ready</code></td>
+</tr>
+<tr>
+  <td><code>0x0048ab15</code></td>
+  <td><code>resolve_tranquilize_action_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0048ae51</code></td>
+  <td><code>activate_tranquilize_mode_and_seed_gun_ui</code></td>
+</tr>
+<tr>
+  <td><code>0x0048b13d</code></td>
+  <td><code>deactivate_tranquilize_mode_and_clear_gun_ui</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g17"></a></p>
+<h2>G17</h2>
+<ul>
+<li><strong>0 / 106 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>18</strong></li>
+<li>Unmatched obligations: <strong>88</strong></li>
+<li>Assigned outside gameplay: <code>bevy-render</code> 9, <code>bevy-ui</code> 3, <code>codec-library</code> 1, <code>preflight</code> 23, <code>rust-support</code> 99</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x00422209</code></td>
+  <td><code>is_guestgate_fence_placement_token</code></td>
+</tr>
+<tr>
+  <td><code>0x0045b389</code></td>
+  <td><code>update_show_thoughts_list</code></td>
+</tr>
+<tr>
+  <td><code>0x004607c1</code></td>
+  <td><code>populate_guest_favorite_animals_list</code></td>
+</tr>
+<tr>
+  <td><code>0x00460f65</code></td>
+  <td><code>populate_thoughts_listbox</code></td>
+</tr>
+<tr>
+  <td><code>0x0046114a</code></td>
+  <td><code>update_entity_thoughts_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x004812c3</code></td>
+  <td><code>update_training_crowd_cheer_and_feedback_state</code></td>
+</tr>
+<tr>
+  <td><code>0x00499f7f</code></td>
+  <td><code>refresh_guest_multi_info_entry</code></td>
+</tr>
+<tr>
+  <td><code>0x004b8cda</code></td>
+  <td><code>resolve_ZTZooSurveyComponent_action_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004b8d6d</code></td>
+  <td><code>read_zoo_survey_questions_layout</code></td>
+</tr>
+<tr>
+  <td><code>0x004b8ebd</code></td>
+  <td><code>refresh_zoo_survey_question_state</code></td>
+</tr>
+<tr>
+  <td><code>0x004b8ee4</code></td>
+  <td><code>rebuild_zoo_survey_question_rows</code></td>
+</tr>
+<tr>
+  <td><code>0x004c85b5</code></td>
+  <td><code>insert_ZTFeedbackComponent_thought_history_entry</code></td>
+</tr>
+<tr>
+  <td><code>0x004cb8fe</code></td>
+  <td><code>insert_ZTThoughtInfo_list_node_before</code></td>
+</tr>
+<tr>
+  <td><code>0x00533783</code></td>
+  <td><code>test_viewable_route_candidate_clearance</code></td>
+</tr>
+<tr>
+  <td><code>0x00539890</code></td>
+  <td><code>resolve_ZTViewableObjectMgr_registered_ui_value</code></td>
+</tr>
+<tr>
+  <td><code>0x005399aa</code></td>
+  <td><code>select_ZTViewableObjectMgr_active_viewable_output</code></td>
+</tr>
+<tr>
+  <td><code>0x00539a28</code></td>
+  <td><code>insert_ZTViewableObjectMgr_submanager_ref</code></td>
+</tr>
+<tr>
+  <td><code>0x00539a6b</code></td>
+  <td><code>add_ZTViewableObjectMgr_viewable_and_refresh_visibility</code></td>
+</tr>
+<tr>
+  <td><code>0x00539bb3</code></td>
+  <td><code>remove_ZTViewableObjectMgr_viewable_and_refresh_visibility</code></td>
+</tr>
+<tr>
+  <td><code>0x00539cf6</code></td>
+  <td><code>dispatch_ZTViewableObjectMgr_viewable_update_to_submanagers</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g18"></a></p>
+<h2>G18</h2>
+<ul>
+<li><strong>0 / 134 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>7</strong></li>
+<li>Unmatched obligations: <strong>127</strong></li>
+<li>Assigned outside gameplay: <code>bevy-render</code> 2, <code>preflight</code> 82, <code>rust-support</code> 179</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x00404ae8</code></td>
+  <td><code>handle_bfterrain_charge_undo_transaction</code></td>
+</tr>
+<tr>
+  <td><code>0x004163b0</code></td>
+  <td><code>compute_elevated_path_preview_cost_delta</code></td>
+</tr>
+<tr>
+  <td><code>0x004419c8</code></td>
+  <td><code>ensure_cursor_money_container_ui_object</code></td>
+</tr>
+<tr>
+  <td><code>0x00443d56</code></td>
+  <td><code>clear_cursor_money_container_children</code></td>
+</tr>
+<tr>
+  <td><code>0x00448a42</code></td>
+  <td><code>compute_path_mode_preview_cost_delta</code></td>
+</tr>
+<tr>
+  <td><code>0x0044b184</code></td>
+  <td><code>show_negative_cursor_money_for_expensive_target</code></td>
+</tr>
+<tr>
+  <td><code>0x0045dc1c</code></td>
+  <td><code>update_guest_cash_display</code></td>
+</tr>
+<tr>
+  <td><code>0x0045e5fc</code></td>
+  <td><code>populate_commerce_pricing_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x004612b9</code></td>
+  <td><code>populate_entity_users_upkeep_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x00463f34</code></td>
+  <td><code>evaluate_target_transaction_cost_by_name</code></td>
+</tr>
+<tr>
+  <td><code>0x004907f9</code></td>
+  <td><code>emit_adoption_price_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004948cf</code></td>
+  <td><code>populate_cost_upkeep_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x00495df3</code></td>
+  <td><code>resolve_current_ZTEconomyComponent</code></td>
+</tr>
+<tr>
+  <td><code>0x00496de0</code></td>
+  <td><code>resolve_ZTMoneyText_action_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00496ece</code></td>
+  <td><code>set_money_text_from_string_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x004970ab</code></td>
+  <td><code>set_money_text_from_float_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x0049746f</code></td>
+  <td><code>inherit_ZTMoneyText_handlers_from_registry</code></td>
+</tr>
+<tr>
+  <td><code>0x0049758c</code></td>
+  <td><code>append_ZTMoneyText_handler_record</code></td>
+</tr>
+<tr>
+  <td><code>0x004b55bf</code></td>
+  <td><code>populate_economy_report_panels</code></td>
+</tr>
+<tr>
+  <td><code>0x004b5ba9</code></td>
+  <td><code>populate_economy_category_label_text</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g19"></a></p>
+<h2>G19</h2>
+<ul>
+<li><strong>0 / 22 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>5</strong></li>
+<li>Unmatched obligations: <strong>17</strong></li>
+<li>Assigned outside gameplay: <code>rust-support</code> 8</li>
+</ul>
+<details><summary>First 17 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0045a5ed</code></td>
+  <td><code>handle_set_current_show_for_donations</code></td>
+</tr>
+<tr>
+  <td><code>0x0045a8e7</code></td>
+  <td><code>update_show_donation_summary_amounts</code></td>
+</tr>
+<tr>
+  <td><code>0x0049a864</code></td>
+  <td><code>refresh_donation_box_multi_info_entry</code></td>
+</tr>
+<tr>
+  <td><code>0x004b639a</code></td>
+  <td><code>populate_donation_box_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x004b68de</code></td>
+  <td><code>populate_scenery_donation_box_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x004b6a10</code></td>
+  <td><code>populate_donation_box_panel_b</code></td>
+</tr>
+<tr>
+  <td><code>0x004b6f05</code></td>
+  <td><code>populate_donations_by_species_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x00811074</code></td>
+  <td><code>read_donation_behavior_config</code></td>
+</tr>
+<tr>
+  <td><code>0x0082a1c4</code></td>
+  <td><code>has_ZTAIViewAnimals_species_donation_entry</code></td>
+</tr>
+<tr>
+  <td><code>0x0082a2ff</code></td>
+  <td><code>record_ZTAIViewAnimals_view_and_donation_scores</code></td>
+</tr>
+<tr>
+  <td><code>0x0082ab19</code></td>
+  <td><code>apply_guest_preferred_animal_view_and_donation_factors</code></td>
+</tr>
+<tr>
+  <td><code>0x0082b163</code></td>
+  <td><code>compute_ZTAIViewAnimals_donation_amount</code></td>
+</tr>
+<tr>
+  <td><code>0x0082b933</code></td>
+  <td><code>sync_ZTAIViewAnimals_donation_target_names</code></td>
+</tr>
+<tr>
+  <td><code>0x0082c32a</code></td>
+  <td><code>emit_ZTAIViewAnimals_donation_points_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x0082c523</code></td>
+  <td><code>has_ZTAIViewAnimals_candidate_donation_entry</code></td>
+</tr>
+<tr>
+  <td><code>0x0085a350</code></td>
+  <td><code>select_ZTBehViewAnimals_species_donation_target</code></td>
+</tr>
+<tr>
+  <td><code>0x00863d17</code></td>
+  <td><code>setup_show_donation_transaction</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g20"></a></p>
+<h2>G20</h2>
+<ul>
+<li><strong>0 / 345 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>15</strong></li>
+<li>Unmatched obligations: <strong>330</strong></li>
+<li>Assigned outside gameplay: <code>bevy-ui</code> 41, <code>preflight</code> 45, <code>rust-support</code> 341</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x00408029</code></td>
+  <td><code>copy_named_ui_value_assignment_ref_range</code></td>
+</tr>
+<tr>
+  <td><code>0x004080e6</code></td>
+  <td><code>copy_named_ui_value_assignment_ref_range_b</code></td>
+</tr>
+<tr>
+  <td><code>0x00408993</code></td>
+  <td><code>copy_named_ui_value_assignment_ref_range_backward</code></td>
+</tr>
+<tr>
+  <td><code>0x00408c82</code></td>
+  <td><code>clear_named_ui_value_assignment_ref_vector</code></td>
+</tr>
+<tr>
+  <td><code>0x004091bd</code></td>
+  <td><code>apply_ui_value_assignment_update_and_mark_dirty</code></td>
+</tr>
+<tr>
+  <td><code>0x0040a8a6</code></td>
+  <td><code>publish_camera_freemouselook_assignment</code></td>
+</tr>
+<tr>
+  <td><code>0x0040c927</code></td>
+  <td><code>classify_delete_mode_related_target_assignments</code></td>
+</tr>
+<tr>
+  <td><code>0x0040cae0</code></td>
+  <td><code>classify_delete_mode_target_assignment</code></td>
+</tr>
+<tr>
+  <td><code>0x0040cfaf</code></td>
+  <td><code>delete_mode_target_assignment_exists</code></td>
+</tr>
+<tr>
+  <td><code>0x0040d986</code></td>
+  <td><code>clear_delete_mode_target_assignment_lists</code></td>
+</tr>
+<tr>
+  <td><code>0x0040e4cd</code></td>
+  <td><code>compare_named_ui_value_assignment_ref_key_less</code></td>
+</tr>
+<tr>
+  <td><code>0x00410cbc</code></td>
+  <td><code>sync_elevated_curb_target_23c_assignment</code></td>
+</tr>
+<tr>
+  <td><code>0x00410d53</code></td>
+  <td><code>sync_elevated_curb_target_240_assignment</code></td>
+</tr>
+<tr>
+  <td><code>0x004116de</code></td>
+  <td><code>rebuild_elevated_curb_endpoint_assignment_vector</code></td>
+</tr>
+<tr>
+  <td><code>0x0041187c</code></td>
+  <td><code>refresh_elevated_curb_endpoint_assignments</code></td>
+</tr>
+<tr>
+  <td><code>0x00412167</code></td>
+  <td><code>clear_elevated_curb_endpoint_assignment_vector</code></td>
+</tr>
+<tr>
+  <td><code>0x0041723a</code></td>
+  <td><code>assign_named_ui_value_assignment_ref_vector</code></td>
+</tr>
+<tr>
+  <td><code>0x0041a468</code></td>
+  <td><code>clear_mode_target_assignment_tree</code></td>
+</tr>
+<tr>
+  <td><code>0x00426d31</code></td>
+  <td><code>clear_ZTFenceMode_target_assignment_tree</code></td>
+</tr>
+<tr>
+  <td><code>0x004270c8</code></td>
+  <td><code>insert_ZTFenceMode_target_assignment_entry_unique_with_hint</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g21"></a></p>
+<h2>G21</h2>
+<ul>
+<li><strong>0 / 374 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>119</strong></li>
+<li>Unmatched obligations: <strong>255</strong></li>
+<li>Assigned outside gameplay: <code>bevy-render</code> 6, <code>bevy-ui</code> 6, <code>platform</code> 4, <code>preflight</code> 77, <code>rust-support</code> 269, <code>semantic-source</code> 43</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0040296c</code></td>
+  <td><code>update_biome_paint_filter_control_availability</code></td>
+</tr>
+<tr>
+  <td><code>0x00403e78</code></td>
+  <td><code>update_biome_paint_object_filter_cell</code></td>
+</tr>
+<tr>
+  <td><code>0x0040478c</code></td>
+  <td><code>apply_biome_paint_object_filter_cells</code></td>
+</tr>
+<tr>
+  <td><code>0x0040480b</code></td>
+  <td><code>collect_biome_paint_object_filter_cells</code></td>
+</tr>
+<tr>
+  <td><code>0x004052e0</code></td>
+  <td><code>apply_biome_paint_filter_mask</code></td>
+</tr>
+<tr>
+  <td><code>0x00405332</code></td>
+  <td><code>set_biome_paint_filter_mask_bit</code></td>
+</tr>
+<tr>
+  <td><code>0x00405375</code></td>
+  <td><code>set_biome_paint_trees_filter_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004053ba</code></td>
+  <td><code>set_biome_paint_plants_filter_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004053ff</code></td>
+  <td><code>set_biome_paint_rocks_filter_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0040dd42</code></td>
+  <td><code>refresh_delete_mode_sell_message</code></td>
+</tr>
+<tr>
+  <td><code>0x00426a86</code></td>
+  <td><code>collect_ZTFenceMode_preview_target_selector_points</code></td>
+</tr>
+<tr>
+  <td><code>0x0042a9cc</code></td>
+  <td><code>advance_status_ui_assignment_if_pending</code></td>
+</tr>
+<tr>
+  <td><code>0x0042ba2c</code></td>
+  <td><code>set_status_ui_value_object_flag_0x209_from_bool</code></td>
+</tr>
+<tr>
+  <td><code>0x0042c0b2</code></td>
+  <td><code>advance_status_ui_assignment_queue_or_clear_flag</code></td>
+</tr>
+<tr>
+  <td><code>0x0043cd67</code></td>
+  <td><code>handle_ZTMainMode_set_xpack_filter_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00441288</code></td>
+  <td><code>bind_ZTMode_mode_help_ui_controls</code></td>
+</tr>
+<tr>
+  <td><code>0x00441498</code></td>
+  <td><code>advance_ZTMode_mode_help_prompt_timer</code></td>
+</tr>
+<tr>
+  <td><code>0x0044154c</code></td>
+  <td><code>hide_ZTMode_mode_help_ui_controls</code></td>
+</tr>
+<tr>
+  <td><code>0x00441646</code></td>
+  <td><code>is_ZTMode_mode_help_layout_visible</code></td>
+</tr>
+<tr>
+  <td><code>0x00442495</code></td>
+  <td><code>open_zoopedia_hyperlink_entry</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g22"></a></p>
+<h2>G22</h2>
+<ul>
+<li><strong>0 / 140 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>14</strong></li>
+<li>Unmatched obligations: <strong>126</strong></li>
+<li>Assigned outside gameplay: <code>avian3d</code> 6, <code>bevy-animation</code> 12, <code>bevy-render</code> 91, <code>bevy-ui</code> 13, <code>platform</code> 6, <code>preflight</code> 24, <code>rust-support</code> 82</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0040efe3</code></td>
+  <td><code>clear_download_mode_inline_fields</code></td>
+</tr>
+<tr>
+  <td><code>0x0040f4d1</code></td>
+  <td><code>download_mode_has_pending_activity</code></td>
+</tr>
+<tr>
+  <td><code>0x0040f544</code></td>
+  <td><code>bind_download_mode_web_tokens</code></td>
+</tr>
+<tr>
+  <td><code>0x0040fded</code></td>
+  <td><code>create_ZTDownloadMode_instance</code></td>
+</tr>
+<tr>
+  <td><code>0x00410113</code></td>
+  <td><code>clear_download_mode_aux_storage</code></td>
+</tr>
+<tr>
+  <td><code>0x00428571</code></td>
+  <td><code>create_ZTFileMode_instance</code></td>
+</tr>
+<tr>
+  <td><code>0x0042a4aa</code></td>
+  <td><code>handle_pause_menu_save</code></td>
+</tr>
+<tr>
+  <td><code>0x0042b662</code></td>
+  <td><code>save_current_game_with_wait_cursor</code></td>
+</tr>
+<tr>
+  <td><code>0x0042b71b</code></td>
+  <td><code>load_saved_map_into_ZTGameMode</code></td>
+</tr>
+<tr>
+  <td><code>0x0042c5dc</code></td>
+  <td><code>handle_save_game_alerts</code></td>
+</tr>
+<tr>
+  <td><code>0x0042c7d2</code></td>
+  <td><code>handle_ZTGameMode_save_current_game_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0042ca1c</code></td>
+  <td><code>set_ZTGameMode_save_message_flag_and_return_shared_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0042ca33</code></td>
+  <td><code>set_ZTGameMode_save_wait_cursor_flag_from_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0042f4a7</code></td>
+  <td><code>forward_ZTDownloadMode_value_to_adjusted_receiver</code></td>
+</tr>
+<tr>
+  <td><code>0x00431626</code></td>
+  <td><code>apply_safe_display_settings_from_profile</code></td>
+</tr>
+<tr>
+  <td><code>0x004379f0</code></td>
+  <td><code>activate_ZTLoadMode</code></td>
+</tr>
+<tr>
+  <td><code>0x00437a54</code></td>
+  <td><code>collect_ZTLoadMode_saved_game_file_info</code></td>
+</tr>
+<tr>
+  <td><code>0x00437b11</code></td>
+  <td><code>populate_ZTLoadMode_saved_game_entries</code></td>
+</tr>
+<tr>
+  <td><code>0x00437cab</code></td>
+  <td><code>refresh_ZTLoadMode_saved_games_list</code></td>
+</tr>
+<tr>
+  <td><code>0x00437d5f</code></td>
+  <td><code>handle_load_game_dialog</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g23"></a></p>
+<h2>G23</h2>
+<ul>
+<li><strong>0 / 128 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>33</strong></li>
+<li>Unmatched obligations: <strong>95</strong></li>
+<li>Assigned outside gameplay: <code>bevy-ui</code> 1, <code>preflight</code> 29, <code>rust-support</code> 78</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0042b06a</code></td>
+  <td><code>refresh_famestars_ui_value_and_clear_output</code></td>
+</tr>
+<tr>
+  <td><code>0x0042c322</code></td>
+  <td><code>refresh_famestars_ui_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00452a06</code></td>
+  <td><code>call_populate_conservation_status_display_for_004528ed</code></td>
+</tr>
+<tr>
+  <td><code>0x00455fba</code></td>
+  <td><code>call_populate_conservation_status_display_for_00455f18</code></td>
+</tr>
+<tr>
+  <td><code>0x0045d1bb</code></td>
+  <td><code>update_animal_pickup_release_conservation_controls</code></td>
+</tr>
+<tr>
+  <td><code>0x0045e3e7</code></td>
+  <td><code>populate_conservation_status_display</code></td>
+</tr>
+<tr>
+  <td><code>0x00476adf</code></td>
+  <td><code>read_disease_research</code></td>
+</tr>
+<tr>
+  <td><code>0x00476c21</code></td>
+  <td><code>update_cure_disease_research_result_message</code></td>
+</tr>
+<tr>
+  <td><code>0x004938ba</code></td>
+  <td><code>hide_buy_info_layout_and_research_bump</code></td>
+</tr>
+<tr>
+  <td><code>0x004939ad</code></td>
+  <td><code>show_buy_info_layout_and_refresh_research_bump</code></td>
+</tr>
+<tr>
+  <td><code>0x004939cb</code></td>
+  <td><code>refresh_buy_info_research_bump_state</code></td>
+</tr>
+<tr>
+  <td><code>0x0049420c</code></td>
+  <td><code>refresh_research_object_panel_state</code></td>
+</tr>
+<tr>
+  <td><code>0x00494567</code></td>
+  <td><code>start_research_for_current_buy_info_item</code></td>
+</tr>
+<tr>
+  <td><code>0x00494b14</code></td>
+  <td><code>populate_research_cost_display</code></td>
+</tr>
+<tr>
+  <td><code>0x004950b4</code></td>
+  <td><code>populate_buy_panel_conservation</code></td>
+</tr>
+<tr>
+  <td><code>0x00495a90</code></td>
+  <td><code>refresh_buy_info_research_progress_bar</code></td>
+</tr>
+<tr>
+  <td><code>0x004ac709</code></td>
+  <td><code>resolve_ZTUIResearchButton_action_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004ac830</code></td>
+  <td><code>activate_research_button_fullcolor_state</code></td>
+</tr>
+<tr>
+  <td><code>0x004ac879</code></td>
+  <td><code>deactivate_research_button_fullcolor_state</code></td>
+</tr>
+<tr>
+  <td><code>0x004ac8c1</code></td>
+  <td><code>bind_research_button_selection_and_progress_targets</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g24"></a></p>
+<h2>G24</h2>
+<ul>
+<li><strong>0 / 107 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>27</strong></li>
+<li>Unmatched obligations: <strong>80</strong></li>
+<li>Assigned outside gameplay: <code>preflight</code> 30, <code>rust-support</code> 82</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0042b802</code></td>
+  <td><code>load_scenario_into_ZTGameMode</code></td>
+</tr>
+<tr>
+  <td><code>0x004316df</code></td>
+  <td><code>handle_vince_question_answered</code></td>
+</tr>
+<tr>
+  <td><code>0x00439e36</code></td>
+  <td><code>forward_profile_value_and_handle_tutorial_prompt</code></td>
+</tr>
+<tr>
+  <td><code>0x0043a6e4</code></td>
+  <td><code>run_customer_feedback_then_optional_tutorial_prompt</code></td>
+</tr>
+<tr>
+  <td><code>0x0043a70f</code></td>
+  <td><code>handle_tutorial_prompt</code></td>
+</tr>
+<tr>
+  <td><code>0x0043ad26</code></td>
+  <td><code>populate_selected_map_scenario_details</code></td>
+</tr>
+<tr>
+  <td><code>0x0043c7fa</code></td>
+  <td><code>refresh_campaign_scenario_map_lists</code></td>
+</tr>
+<tr>
+  <td><code>0x0043d041</code></td>
+  <td><code>populate_campaign_list</code></td>
+</tr>
+<tr>
+  <td><code>0x0043da9d</code></td>
+  <td><code>handle_ZTMainMode_scenario_selection_changed_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0043dadb</code></td>
+  <td><code>load_next_scenario</code></td>
+</tr>
+<tr>
+  <td><code>0x0043ddb2</code></td>
+  <td><code>populate_campaign_scenario_list</code></td>
+</tr>
+<tr>
+  <td><code>0x0043edc3</code></td>
+  <td><code>forward_BFScenarioMgr_value_handler</code></td>
+</tr>
+<tr>
+  <td><code>0x0043ee05</code></td>
+  <td><code>store_starting_scenario_cash_slider_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0043f097</code></td>
+  <td><code>read_campaign_scenario_entry</code></td>
+</tr>
+<tr>
+  <td><code>0x0043f855</code></td>
+  <td><code>handle_vince_question_answered</code></td>
+</tr>
+<tr>
+  <td><code>0x00440670</code></td>
+  <td><code>handle_scenario_selection_changed_ui_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004427c0</code></td>
+  <td><code>set_BFScenarioMgr_mode_flag</code></td>
+</tr>
+<tr>
+  <td><code>0x004662fe</code></td>
+  <td><code>handle_enable_tutorial_eyedropper</code></td>
+</tr>
+<tr>
+  <td><code>0x00482680</code></td>
+  <td><code>handle_set_campaign_ui_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004960c6</code></td>
+  <td><code>refresh_goal_panel_scenario_entries</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g25"></a></p>
+<h2>G25</h2>
+<ul>
+<li><strong>0 / 283 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>14</strong></li>
+<li>Unmatched obligations: <strong>269</strong></li>
+<li>Assigned outside gameplay: <code>bevy-render</code> 11, <code>preflight</code> 39, <code>rust-support</code> 124</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0042203a</code></td>
+  <td><code>is_tank_fence_placement_token</code></td>
+</tr>
+<tr>
+  <td><code>0x004268bc</code></td>
+  <td><code>capture_ZTFenceMode_tank_fence_anchor_height</code></td>
+</tr>
+<tr>
+  <td><code>0x00426905</code></td>
+  <td><code>update_ZTFenceMode_tank_fence_height_bounds</code></td>
+</tr>
+<tr>
+  <td><code>0x00450d3f</code></td>
+  <td><code>resolve_tank_platform_selection_object</code></td>
+</tr>
+<tr>
+  <td><code>0x0047cff0</code></td>
+  <td><code>apply_climb_ladder_tankgate_value_assignment</code></td>
+</tr>
+<tr>
+  <td><code>0x004cf455</code></td>
+  <td><code>resolve_tankwallglass_selector_ground_height</code></td>
+</tr>
+<tr>
+  <td><code>0x004cf607</code></td>
+  <td><code>transform_tankwallglass_selector_point</code></td>
+</tr>
+<tr>
+  <td><code>0x004cf6af</code></td>
+  <td><code>resolve_tankwallglass_selector_ground_point</code></td>
+</tr>
+<tr>
+  <td><code>0x004cf6e1</code></td>
+  <td><code>write_scaled_tankwallglass_selector_offset_point</code></td>
+</tr>
+<tr>
+  <td><code>0x004cff0b</code></td>
+  <td><code>compute_tankwallglass_selector_heading</code></td>
+</tr>
+<tr>
+  <td><code>0x004cff3d</code></td>
+  <td><code>refresh_tankwallglass_fence_start_post_preview</code></td>
+</tr>
+<tr>
+  <td><code>0x004d5abb</code></td>
+  <td><code>update_ZTFenceEntity_tank_walkable_state</code></td>
+</tr>
+<tr>
+  <td><code>0x004f31e0</code></td>
+  <td><code>is_freeform_mode_active</code></td>
+</tr>
+<tr>
+  <td><code>0x004f320c</code></td>
+  <td><code>ZTFameData_make_is_freeform_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004fdeba</code></td>
+  <td><code>load_ZTUserStaffAction_clean_tank_record</code></td>
+</tr>
+<tr>
+  <td><code>0x004feb8b</code></td>
+  <td><code>resolve_ZTWetsuitComponent_action_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004fecd4</code></td>
+  <td><code>free_ZTWetsuitComponent_transform_record</code></td>
+</tr>
+<tr>
+  <td><code>0x004ff087</code></td>
+  <td><code>apply_ZTWetsuitComponent_wetsuit_visual_state</code></td>
+</tr>
+<tr>
+  <td><code>0x004ff120</code></td>
+  <td><code>apply_ZTWetsuitComponent_plain_visual_state</code></td>
+</tr>
+<tr>
+  <td><code>0x004ff1bd</code></td>
+  <td><code>update_ZTWetsuitComponent_visual_state</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g26"></a></p>
+<h2>G26</h2>
+<ul>
+<li><strong>0 / 348 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>16</strong></li>
+<li>Unmatched obligations: <strong>332</strong></li>
+<li>Assigned outside gameplay: <code>bevy-ui</code> 3, <code>preflight</code> 61, <code>rust-support</code> 274</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0040ca14</code></td>
+  <td><code>collect_delete_mode_show_manager_target</code></td>
+</tr>
+<tr>
+  <td><code>0x0044a7a8</code></td>
+  <td><code>resolve_ZTAIShowComponent_from_refcounted_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0044c8a8</code></td>
+  <td><code>resolve_virtual_type_result_as_ZTAIShowComponent</code></td>
+</tr>
+<tr>
+  <td><code>0x0044ea19</code></td>
+  <td><code>trick_target_current_main_object_probe_missing_or_inactive</code></td>
+</tr>
+<tr>
+  <td><code>0x0044ea58</code></td>
+  <td><code>trick_target_has_blocking_state_flag</code></td>
+</tr>
+<tr>
+  <td><code>0x0045972e</code></td>
+  <td><code>populate_show_manager_panels</code></td>
+</tr>
+<tr>
+  <td><code>0x00459960</code></td>
+  <td><code>update_show_schedule_navigation_buttons</code></td>
+</tr>
+<tr>
+  <td><code>0x00459b39</code></td>
+  <td><code>populate_show_schedule_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x0045a22f</code></td>
+  <td><code>sync_show_schedule_filter_toggle_buttons</code></td>
+</tr>
+<tr>
+  <td><code>0x0045a33c</code></td>
+  <td><code>refresh_show_schedule_controls_and_stars</code></td>
+</tr>
+<tr>
+  <td><code>0x0045b04d</code></td>
+  <td><code>populate_show_attendance_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x00464988</code></td>
+  <td><code>handle_showmixer_event</code></td>
+</tr>
+<tr>
+  <td><code>0x004649d2</code></td>
+  <td><code>is_showmixer_panel_open_for_unavailable_source</code></td>
+</tr>
+<tr>
+  <td><code>0x004649f6</code></td>
+  <td><code>handle_showscheduler_addshow</code></td>
+</tr>
+<tr>
+  <td><code>0x00464b4e</code></td>
+  <td><code>is_showmixer_panel_viewing_different_show</code></td>
+</tr>
+<tr>
+  <td><code>0x00464b81</code></td>
+  <td><code>handle_showscheduler_editshow</code></td>
+</tr>
+<tr>
+  <td><code>0x00464caa</code></td>
+  <td><code>handle_showscheduler_viewshow</code></td>
+</tr>
+<tr>
+  <td><code>0x00464dfd</code></td>
+  <td><code>handle_showscheduler_deleteshow</code></td>
+</tr>
+<tr>
+  <td><code>0x00464f52</code></td>
+  <td><code>handle_showscheduler_request_addshow</code></td>
+</tr>
+<tr>
+  <td><code>0x0046507e</code></td>
+  <td><code>handle_showscheduler_request_editshow</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g27"></a></p>
+<h2>G27</h2>
+<ul>
+<li><strong>0 / 746 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>25</strong></li>
+<li>Unmatched obligations: <strong>721</strong></li>
+<li>Assigned outside gameplay: <code>bevy-animation</code> 7, <code>bevy-render</code> 2, <code>bevy-ui</code> 20, <code>preflight</code> 114, <code>rust-support</code> 597, <code>semantic-source</code> 2</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0040d757</code></td>
+  <td><code>update_vehicle_undo_station_command_values</code></td>
+</tr>
+<tr>
+  <td><code>0x0040ec84</code></td>
+  <td><code>assign_ZTTransportStationBase_safe_handle_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0040eced</code></td>
+  <td><code>query_ZTVehicleBase_from_type_slot</code></td>
+</tr>
+<tr>
+  <td><code>0x0041f744</code></td>
+  <td><code>validate_ZTFenceMode_groundstation_neighbor_topology</code></td>
+</tr>
+<tr>
+  <td><code>0x0041f937</code></td>
+  <td><code>refresh_ZTFenceMode_vehicle_gate_preview_objects</code></td>
+</tr>
+<tr>
+  <td><code>0x00422228</code></td>
+  <td><code>is_vehiclegate_fence_placement_token</code></td>
+</tr>
+<tr>
+  <td><code>0x00432b35</code></td>
+  <td><code>emit_ZTGroundTrackMode_setplacementobject_payload_to_buy_info_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x00432c40</code></td>
+  <td><code>deactivate_ZTGroundTrackMode_and_clear_track_preview</code></td>
+</tr>
+<tr>
+  <td><code>0x00433045</code></td>
+  <td><code>update_ZTGroundTrackMode_mouse_world_position_and_refresh_preview</code></td>
+</tr>
+<tr>
+  <td><code>0x00433085</code></td>
+  <td><code>advance_ZTGroundTrackMode_candidate_search_and_return_shared_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0043309b</code></td>
+  <td><code>capture_ZTGroundTrackMode_candidate_search_cancel_event</code></td>
+</tr>
+<tr>
+  <td><code>0x004330f8</code></td>
+  <td><code>handle_ZTGroundTrackMode_set_mode_anchor_object_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0043322d</code></td>
+  <td><code>update_ZTGroundTrackMode_frame</code></td>
+</tr>
+<tr>
+  <td><code>0x00433356</code></td>
+  <td><code>refresh_ZTGroundTrackMode_candidate_preview</code></td>
+</tr>
+<tr>
+  <td><code>0x004335c3</code></td>
+  <td><code>advance_ZTGroundTrackMode_candidate_search_state</code></td>
+</tr>
+<tr>
+  <td><code>0x0043372a</code></td>
+  <td><code>cancel_ZTGroundTrackMode_candidate_search_state</code></td>
+</tr>
+<tr>
+  <td><code>0x00433750</code></td>
+  <td><code>reset_ZTGroundTrackMode_candidate_state</code></td>
+</tr>
+<tr>
+  <td><code>0x0043377e</code></td>
+  <td><code>refresh_ZTGroundTrackMode_track_segment_preview</code></td>
+</tr>
+<tr>
+  <td><code>0x00433acf</code></td>
+  <td><code>refresh_ZTGroundTrackMode_endpoint_assignment_ref</code></td>
+</tr>
+<tr>
+  <td><code>0x00433d15</code></td>
+  <td><code>clear_ZTGroundTrackMode_endpoint_ref_pair</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g28"></a></p>
+<h2>G28</h2>
+<ul>
+<li><strong>0 / 141 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>97</strong></li>
+<li>Unmatched obligations: <strong>44</strong></li>
+<li>Assigned outside gameplay: <code>bevy-ui</code> 2, <code>codec-library</code> 2, <code>preflight</code> 37, <code>rust-support</code> 99</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x00484cc9</code></td>
+  <td><code>dispatch_ZTPhotoMode_handler_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00485c88</code></td>
+  <td><code>emit_photoevent_num_pictures_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x0048637e</code></td>
+  <td><code>find_ZTPhotoChallengeMgr_component</code></td>
+</tr>
+<tr>
+  <td><code>0x004863b9</code></td>
+  <td><code>emit_photoevent_get_current_challenge_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x0048687d</code></td>
+  <td><code>emit_photoevent_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x004878ac</code></td>
+  <td><code>append_ZTPhotoMode_handler_record</code></td>
+</tr>
+<tr>
+  <td><code>0x004879db</code></td>
+  <td><code>inherit_ZTPhotoMode_handlers_from_registry</code></td>
+</tr>
+<tr>
+  <td><code>0x004a79b8</code></td>
+  <td><code>resolve_ZTPhotoAlbumComponent_action_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004a8766</code></td>
+  <td><code>emit_photoevent_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x005725c8</code></td>
+  <td><code>assign_BFSafeHandle_ZTPhotoManager_from_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00866b97</code></td>
+  <td><code>copy_ZTPhotoManager_dependents_from_registry</code></td>
+</tr>
+<tr>
+  <td><code>0x00866bad</code></td>
+  <td><code>resolve_ZTPhotoManager_event_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00867380</code></td>
+  <td><code>load_ZTPhotoManager_album_list_state</code></td>
+</tr>
+<tr>
+  <td><code>0x00867527</code></td>
+  <td><code>ensure_ZTPhotoManager_album_picture_dirs</code></td>
+</tr>
+<tr>
+  <td><code>0x00867667</code></td>
+  <td><code>handle_ZTPhotoManager_delete_album</code></td>
+</tr>
+<tr>
+  <td><code>0x008679f4</code></td>
+  <td><code>validate_ZTPhotoManager_album_name_available</code></td>
+</tr>
+<tr>
+  <td><code>0x00867a76</code></td>
+  <td><code>handle_ZTPhotoManager_new_album</code></td>
+</tr>
+<tr>
+  <td><code>0x00867be1</code></td>
+  <td><code>adjust_ZTPhotoManager_album_page_count</code></td>
+</tr>
+<tr>
+  <td><code>0x00867c28</code></td>
+  <td><code>emit_ZTPhotoManager_num_pictures_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x00867c6a</code></td>
+  <td><code>handle_ZTPhotoManager_picture_taken</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g29"></a></p>
+<h2>G29</h2>
+<ul>
+<li><strong>0 / 248 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>9</strong></li>
+<li>Unmatched obligations: <strong>239</strong></li>
+<li>Assigned outside gameplay: <code>avian3d</code> 4, <code>bevy-animation</code> 28, <code>bevy-render</code> 83, <code>bevy-ui</code> 5, <code>preflight</code> 25, <code>rust-support</code> 111</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0040ee9a</code></td>
+  <td><code>clone_UIPointObj_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0040ef2d</code></td>
+  <td><code>clone_inline_payload_owned_value_to_output</code></td>
+</tr>
+<tr>
+  <td><code>0x004101e9</code></td>
+  <td><code>clone_download_items_payload_component_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0041ec30</code></td>
+  <td><code>clone_BFPoint3Obj_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00428116</code></td>
+  <td><code>clone_BFComponentHandleVector_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00437778</code></td>
+  <td><code>clone_red_black_tree_nodes_recursive</code></td>
+</tr>
+<tr>
+  <td><code>0x004408fe</code></td>
+  <td><code>clone_BFStringVector_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004409fd</code></td>
+  <td><code>clone_ZTFeedbackClickTarget_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00443214</code></td>
+  <td><code>clone_BFHeartbeatData_value</code></td>
+</tr>
+<tr>
+  <td><code>0x0044dc7d</code></td>
+  <td><code>clone_BFXMLObj_with_payload_field</code></td>
+</tr>
+<tr>
+  <td><code>0x00457db2</code></td>
+  <td><code>emit_set_cloning_species_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x0045894c</code></td>
+  <td><code>populate_fossil_finding_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x00458e08</code></td>
+  <td><code>handle_set_cloning_species</code></td>
+</tr>
+<tr>
+  <td><code>0x00458ff9</code></td>
+  <td><code>handle_enter_fossil_mode</code></td>
+</tr>
+<tr>
+  <td><code>0x004591ea</code></td>
+  <td><code>handle_enter_cloning_mode</code></td>
+</tr>
+<tr>
+  <td><code>0x0045953a</code></td>
+  <td><code>update_fossil_skeleton_bone_count_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x00467438</code></td>
+  <td><code>clone_inline_ui_text_ref</code></td>
+</tr>
+<tr>
+  <td><code>0x0046ec13</code></td>
+  <td><code>clone_ZTStaffAssignMode_marker_tree_subtree</code></td>
+</tr>
+<tr>
+  <td><code>0x00472352</code></td>
+  <td><code>activate_ZTCloningGestureMode</code></td>
+</tr>
+<tr>
+  <td><code>0x00472554</code></td>
+  <td><code>deactivate_ZTCloningGestureMode</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g30"></a></p>
+<h2>G30</h2>
+<ul>
+<li><strong>0 / 209 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>7</strong></li>
+<li>Unmatched obligations: <strong>202</strong></li>
+<li>Assigned outside gameplay: <code>bevy-ui</code> 5, <code>preflight</code> 38, <code>rust-support</code> 149, <code>semantic-source</code> 1</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0042dac8</code></td>
+  <td><code>create_ZTGestureCreationMode_instance</code></td>
+</tr>
+<tr>
+  <td><code>0x004581ae</code></td>
+  <td><code>populate_puzzle_list_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x00458eff</code></td>
+  <td><code>handle_set_puzzle_species</code></td>
+</tr>
+<tr>
+  <td><code>0x0045909b</code></td>
+  <td><code>handle_enter_puzzle_mode</code></td>
+</tr>
+<tr>
+  <td><code>0x00480a57</code></td>
+  <td><code>select_gesture_trace_music</code></td>
+</tr>
+<tr>
+  <td><code>0x00481693</code></td>
+  <td><code>handle_gesture_trace_event_failure_or_success</code></td>
+</tr>
+<tr>
+  <td><code>0x0048173e</code></td>
+  <td><code>forward_gesture_trace_result_index</code></td>
+</tr>
+<tr>
+  <td><code>0x00481e34</code></td>
+  <td><code>emit_gesture_trace_hitpoint_feedback</code></td>
+</tr>
+<tr>
+  <td><code>0x00482748</code></td>
+  <td><code>read_gesture_target_collision_metric</code></td>
+</tr>
+<tr>
+  <td><code>0x00482769</code></td>
+  <td><code>compute_gesture_target_bounds_center_vec3</code></td>
+</tr>
+<tr>
+  <td><code>0x00482846</code></td>
+  <td><code>age_gesture_trace_new_value_flags</code></td>
+</tr>
+<tr>
+  <td><code>0x004828c5</code></td>
+  <td><code>mark_gesture_trace_value_seen</code></td>
+</tr>
+<tr>
+  <td><code>0x00482910</code></td>
+  <td><code>is_gesture_trace_value_new</code></td>
+</tr>
+<tr>
+  <td><code>0x004829ff</code></td>
+  <td><code>dispatch_ZTGestureTraceModeBase_handler_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00482d4a</code></td>
+  <td><code>activate_gesture_trace_mode_base</code></td>
+</tr>
+<tr>
+  <td><code>0x00482d8c</code></td>
+  <td><code>deactivate_gesture_trace_mode_base</code></td>
+</tr>
+<tr>
+  <td><code>0x00482e1d</code></td>
+  <td><code>apply_gesture_trace_text_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00482e82</code></td>
+  <td><code>apply_gesture_trace_selection_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00482f15</code></td>
+  <td><code>update_gesture_trace_mode_base_frame</code></td>
+</tr>
+<tr>
+  <td><code>0x00482f45</code></td>
+  <td><code>read_gesture_trace_mode_base_config</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g31"></a></p>
+<h2>G31</h2>
+<ul>
+<li><strong>0 / 63 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>21</strong></li>
+<li>Unmatched obligations: <strong>42</strong></li>
+<li>Assigned outside gameplay: <code>bevy-ui</code> 5, <code>preflight</code> 8, <code>rust-support</code> 35</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0042c44f</code></td>
+  <td><code>handle_ZTGameMode_first_person_mode_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00457ce8</code></td>
+  <td><code>update_training_area_info_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x00457d6a</code></td>
+  <td><code>update_training_area_mode_panels</code></td>
+</tr>
+<tr>
+  <td><code>0x00478026</code></td>
+  <td><code>read_ZTFirstPersonMode_float_1d0</code></td>
+</tr>
+<tr>
+  <td><code>0x004788c9</code></td>
+  <td><code>refresh_first_person_pick_assignment</code></td>
+</tr>
+<tr>
+  <td><code>0x00478b4a</code></td>
+  <td><code>handle_first_person_mouselook_toggle_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00478e7b</code></td>
+  <td><code>forward_first_person_child_slot70_then_base_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00478eba</code></td>
+  <td><code>resolve_first_person_child_camera_target_or_refresh_base</code></td>
+</tr>
+<tr>
+  <td><code>0x004792bb</code></td>
+  <td><code>resolve_first_person_child_value_or_make_boolean_true</code></td>
+</tr>
+<tr>
+  <td><code>0x00479338</code></td>
+  <td><code>first_person_mode_switch_guard_accepts_current_state</code></td>
+</tr>
+<tr>
+  <td><code>0x0047943f</code></td>
+  <td><code>handle_first_person_mode_string_switch</code></td>
+</tr>
+<tr>
+  <td><code>0x004794d1</code></td>
+  <td><code>notify_first_person_mode_child_and_return_shared_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004794e9</code></td>
+  <td><code>update_first_person_camera_speed_scale</code></td>
+</tr>
+<tr>
+  <td><code>0x004795d1</code></td>
+  <td><code>set_first_person_camera_turn_or_zoom_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004796a5</code></td>
+  <td><code>set_first_person_usage_object_and_camera_component_state</code></td>
+</tr>
+<tr>
+  <td><code>0x0047983a</code></td>
+  <td><code>set_first_person_camera_index_from_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x00479a32</code></td>
+  <td><code>make_first_person_active_camera_index_value</code></td>
+</tr>
+<tr>
+  <td><code>0x00479a97</code></td>
+  <td><code>set_first_person_crouch_mode_from_boolean_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x00479ad5</code></td>
+  <td><code>cache_first_person_target_point_from_event</code></td>
+</tr>
+<tr>
+  <td><code>0x00479b18</code></td>
+  <td><code>orient_first_person_target_from_point_event</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g32"></a></p>
+<h2>G32</h2>
+<ul>
+<li><strong>0 / 4 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>0</strong></li>
+<li>Unmatched obligations: <strong>4</strong></li>
+<li>Assigned outside gameplay: <code>rust-support</code> 1</li>
+</ul>
+<details><summary>First 4 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x004f19bc</code></td>
+  <td><code>emit_endofday_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x004f2422</code></td>
+  <td><code>emit_endofyear_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x007fd404</code></td>
+  <td><code>pause_elapsed_session_timer</code></td>
+</tr>
+<tr>
+  <td><code>0x007fd41e</code></td>
+  <td><code>is_elapsed_session_timer_running</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g33"></a></p>
+<h2>G33</h2>
+<ul>
+<li><strong>0 / 144 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>36</strong></li>
+<li>Unmatched obligations: <strong>108</strong></li>
+<li>Assigned outside gameplay: <code>bevy-render</code> 33, <code>preflight</code> 24, <code>rust-support</code> 83</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x00468403</code></td>
+  <td><code>emit_get_connected_sky_piece_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x004f247b</code></td>
+  <td><code>emit_update_time_of_day_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x004f501e</code></td>
+  <td><code>update_ZTSunLayer_sun_transform</code></td>
+</tr>
+<tr>
+  <td><code>0x004f51e6</code></td>
+  <td><code>render_ZTSunLayer_dependent_objects</code></td>
+</tr>
+<tr>
+  <td><code>0x004f528d</code></td>
+  <td><code>refresh_ZTSunLayer_static_transform</code></td>
+</tr>
+<tr>
+  <td><code>0x004ff71c</code></td>
+  <td><code>assign_ZTWitheredPlantComponent_ref_record</code></td>
+</tr>
+<tr>
+  <td><code>0x004ff7d8</code></td>
+  <td><code>resolve_ZTWitheredPlantComponent_action_value</code></td>
+</tr>
+<tr>
+  <td><code>0x004ffb2c</code></td>
+  <td><code>update_ZTWitheredPlantComponent_targets</code></td>
+</tr>
+<tr>
+  <td><code>0x004ffe0a</code></td>
+  <td><code>append_ZTWitheredPlantComponent_ref_record</code></td>
+</tr>
+<tr>
+  <td><code>0x004fffa4</code></td>
+  <td><code>insert_ZTWitheredPlantComponent_ref_record_range</code></td>
+</tr>
+<tr>
+  <td><code>0x00500072</code></td>
+  <td><code>insert_ZTWitheredPlantComponent_ref_record_with_growth</code></td>
+</tr>
+<tr>
+  <td><code>0x0057324d</code></td>
+  <td><code>insert_environment_collection_value_from_field_270</code></td>
+</tr>
+<tr>
+  <td><code>0x0058343e</code></td>
+  <td><code>remove_BFSoundMgr_ambient_3d_generator_from_active_list</code></td>
+</tr>
+<tr>
+  <td><code>0x00587d21</code></td>
+  <td><code>read_BFSoundStage_environment_config</code></td>
+</tr>
+<tr>
+  <td><code>0x00588c18</code></td>
+  <td><code>append_BFAmbient2DSndGenerator_to_active_sound_manager_list</code></td>
+</tr>
+<tr>
+  <td><code>0x00588c44</code></td>
+  <td><code>update_BFAmbient2DSndGenerator</code></td>
+</tr>
+<tr>
+  <td><code>0x00588db0</code></td>
+  <td><code>copy_ambient_sound_source_state</code></td>
+</tr>
+<tr>
+  <td><code>0x00588e29</code></td>
+  <td><code>handle_BFAmbient3DSndGenerator_stop_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x00588e76</code></td>
+  <td><code>append_BFAmbient3DSndGenerator_to_active_sound_manager_list</code></td>
+</tr>
+<tr>
+  <td><code>0x00588ea2</code></td>
+  <td><code>update_BFAmbient3DSndGenerator</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g34"></a></p>
+<h2>G34</h2>
+<ul>
+<li><strong>0 / 32 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>3</strong></li>
+<li>Unmatched obligations: <strong>29</strong></li>
+<li>Assigned outside gameplay: <code>bevy-time</code> 2, <code>bevy-ui</code> 4, <code>preflight</code> 2, <code>rust-support</code> 13</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0042ef2b</code></td>
+  <td><code>deactivate_ZTGfxOptionsMode_and_clear_dependent_setting</code></td>
+</tr>
+<tr>
+  <td><code>0x0042f46e</code></td>
+  <td><code>refresh_ZTGfxOptionsMode_dependent_setting_values</code></td>
+</tr>
+<tr>
+  <td><code>0x0042fde7</code></td>
+  <td><code>handle_ZTGfxOptionsMode_audio_slider_value_change</code></td>
+</tr>
+<tr>
+  <td><code>0x004303f4</code></td>
+  <td><code>handle_setscreenresolution</code></td>
+</tr>
+<tr>
+  <td><code>0x0043044d</code></td>
+  <td><code>handle_displayupdated</code></td>
+</tr>
+<tr>
+  <td><code>0x00430643</code></td>
+  <td><code>rebuild_options_resolution_list_widget</code></td>
+</tr>
+<tr>
+  <td><code>0x004309b1</code></td>
+  <td><code>read_ZTGfxOptionsMode_slider_settings_config</code></td>
+</tr>
+<tr>
+  <td><code>0x00430aab</code></td>
+  <td><code>is_ZTGfxOptionsMode_setting_value_true</code></td>
+</tr>
+<tr>
+  <td><code>0x00430adb</code></td>
+  <td><code>sync_ZTGfxOptionsMode_settings_config_to_ui</code></td>
+</tr>
+<tr>
+  <td><code>0x00430c78</code></td>
+  <td><code>write_ZTGfxOptionsMode_integer_setting</code></td>
+</tr>
+<tr>
+  <td><code>0x00430d30</code></td>
+  <td><code>write_ZTGfxOptionsMode_bool_setting</code></td>
+</tr>
+<tr>
+  <td><code>0x00430dd8</code></td>
+  <td><code>disable_ZTGfxOptionsMode_setting_widgets_for_true_values</code></td>
+</tr>
+<tr>
+  <td><code>0x00430e59</code></td>
+  <td><code>sync_ZTGfxOptionsMode_detail_level_and_sound_mode_ui</code></td>
+</tr>
+<tr>
+  <td><code>0x004310e4</code></td>
+  <td><code>apply_ZTGfxOptionsMode_setting_locid_to_widget</code></td>
+</tr>
+<tr>
+  <td><code>0x0043124a</code></td>
+  <td><code>apply_ZTGfxOptionsMode_setting_dependency_values</code></td>
+</tr>
+<tr>
+  <td><code>0x00431395</code></td>
+  <td><code>publish_ZTGfxOptionsMode_cached_audio_volume_values</code></td>
+</tr>
+<tr>
+  <td><code>0x004315bf</code></td>
+  <td><code>refresh_ZTGfxOptionsMode_display_setting_availability</code></td>
+</tr>
+<tr>
+  <td><code>0x0043173f</code></td>
+  <td><code>create_ZTGfxOptionsMode_instance</code></td>
+</tr>
+<tr>
+  <td><code>0x004318df</code></td>
+  <td><code>clear_ZTGfxOptionsMode_setting_value_map</code></td>
+</tr>
+<tr>
+  <td><code>0x00431923</code></td>
+  <td><code>count_ZTGfxOptionsMode_setting_value_entries_from_key</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g36"></a></p>
+<h2>G36</h2>
+<ul>
+<li><strong>0 / 13 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>3</strong></li>
+<li>Unmatched obligations: <strong>10</strong></li>
+<li>Assigned outside gameplay: <code>rust-support</code> 1</li>
+</ul>
+<details><summary>First 10 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x00454dae</code></td>
+  <td><code>populate_maintenance_worker_assignment_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x004554c9</code></td>
+  <td><code>update_maintenance_worker_info_panel</code></td>
+</tr>
+<tr>
+  <td><code>0x00461ef8</code></td>
+  <td><code>populate_trash_level_display</code></td>
+</tr>
+<tr>
+  <td><code>0x004658b9</code></td>
+  <td><code>handle_set_filter_maintenance</code></td>
+</tr>
+<tr>
+  <td><code>0x00465e4e</code></td>
+  <td><code>update_first_filter_maintenance_option_control</code></td>
+</tr>
+<tr>
+  <td><code>0x00465ea2</code></td>
+  <td><code>update_second_filter_maintenance_option_control</code></td>
+</tr>
+<tr>
+  <td><code>0x004c61b0</code></td>
+  <td><code>matches_ZTFeedbackString_conditions</code></td>
+</tr>
+<tr>
+  <td><code>0x00565e25</code></td>
+  <td><code>refresh_filter_maintenance_option_control_for_swap_index</code></td>
+</tr>
+<tr>
+  <td><code>0x0064365c</code></td>
+  <td><code>conditionally_forward_arg_to_slot190_from_flag_f0</code></td>
+</tr>
+<tr>
+  <td><code>0x0070c05d</code></td>
+  <td><code>test_BFSecondaryAnimComponent_conditions_satisfied</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<p><a id="owner-g37"></a></p>
+<h2>G37</h2>
+<ul>
+<li><strong>0 / 244 behavior contracts verified</strong></li>
+<li>Plausible Bevy consumers: <strong>5</strong></li>
+<li>Unmatched obligations: <strong>239</strong></li>
+<li>Assigned outside gameplay: <code>avian3d</code> 188, <code>bevy-animation</code> 2, <code>bevy-render</code> 97, <code>bevy-ui</code> 1, <code>preflight</code> 84, <code>rust-support</code> 278</li>
+</ul>
+<details><summary>First 20 unmatched obligations</summary>
+
+<table>
+<thead>
+<tr>
+  <th>Address</th>
+  <th>Recovered callable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0x0046597e</code></td>
+  <td><code>emit_physobjswap_on_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x00465ef6</code></td>
+  <td><code>handle_sell_physobj</code></td>
+</tr>
+<tr>
+  <td><code>0x00475fc8</code></td>
+  <td><code>resolve_child_as_BFGCollisionTester</code></td>
+</tr>
+<tr>
+  <td><code>0x00479876</code></td>
+  <td><code>emit_clear_usage_object_payload</code></td>
+</tr>
+<tr>
+  <td><code>0x004d04cd</code></td>
+  <td><code>detach_other_fence_post_physobjs</code></td>
+</tr>
+<tr>
+  <td><code>0x004d04dc</code></td>
+  <td><code>refresh_other_fence_post_physobj_links</code></td>
+</tr>
+<tr>
+  <td><code>0x004d30ea</code></td>
+  <td><code>emit_fence_fitting_surface_segments</code></td>
+</tr>
+<tr>
+  <td><code>0x004d3c6b</code></td>
+  <td><code>sync_fence_post_physobj_visibility</code></td>
+</tr>
+<tr>
+  <td><code>0x004d46aa</code></td>
+  <td><code>insert_fence_fitting_surface_segment_record</code></td>
+</tr>
+<tr>
+  <td><code>0x004d4773</code></td>
+  <td><code>compare_fence_fitting_surface_segment_key_less</code></td>
+</tr>
+<tr>
+  <td><code>0x004d6930</code></td>
+  <td><code>check_ZTFPSUDVComponent_collision_push_allowed</code></td>
+</tr>
+<tr>
+  <td><code>0x004d6c78</code></td>
+  <td><code>apply_ZTFPSUDVComponent_collision_push_displacement</code></td>
+</tr>
+<tr>
+  <td><code>0x004d6f49</code></td>
+  <td><code>is_ZTFPSUDVComponent_collision_target_open_gate</code></td>
+</tr>
+<tr>
+  <td><code>0x004d8570</code></td>
+  <td><code>sync_open_close_door_b_Open_property</code></td>
+</tr>
+<tr>
+  <td><code>0x004d889d</code></td>
+  <td><code>set_ZTGate_open_state_and_b_Open_property</code></td>
+</tr>
+<tr>
+  <td><code>0x004e8b23</code></td>
+  <td><code>read_physobj_node_attachment</code></td>
+</tr>
+<tr>
+  <td><code>0x004ecec8</code></td>
+  <td><code>sync_ZTStarsDisplay_collision_tester_refs</code></td>
+</tr>
+<tr>
+  <td><code>0x004ecf31</code></td>
+  <td><code>detach_ZTStarsDisplay_collision_tester_refs</code></td>
+</tr>
+<tr>
+  <td><code>0x0053cb52</code></td>
+  <td><code>compute_BFTerrainShadowComponent_fitting_surface_mesh_counts</code></td>
+</tr>
+<tr>
+  <td><code>0x00565dd2</code></td>
+  <td><code>resolve_ZTPhysObjSwapComponent_action_value</code></td>
+</tr>
+</tbody>
+</table>
+</details>
+
+
+</main>
+<footer class="site-footer"><span>OpenZT2 is a clean-room reconstruction project.</span><a href="https://over-yonder.tech/">An over|yonder project ↗</a></footer>
+
+</body><script id="openzt2-live-reload">
+(()=>{
+ const current="8331f1439fe2c095";
+ const endpoint="site-version.json";
+ const interval=60000;
+ let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;
+ const update=()=>{
+  if(!button)return;
+  if(paused){
+   button.classList.add("paused");
+   button.style.setProperty("--reload-progress","0");
+   button.title="Automatic refresh paused. Click to unpause.";
+   button.setAttribute("aria-label",button.title);
+   button.textContent="⏸";
+   return;
+  }
+  const remaining=Math.max(0,Math.ceil((nextAt-Date.now())/1000));
+  const progress=Math.min(100,Math.max(0,100-(remaining*100)/(interval/1000)));
+  button.classList.remove("paused");
+  button.style.setProperty("--reload-progress",progress.toFixed(1));
+  button.title=`Next automatic refresh in ${remaining}s. Click to pause.`;
+  button.setAttribute("aria-label",button.title);
+  button.textContent="↻";
+ };
+ const schedule=()=>{
+  if(paused)return;
+  nextAt=Date.now()+interval;
+  clearTimeout(timer);
+  timer=setTimeout(check,interval);
+  update();
+ };
+ const check=async()=>{
+  if(paused)return;
+  try{
+   const response=await fetch(endpoint+"?t="+Date.now(),{cache:"no-store"});
+   if(!response.ok){schedule();return;}
+   const latest=(await response.json()).version;
+   if(latest&&latest!==current){location.reload();return;}
+  }catch(_){
+  }
+  schedule();
+ };
+ const toggle=()=>{
+  paused=!paused;
+  if(paused){
+   clearTimeout(timer);
+  }else{
+   schedule();
+  }
+  update();
+ };
+ const mount=()=>{
+  const nav=document.querySelector(".tabs");
+  if(!nav)return;
+  button=document.createElement("button");
+  button.type="button";
+  button.className="reload-toggle";
+  button.onclick=toggle;
+  const theme=document.querySelector(".theme-toggle");
+  if(theme)theme.after(button);else nav.append(button);
+  ticker=setInterval(update,1000);
+  schedule();
+ };
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount);else mount();
+})();
+</script>
+</html>
