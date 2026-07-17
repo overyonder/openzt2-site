@@ -1,19 +1,11 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="fd5ea5790a06e834">
+<meta name="openzt2-site-version" content="aac73edd3ea705ca">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>OpenZT2 — Binary Perimeter</title>
 <link rel="canonical" href="https://openzt2.over-yonder.tech/perimeter">
-<meta name="description" content="OpenZT2's binary perimeter joins recovered functions, variables, type identities and vtables to exact evidence in the Zoo Tycoon 2 executable.">
-<meta property="og:title" content="OpenZT2 — Binary Perimeter">
-<meta property="og:description" content="OpenZT2's binary perimeter joins recovered functions, variables, type identities and vtables to exact evidence in the Zoo Tycoon 2 executable.">
-<meta property="og:url" content="https://openzt2.over-yonder.tech/perimeter">
-<meta property="og:type" content="article">
-<meta property="og:image" content="https://openzt2.over-yonder.tech/assets/social-card.png">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"OpenZT2 binary perimeter","url":"https://openzt2.over-yonder.tech/perimeter","description":"OpenZT2's binary perimeter joins recovered functions, variables, type identities and vtables to exact evidence in the Zoo Tycoon 2 executable.","publisher":{"@type":"Organization","name":"over|yonder","url":"https://over-yonder.tech/"}}</script>
 <style>
 :root{color-scheme:light;--fg:#3c3836;--muted:#7c6f64;--line:#d5c4a1;--panel:#fbf1c7;--soft:#ebdbb2;--link:#076678;--control:#f2e5bc;--control-border:#a89984;--active:#ebdbb2;--ok:#79740e;--warn:#b57614;--frontier:#8f3f71;--bad:#9d0006}
 :root[data-theme="dark"]{color-scheme:dark;--fg:#ebdbb2;--muted:#a89984;--line:#504945;--panel:#282828;--soft:#3c3836;--link:#83a598;--control:#3c3836;--control-border:#665c54;--active:#504945;--ok:#98971a;--warn:#d79921;--frontier:#b16286;--bad:#cc241d}
@@ -39,7 +31,7 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{border:1px soli
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;:&quot;7462f5834b4745449f0f5e46d98a53ab&quot;}"></script>
 <!-- End Cloudflare Web Analytics -->
 <body>
-<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="/">OpenZT2</a><a href="/"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a class="active" href="perimeter"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a href="asset-lineage"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a class="gstart" href="functional-specification"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a href="behavior-coverage"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-label">Behavior Coverage</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
+<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="/">OpenZT2</a><a href="/"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a class="active" href="perimeter"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a class="gstart" href="functional-specification"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a href="asset-lineage"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a href="behavior-coverage"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-label">Behavior Coverage</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
 <main>
  <h1>Binary Perimeter</h1>
  <p class="sub">Gate-2 evidence pivots for the stripped Zoo Tycoon 2 binary: function entries, variables/data, type identities, vtables, and byte-map coverage. Data files: <code>zt-function-perimeter.tsv</code>, <code>zt-global-perimeter.tsv</code>, <code>zt-type-coverage-reconciliation.tsv</code>, <code>zt-vtable-methods-full.tsv</code>, and <code>zt-byte-range-map.tsv</code>.</p>
@@ -54,6 +46,7 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{border:1px soli
    </ol>
   </section>
   <p>This page is gate 2. It pivots recovered evidence into function, variables/data, type-identity, and vtable views.</p>
+  <p>Its handoff is explicit: the <a href="functional-specification">functional specification</a> assigns evidence to greenfield owners, <a href="asset-lineage">asset lineage</a> records the source-to-native transformations, and <a href="behavior-coverage">behavior coverage</a> tracks callable logic closure.</p>
 
   <h3>Perimeter Coverage</h3>
   <p>Each bar below answers one completion question with one denominator. Solid bars use a closed denominator for that question. Striped bars use the currently known perimeter; future discoveries can expand the total. The byte-map bar is limited to the mapped runtime executable image at <code>runtime-parent 0x00400000..0x00a92000</code>. It reports bytes rather than row counts or partition counts.</p>
@@ -354,7 +347,7 @@ Promise.all([
 </script>
 <script id="openzt2-live-reload">
 (()=>{
- const current="fd5ea5790a06e834";
+ const current="aac73edd3ea705ca";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;

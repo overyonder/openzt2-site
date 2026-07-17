@@ -1,19 +1,11 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="fd5ea5790a06e834">
+<meta name="openzt2-site-version" content="aac73edd3ea705ca">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>OpenZT2 — Reconstruction Dashboard</title>
 <link rel="canonical" href="https://openzt2.over-yonder.tech/">
-<meta name="description" content="OpenZT2 is a clean-room native reconstruction of Zoo Tycoon 2, documented from binary evidence through implementation.">
-<meta property="og:title" content="OpenZT2 — Reconstruction Dashboard">
-<meta property="og:description" content="OpenZT2 is a clean-room native reconstruction of Zoo Tycoon 2, documented from binary evidence through implementation.">
-<meta property="og:url" content="https://openzt2.over-yonder.tech/">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://openzt2.over-yonder.tech/assets/social-card.png">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"OpenZT2","url":"https://openzt2.over-yonder.tech/","description":"OpenZT2 is a clean-room native reconstruction of Zoo Tycoon 2, documented from binary evidence through implementation.","programmingLanguage":"Rust","publisher":{"@type":"Organization","name":"over|yonder","url":"https://over-yonder.tech/"}}</script>
 <style>
 :root{color-scheme:light;--fg:#3c3836;--muted:#7c6f64;--line:#d5c4a1;--panel:#fbf1c7;--soft:#ebdbb2;--link:#076678;--control:#f2e5bc;--control-border:#a89984;--active:#ebdbb2;--ok:#79740e;--warn:#b57614;--frontier:#8f3f71;--bad:#9d0006}
 :root[data-theme="dark"]{color-scheme:dark;--fg:#ebdbb2;--muted:#a89984;--line:#504945;--panel:#282828;--soft:#3c3836;--link:#83a598;--control:#3c3836;--control-border:#665c54;--active:#504945;--ok:#98971a;--warn:#d79921;--frontier:#b16286;--bad:#cc241d}
@@ -48,7 +40,7 @@ h2{font-size:17px;margin:26px 0 6px;border-bottom:1px solid var(--line);padding-
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;:&quot;7462f5834b4745449f0f5e46d98a53ab&quot;}"></script>
 <!-- End Cloudflare Web Analytics -->
 <body>
-<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="/">OpenZT2</a><a class="active" href="/"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a href="asset-lineage"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a class="gstart" href="functional-specification"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a href="behavior-coverage"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-label">Behavior Coverage</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
+<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="/">OpenZT2</a><a class="active" href="/"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a class="gstart" href="functional-specification"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a href="asset-lineage"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a href="behavior-coverage"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-label">Behavior Coverage</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
 <main>
  <h1>OpenZT2 Reconstruction Dashboard</h1>
  <p class="sub">A map of the reconstruction pipeline: evidence, ownership/behavior, and implementation.</p>
@@ -59,6 +51,8 @@ h2{font-size:17px;margin:26px 0 6px;border-bottom:1px solid var(--line);padding-
    <li><strong>Byte range map</strong> is the evidence gate by address/range: it records whether each mapped byte or range exists and what it is.</li>
    <li><strong>Binary perimeter</strong> is the evidence pivot gate: it groups the recorded evidence by functions, type identities, vtables, globals, and broad evidence families.</li>
    <li><strong>Functional specification</strong> is the product and delivery gate: it defines the greenfield Bevy architecture, native pack contracts, original behavior, performance acceptance, and every discrete implementation package.</li>
+   <li><strong>Asset lineage</strong> is the transformation gate: it traces each accepted original format through preflight into the exact native pack and Bevy consumer boundary.</li>
+   <li><strong>Behavior coverage</strong> is the logic-closure gate: it crosswalks recovered callable obligations to focused Bevy consumers while keeping source-authored behavior corpora explicit.</li>
   </ol>
  </section>
 
@@ -75,25 +69,29 @@ h2{font-size:17px;margin:26px 0 6px;border-bottom:1px solid var(--line);padding-
    <p>Shows generated function, variables/data, and type-identity inventories over the stripped binary, joining exact byte-map anchors with library provenance, vtable membership, inferred domains, and remaining frontier classifications.</p>
   </div>
   <div class="doc-card">
+   <h3><a href="functional-specification">Functional Specification</a></h3>
+   <p>The canonical product contract and delivery map: high-performance native assets, greenfield Bevy ownership, original-game behavior, acceptance criteria, and the status of all 56 independent work packages.</p>
+  </div>
+  <div class="doc-card">
    <h3><a href="asset-lineage">Asset Lineage</a></h3>
    <p>The source-to-native compiler map: archive discovery and verification, precedence planning, every accepted original extension, rkyv output, mapped Bevy ownership, copy policy, and renderer handoff.</p>
   </div>
   <div class="doc-card">
-   <h3><a href="functional-specification">Functional Specification</a></h3>
-   <p>The canonical product contract and delivery map: high-performance native assets, greenfield Bevy ownership, original-game behavior, acceptance criteria, and the status of all 56 independent work packages.</p>
+   <h3><a href="behavior-coverage">Behavior Coverage</a></h3>
+   <p>The measured logic-closure surface: recovered binary-callable obligations, mechanically classified library and preflight ownership, candidate Bevy consumers, and the remaining semantic review boundary.</p>
   </div>
  </div>
 
  <div class="legalrow">
-  <span>Clean-room project reference.</span>
-  <button type="button" id="legal-open">§ Legal &amp; clean-room roadmap</button>
+  <span>Historical clean-room project reference.</span>
+  <button type="button" id="legal-open">§ Historical legal analysis</button>
  </div>
 </main>
 <footer class="site-footer"><span>OpenZT2 is a clean-room reconstruction project.</span><a href="https://over-yonder.tech/">An over|yonder project ↗</a></footer>
 <div class="modal" id="legal-modal" hidden>
  <div class="modal-box">
-  <header><strong>Clean-Room Legal Roadmap</strong><button type="button" id="legal-close">Close</button></header>
-  <iframe class="legal-frame" src="clean-room-legal-roadmap" title="Legal Roadmap"></iframe>
+  <header><strong>Historical Clean-Room Legal Analysis</strong><button type="button" id="legal-close">Close</button></header>
+  <iframe class="legal-frame" src="clean-room-legal-roadmap" title="Historical clean-room legal analysis"></iframe>
  </div>
 </div>
 <script>
@@ -137,7 +135,7 @@ function packageProgress(source){
 </script>
 <script id="openzt2-live-reload">
 (()=>{
- const current="fd5ea5790a06e834";
+ const current="aac73edd3ea705ca";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;

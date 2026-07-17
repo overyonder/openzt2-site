@@ -1,19 +1,11 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="fd5ea5790a06e834">
+<meta name="openzt2-site-version" content="aac73edd3ea705ca">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>Zoo Tycoon 2 executable byte range map — OpenZT2</title>
 <link rel="canonical" href="https://openzt2.over-yonder.tech/zt-disk-map">
-<meta name="description" content="A byte-range evidence map of the original Zoo Tycoon 2 executable, including recovered identities, materialized ranges and unresolved gaps.">
-<meta property="og:title" content="Zoo Tycoon 2 executable byte range map — OpenZT2">
-<meta property="og:description" content="A byte-range evidence map of the original Zoo Tycoon 2 executable, including recovered identities, materialized ranges and unresolved gaps.">
-<meta property="og:url" content="https://openzt2.over-yonder.tech/zt-disk-map">
-<meta property="og:type" content="article">
-<meta property="og:image" content="https://openzt2.over-yonder.tech/assets/social-card.png">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Zoo Tycoon 2 executable byte range map","url":"https://openzt2.over-yonder.tech/zt-disk-map","description":"A byte-range evidence map of the original Zoo Tycoon 2 executable, including recovered identities, materialized ranges and unresolved gaps.","publisher":{"@type":"Organization","name":"over|yonder","url":"https://over-yonder.tech/"}}</script>
 <link rel="prefetch" href="/">
 <style>
 :root{--fg:#3c3836;--muted:#7c6f64;--line:#d5c4a1;--status-alpha:.82;--implicit-gap-alpha:.24}*{box-sizing:border-box}
@@ -81,7 +73,7 @@ pre,details,.box,.toc,.table-wrap,.repo-switch{background:var(--panel)!important
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;:&quot;7462f5834b4745449f0f5e46d98a53ab&quot;}"></script>
 <!-- End Cloudflare Web Analytics -->
 <body>
-<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="/">OpenZT2</a><a href="/"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="active gstart" href="zt-disk-map"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a href="asset-lineage"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a class="gstart" href="functional-specification"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a href="behavior-coverage"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-label">Behavior Coverage</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
+<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="/">OpenZT2</a><a href="/"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="active gstart" href="zt-disk-map"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a class="gstart" href="functional-specification"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a href="asset-lineage"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a href="behavior-coverage"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-label">Behavior Coverage</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
 <main class="map-content">
 <section class="pipeline" aria-label="Reconstruction pipeline">
  <h1>Byte Range Map</h1>
@@ -804,7 +796,7 @@ initCommonControls();
 loadPayload().then(()=>{for(const [space,tree] of Object.entries(payload))makeExplorer(space,tree)}).catch(error=>{document.getElementById("spaces").innerHTML=`<p style="color:#e05252">Failed to load byte range map: ${error.message}</p>`});
 </script></body><script id="openzt2-live-reload">
 (()=>{
- const current="fd5ea5790a06e834";
+ const current="aac73edd3ea705ca";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;

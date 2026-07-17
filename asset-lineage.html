@@ -1,19 +1,11 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="fd5ea5790a06e834">
+<meta name="openzt2-site-version" content="aac73edd3ea705ca">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>OpenZT2 — Asset Lineage</title>
 <link rel="canonical" href="https://openzt2.over-yonder.tech/asset-lineage">
-<meta name="description" content="OpenZT2's asset lineage maps every accepted original format through its compiler route, native representation and Bevy or renderer handoff.">
-<meta property="og:title" content="OpenZT2 — Asset Lineage">
-<meta property="og:description" content="OpenZT2's asset lineage maps every accepted original format through its compiler route, native representation and Bevy or renderer handoff.">
-<meta property="og:url" content="https://openzt2.over-yonder.tech/asset-lineage">
-<meta property="og:type" content="article">
-<meta property="og:image" content="https://openzt2.over-yonder.tech/assets/social-card.png">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"OpenZT2 asset lineage","url":"https://openzt2.over-yonder.tech/asset-lineage","description":"OpenZT2's asset lineage maps every accepted original format through its compiler route, native representation and Bevy or renderer handoff.","publisher":{"@type":"Organization","name":"over|yonder","url":"https://over-yonder.tech/"}}</script>
 <style>
 :root{color-scheme:light;--fg:#3c3836;--muted:#7c6f64;--line:#d5c4a1;--panel:#fbf1c7;--soft:#ebdbb2;--link:#076678;--control:#f2e5bc;--control-border:#a89984;--active:#ebdbb2;--mapped:#79740e;--native:#076678;--prepared:#b57614;--omitted:#7c6f64;--blocked:#9d0006}
 :root[data-theme="dark"]{color-scheme:dark;--fg:#ebdbb2;--muted:#a89984;--line:#504945;--panel:#282828;--soft:#3c3836;--link:#83a598;--control:#3c3836;--control-border:#665c54;--active:#504945;--mapped:#98971a;--native:#83a598;--prepared:#d79921;--omitted:#928374;--blocked:#cc241d}
@@ -32,10 +24,11 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;:&quot;7462f5834b4745449f0f5e46d98a53ab&quot;}"></script>
 <!-- End Cloudflare Web Analytics -->
 <body>
-<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="/">OpenZT2</a><a href="/"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a href="zt-disk-map"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a class="active" href="asset-lineage"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a href="functional-specification"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a href="behavior-coverage"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-label">Behavior Coverage</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
+<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="/">OpenZT2</a><a href="/"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a href="zt-disk-map"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a href="functional-specification"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a class="active" href="asset-lineage"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a href="behavior-coverage"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-label">Behavior Coverage</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
 <main>
  <h1>Asset conversion lineage</h1>
  <p class="lede">Every accepted original format, the implemented compiler route into its native type, and the final Bevy or renderer handoff. Source archives stop at preflight; the game opens only a validated <code>.ozp</code> profile.</p>
+ <p class="lede"><code>.ozmodel</code>, <code>.oztexture</code>, and the other native extensions below name typed virtual entries inside the installed <code>.ozp</code>; they are not separate installed pack files. The <a href="functional-specification">functional specification</a> defines their owners, and <a href="behavior-coverage">behavior coverage</a> measures the downstream logic closure.</p>
  <section class="contract" aria-label="Runtime ownership contract">
   <div><strong>Staged compiler</strong><span>Discovery, verification, precedence planning, translation, validation, assembly, and atomic installation are separate bounded phases with byte-accurate progress.</span></div>
   <div><strong>Mapped custom assets</strong><span>All immutable archives remain ranges inside one <code>Arc&lt;MappedPack&gt;</code>. Bevy handles point to custom asset wrappers over those ranges.</span></div>
@@ -136,7 +129,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 </script>
 <script id="openzt2-live-reload">
 (()=>{
- const current="fd5ea5790a06e834";
+ const current="aac73edd3ea705ca";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;
