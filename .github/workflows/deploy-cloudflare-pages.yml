@@ -13,6 +13,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Guard public search metadata
+        run: |
+          pages=(index.html zt-disk-map.html perimeter.html asset-lineage.html functional-specification.html clean-room-legal-roadmap.html)
+          for page in "${pages[@]}"; do
+            if grep -Eqi '<meta[^>]+name="robots"[^>]+noindex' "$page"; then
+              echo "$page must remain indexable" >&2
+              exit 1
+            fi
+            grep -Eqi '<meta[^>]+name="description"[^>]+content=' "$page" || {
+              echo "$page is missing its public description" >&2
+              exit 1
+            }
+            grep -Eqi '<link[^>]+rel="canonical"' "$page" || {
+              echo "$page is missing its canonical URL" >&2
+              exit 1
+            }
+          done
       - name: Prepare static site
         run: |
           mkdir .pages-output
