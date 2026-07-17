@@ -1,8 +1,9 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="bc6d25d5b7189454">
+<meta name="openzt2-site-version" content="fd5ea5790a06e834">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>OpenZT2 — Binary Perimeter</title>
 <link rel="canonical" href="https://openzt2.over-yonder.tech/perimeter">
 <style>
@@ -335,7 +336,7 @@ Promise.all([
  tsv(["zt-function-perimeter.tsv","../docs/analysis/function-perimeter.tsv"]),
  tsv(["zt-global-perimeter.tsv","../docs/analysis/global-perimeter.tsv"]),
  tsv(["zt-vtable-methods-full.tsv","../docs/analysis/vtable-methods-full.tsv"]),
- tsv(["zt-byte-range-map.tsv.gz"]),
+ tsv(["../zt-byte-range-map.tsv.gz"]),
  tsv(["zt-type-coverage-reconciliation.tsv","../docs/analysis/type-coverage-reconciliation.tsv"])
 ]).then(([fp,gp,vt,mapRows,typeRows])=>{
  coverageSummary(fp,gp,vt,mapRows,typeRows);
@@ -345,7 +346,7 @@ Promise.all([
 </script>
 <script id="openzt2-live-reload">
 (()=>{
- const current="bc6d25d5b7189454";
+ const current="fd5ea5790a06e834";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;

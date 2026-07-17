@@ -1,8 +1,9 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="bc6d25d5b7189454">
+<meta name="openzt2-site-version" content="fd5ea5790a06e834">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>OpenZT2 — Reconstruction Dashboard</title>
 <link rel="canonical" href="https://openzt2.over-yonder.tech/">
 <style>
@@ -67,7 +68,7 @@ h2{font-size:17px;margin:26px 0 6px;border-bottom:1px solid var(--line);padding-
   </div>
   <div class="doc-card">
    <h3><a href="asset-lineage">Asset Lineage</a></h3>
-   <p>The settled source-to-native conversion table: every accepted original extension, offline transformation, rkyv archive, mapped Bevy asset boundary, copy policy, and renderer handoff.</p>
+   <p>The source-to-native compiler map: archive discovery and verification, precedence planning, every accepted original extension, rkyv output, mapped Bevy ownership, copy policy, and renderer handoff.</p>
   </div>
   <div class="doc-card">
    <h3><a href="functional-specification">Functional Specification</a></h3>
@@ -128,7 +129,7 @@ function packageProgress(source){
 </script>
 <script id="openzt2-live-reload">
 (()=>{
- const current="bc6d25d5b7189454";
+ const current="fd5ea5790a06e834";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;

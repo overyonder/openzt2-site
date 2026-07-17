@@ -1,8 +1,9 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="bc6d25d5b7189454">
+<meta name="openzt2-site-version" content="fd5ea5790a06e834">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>Zoo Tycoon 2 executable byte range map — OpenZT2</title>
 <link rel="canonical" href="https://openzt2.over-yonder.tech/zt-disk-map">
 <link rel="prefetch" href="/">
@@ -93,7 +94,7 @@ pre,details,.box,.toc,.table-wrap,.repo-switch{background:var(--panel)!important
 <footer class="site-footer"><span>OpenZT2 is a clean-room reconstruction project.</span><a href="https://over-yonder.tech/">An over|yonder project ↗</a></footer>
 <script>
 let payload;
-const MAP_URLS=["zt-byte-range-map.tsv.gz?v=c702e42e0b0c"];
+const MAP_URLS=["../zt-byte-range-map.tsv.gz?v=c702e42e0b0c"];
 async function fetchMap(urls){
  let lastError="";
  for(const url of urls){
@@ -795,7 +796,7 @@ initCommonControls();
 loadPayload().then(()=>{for(const [space,tree] of Object.entries(payload))makeExplorer(space,tree)}).catch(error=>{document.getElementById("spaces").innerHTML=`<p style="color:#e05252">Failed to load byte range map: ${error.message}</p>`});
 </script></body><script id="openzt2-live-reload">
 (()=>{
- const current="bc6d25d5b7189454";
+ const current="fd5ea5790a06e834";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;
