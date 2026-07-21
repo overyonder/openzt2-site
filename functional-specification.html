@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="9f76c0a246236b42">
+<meta name="openzt2-site-version" content="11bc29ff40ec0930">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OpenZT2 - Functional Specification</title>
 <link rel="canonical" href="https://openzt2.over-yonder.tech/functional-specification">
@@ -107,26 +107,71 @@ acceptance contracts in the assembled application.</p>
 <h2>Native content boundary</h2>
 <p>Original Z2F game archives, Extensible Markup Language (XML) files, media,
 downloadable content (DLC), and mods are inputs to a separate preflight
-application. Preflight resolves enabled-pack precedence, inheritance, aliases,
-dependencies, original formats, derived data, and target-machine choices before
-launching the game. It writes one resolved binary profile in the exact layouts
-consumed by the engine: flat processor tables, graphics-upload-ready payloads,
-bounded streaming blocks, stable identifiers, and direct lookup indexes.
-Later-pack override semantics therefore leave no work for gameplay.</p>
+application. Each verified input archive is prepared independently as a
+content-addressed, archive-local source artifact. This is preflight-owned cache
+data: it stores the archive's canonical paths and validated decompressed entry
+bytes. It contains no enabled-set winner decisions, merged corpus,
+resolved dependency, or runtime catalogue and is never opened by the game. Its
+source hash and format schema allow it to be reused across later combinations
+of downloadable content and mods without rescanning, rehashing, or
+decompressing the original archive. Consumer compilation remains part of the
+final selected-set join because corpus semantics can cross archive boundaries.</p>
+<p>After the player chooses the enabled set, preflight performs the only
+cross-archive compilation. Its planner applies archive precedence, inheritance
+and aliases; selects winning paths and typed bindings; merges corpus
+contributions; compiles the final consumer-shaped records; and resolves every
+dependency to a winning native <code>AssetId</code>. The planner may divide its already
+disjoint output into cohort-keyed compiled shards. These are bounded
+compiler/cache artifacts, not packs and not game assets. The physical join
+performs no
+precedence or winner selection and rejects duplicates as compiler defects. It
+then writes, hashes, and validates exactly one installed <code>openzt2.ozp</code>. This
+final pack contains the exact layouts consumed by the
+engine: flat processor tables, graphics-upload-ready payloads, bounded
+streaming blocks, stable identifiers, and direct lookup indexes. Source-archive
+override semantics therefore leave no work for gameplay.</p>
 <p>Native records use versioned <code>rkyv</code> archives and small fixed representations
 such as <code>AssetId</code>, <code>TableRange</code>, <code>StringRange</code>, and <code>AssetRange</code>. The game maps
-the resolved profile once, validates each typed family once, and retains the
+the installed pack once, validates each typed family once, and retains the
 mapping through ordinary Bevy asset handles. Archived records are read in
 place. Meshes, textures, shaders, materials, audio, animation, UI documents,
 world definitions, terrain, navigation, and scenarios arrive in the form their
 CPU systems or GPU upload paths require. Runtime source parsing, decompression
 into an intermediate graph, mod merging, asset-instance hardcoding, and a
 second decoded asset cache are outside the engine boundary.</p>
+<p>The convenient runtime path is mandatory. Canonical records carry final
+native asset identities; authored/source identities and binding tables are
+preflight metadata and are not visible to gameplay systems. A typed load
+returns one strong Bevy handle which owns the mapped payload, its preparation,
+and its GPU residency for the handle's lifetime. Only typed asset loaders may
+inspect the pack catalogue or mapped offsets. Materials, terrain chunks, UI
+nodes, prefabs, and other consumers receive prepared handles and spawn ordinary
+Bevy components such as <code>Mesh3d</code> and <code>MeshMaterial3d</code>; they never choose between
+lookup namespaces, manufacture asset paths, initiate uploads, or manage a
+second residency lifetime.</p>
+<p>World catalogues are metadata, not an instruction to hydrate every map. Menu
+projection reads their immutable facts, while entering a world requests only
+that map's terrain and navigation and retains only the prefab handle currently
+being hydrated. Terrain chunks then carry ordinary <code>Mesh3d</code> and
+<code>MeshMaterial3d&lt;TerrainMaterial&gt;</code> components. The terrain material has required
+final layer/blend handles, so Bevy's normal material preparation owns its bind
+groups and GPU residency without a terrain renderer or optional-texture
+fallback path.</p>
 <p><code>PreloadMode::Off</code> leaves paging demand-driven. <code>Core</code> faults the bootstrap,
 menu, zoo, and resident groups within measured free-memory headroom.
 <code>AllEnabled</code> extends that policy to every enabled on-demand and streaming group.
-It never reaches an unselected pack because preflight has already produced the
-single final profile.</p>
+It never reaches an archive-local source artifact or unselected input because
+preflight has already produced the single final <code>openzt2.ozp</code>.</p>
+<p>Preflight exposes one truthful nine-stage flow: <strong>Preparation</strong>, <strong>Indexing</strong>,
+<strong>Planning</strong>, <strong>Prework</strong>, <strong>Conversion</strong>, <strong>Shards</strong>, <strong>Pack</strong>,
+<strong>Verification</strong>, and <strong>Done</strong>. Archive-, source-, and shard-independent work
+runs in parallel subject to bounded memory and I/O budgets. Every expensive
+operation reports its real unit of work. Large discrete sets are aggregated
+into exact cells of at most 1,000 jobs; byte-oriented work reports bytes. Grey,
+yellow, green, and red mean not started, active, complete, and blocked. An
+active stage can never display 100 percent: 100 percent is the completed state
+and advances immediately to the next stage. <code>Done</code> is shown only after the one
+installed pack has passed final verification and its receipt is committed.</p>
 <h2>Bevy ownership model</h2>
 <p>Bevy's entity-component-system (ECS) world owns the live game. Each animal,
 guest, member of staff, facility, habitat,
@@ -156,7 +201,7 @@ asset data. Settled gameplay systems target zero allocations. Collections,
 route buffers, spatial indexes, render extraction, dependency-owned particle
 capacity, decoder surfaces, and GPU staging reserve bounded capacity before the
 settled measurement window. Game-content filesystem reads stop after the mapping is
-installed; save/profile I/O remains an explicit separate boundary.</p>
+installed; save I/O remains an explicit separate boundary.</p>
 <p>The regression suite measures three independent categories:</p>
 <ul>
 <li>Rust heap allocations with exact counting tests and Tracy memory events.</li>
@@ -194,7 +239,7 @@ integration, policy, and original-game semantics around those owners. They must
 not build a parallel solver, renderer, mixer, codec, layout engine, particle
 engine, optimizer, device backend, or copied library world.</p>
 <p>Library adoption does not relax the mapping or allocation contract. The game
-still loads only the resolved native profile; one-time body/GPU/decoder setup is
+still loads only the single installed native pack; one-time body/GPU/decoder setup is
 bounded and measured; capacity-stable operation remains subject to Tracy and
 hard allocation regressions. A failing mandatory dependency is configured,
 patched, or narrowly forked before bespoke replacement is considered. The
@@ -205,26 +250,73 @@ gate for every native family and game plugin. It traces archived fields through
 conversion, hydration, Bevy ownership, messages, systems, persistence, and
 cleanup. A package cannot become <code>verified</code> while its audit row is pending or
 has an open blocking finding.</p>
-<p>Phase 1 native ownership is closed by
+<h2>Current verified progress</h2>
+<p>The project tracks four different closure gates. They must never be collapsed
+into one percentage or inferred from one another:</p>
+<div class="table-scroll"><table><thead>
+<tr>
+  <th>Gate</th>
+  <th>What it proves</th>
+  <th>Current state (2026-07-21)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Evidence circumference</td>
+  <td>Every known binary identity, recovered type/oracle file, and shipped archive family has an owner or explicit disposition.</td>
+  <td><strong>Closed for the present evidence set:</strong> 28,021 binary functions, 2,673 recovered types, 21 C++ oracle files, and 54,714 official archive entries; zero are unowned. This proves scope ownership only.</td>
+</tr>
+<tr>
+  <td>Native conversion</td>
+  <td>Selected original sources can be compiled into the one validated native pack.</td>
+  <td><strong>Core path demonstrated:</strong> the three selected core archives produced and installed a validated 4,998,541,776-byte <code>openzt2.ozp</code>. This proves the selected source corpus passed preflight; it does not prove that every native field has a runtime consumer. Video remains blocked where Bink input is encountered.</td>
+</tr>
+<tr>
+  <td>Native ownership/routing</td>
+  <td>Every admitted native table has an intended Bevy/library owner and an existing route toward that owner.</td>
+  <td><strong>Enumerated, not closed:</strong> all 53 ownership rows are assigned and routed. Their Phase 3 transformations and acceptance remain open; the video row is additionally blocked. A route or lexical consumer candidate is not complete field consumption.</td>
+</tr>
+<tr>
+  <td>Behavioral parity</td>
+  <td>Recovered triggers, conditions, state transitions, timing, and observable results are implemented and reviewed in the playable game.</td>
+  <td><strong>Open:</strong> 5,173 provisional binary-callable contracts exist; 4,255 have no plausible Bevy consumer and only the reviewed ledger may promote a contract. Source-authored UI, behavior, scenario/Lua, animation-event, and world-definition semantics remain an additional closure surface.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The runtime currently maps the installed pack, boots through the shell, accepts
+headless pointer input, and reaches an in-game UI. It is not yet a complete or
+authentic game. The current visible UI investigation, for example, proved
+nine-slice projection but also exposed the still-unimplemented original
+<code>autopopulate:list</code> catalogue behavior. Such a discovery changes behavioral
+review state; it does not invalidate the already-proven pack conversion.</p>
+<p>Phase 1 ownership assignment is closed by
 <code>docs/work-packages/PHASE-1-OWNERSHIP.md</code>. Its machine-checked
 <code>NATIVE-OWNERSHIP.tsv</code> assigns every native archive-root field to exactly one
-final Bevy or approved-library owner and concrete consumer. Historical audit
-reports remain supporting evidence rather than competing ownership ledgers.</p>
+final Bevy or approved-library owner and concrete consumer. Its status column
+records assignment only, never implementation progress. Historical audit
+reports remain supporting evidence rather than competing progress ledgers.</p>
 <p>Phase 2 integration enumeration is closed by
 <code>docs/work-packages/PHASE-2-CLOSURE.md</code>. Its machine-checked
 <code>PHASE-2-INTEGRATION.tsv</code> traces every Phase 1 row through its producer, mapped
-asset, current consumer evidence, and exact Phase 3 transformation. It records
-what is connected and what remains; only Phase 3 implementation and acceptance
-may turn those enumerated paths into a completed integration boundary.</p>
+asset, current consumer evidence, and exact Phase 3 transformation. <code>routed</code>
+means that this path exists, not that all fields or behaviors are consumed.
+Only an explicit Phase 3 acceptance result may turn a routed row into a closed
+integration boundary.</p>
+<p>The current package headline is <strong>53 active, 2 implemented, 1 blocked, and 0
+verified</strong>. <code>implemented</code> is reserved for A01 launcher/preflight and G35 native
+content loading; it does not promote their downstream consumers. A13 video is
+blocked on the Bink conversion boundary. Every other package has known
+consumer, gameplay, or acceptance work and is therefore active.</p>
 <h2>Package status</h2>
 <p>The published grid is generated from the 56 normative package briefs in
 <code>docs/work-packages/briefs/</code>. A brief may declare one of these states
 with a <code>Status: &lt;state&gt;</code> line after its title. Absence means <code>brief</code>.</p>
 <ul>
 <li><code>brief</code>: contract complete and ready to implement.</li>
-<li><code>active</code>: implementation is in progress.</li>
-<li><code>implemented</code>: code is integrated but its complete acceptance contract has
-not passed.</li>
+<li><code>active</code>: some required implementation or consumer work is known to remain.</li>
+<li><code>implemented</code>: all code required by the brief is believed integrated, but its
+complete acceptance contract has not passed. A known missing behavior or
+unconsumed required field immediately returns the package to <code>active</code>.</li>
 <li><code>verified</code>: functional, persistence, allocation, mapping, GPU, and integrated
 gameplay acceptance has passed. This is the only green state.</li>
 <li><code>blocked</code>: a named evidence or integration dependency prevents progress.</li>
@@ -255,119 +347,79 @@ consumer, an approved library or preflight owner, or a reviewed omission.
 Lexical consumer candidates are leads only; a behavior is verified only after
 its trigger, conditions, state transition, timing, and observable result match
 the original evidence.</p>
-<section aria-label="Package delivery status"><div class="package-summary"><strong>54 implemented · 2 blocked · 0 verified</strong><span>Green fill is callable consumer coverage; package verification remains the acceptance gate.</span></div><div class="package-grid"><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A01</span><span class="package-name">Launcher</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a01">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A02</span><span class="package-name">Compiled UI Document</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a02">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A03</span><span class="package-name">Species Catalogue</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a03">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A04</span><span class="package-name">GPU-ready model</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a04">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A05</span><span class="package-name">GPU-Native Texture</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a05">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A06</span><span class="package-name">Skeletal Animation</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a06">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A07</span><span class="package-name">Material</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a07">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A08</span><span class="package-name">Shader modules and variants</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a08">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A09</span><span class="package-name">Localization</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a09">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A10</span><span class="package-name">Compiled Behavior Program</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a10">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A11</span><span class="package-name">Unified audio</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a11">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A12</span><span class="package-name">System Font Integration</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a12">Open package contract ↓</a></div></details><details class="package-card package-status-blocked" style="--coverage:0%"><summary><span class="package-id">A13</span><span class="package-name">Video stream</span><span class="package-state">Blocked</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a13">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A14</span><span class="package-name">World Definitions</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a14">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A15</span><span class="package-name">Scene Prefab</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a15">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A16</span><span class="package-name">Streamable Terrain</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a16">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A17</span><span class="package-name">Navigation</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a17">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A18</span><span class="package-name">GPU-ready effects</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a18">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A19</span><span class="package-name">Worlds, Scenarios and Imported Starts</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a19">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:2%"><summary><span class="package-id">G01</span><span class="package-name">Source-driven game shell</span><span class="package-state">Implemented</span><span class="package-coverage">2% callable coverage · 1 / 60</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>92</dd><dt>Library / platform owned (mechanical)</dt><dd>1</dd><dt>Preflight owned (mechanical)</dt><dd>6</dd><dt>Language / support mechanics</dt><dd>25</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>1 / 60</dd><dt>Unmatched obligations</dt><dd>59</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g01">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g01">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:8%"><summary><span class="package-id">G02</span><span class="package-name">Native game UI</span><span class="package-state">Implemented</span><span class="package-coverage">8% callable coverage · 45 / 558</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,076</dd><dt>Library / platform owned (mechanical)</dt><dd>70</dd><dt>Preflight owned (mechanical)</dt><dd>90</dd><dt>Language / support mechanics</dt><dd>358</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>45 / 558</dd><dt>Unmatched obligations</dt><dd>513</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g02">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g02">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:5%"><summary><span class="package-id">G03</span><span class="package-name">Device-independent input</span><span class="package-state">Implemented</span><span class="package-coverage">5% callable coverage · 9 / 181</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>673</dd><dt>Library / platform owned (mechanical)</dt><dd>265</dd><dt>Preflight owned (mechanical)</dt><dd>45</dd><dt>Language / support mechanics</dt><dd>182</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>9 / 181</dd><dt>Unmatched obligations</dt><dd>172</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g03">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g03">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:13%"><summary><span class="package-id">G04</span><span class="package-name">World instantiation</span><span class="package-state">Implemented</span><span class="package-coverage">13% callable coverage · 27 / 212</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>495</dd><dt>Library / platform owned (mechanical)</dt><dd>2</dd><dt>Preflight owned (mechanical)</dt><dd>71</dd><dt>Language / support mechanics</dt><dd>210</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>27 / 212</dd><dt>Unmatched obligations</dt><dd>185</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g04">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g04">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:19%"><summary><span class="package-id">G05</span><span class="package-name">Editable terrain and water</span><span class="package-state">Implemented</span><span class="package-coverage">19% callable coverage · 100 / 540</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>791</dd><dt>Library / platform owned (mechanical)</dt><dd>74</dd><dt>Preflight owned (mechanical)</dt><dd>26</dd><dt>Language / support mechanics</dt><dd>151</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>100 / 540</dd><dt>Unmatched obligations</dt><dd>440</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g05">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g05">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:27%"><summary><span class="package-id">G06</span><span class="package-name">Authentic game cameras</span><span class="package-state">Implemented</span><span class="package-coverage">27% callable coverage · 61 / 225</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>338</dd><dt>Library / platform owned (mechanical)</dt><dd>18</dd><dt>Preflight owned (mechanical)</dt><dd>25</dd><dt>Language / support mechanics</dt><dd>70</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>61 / 225</dd><dt>Unmatched obligations</dt><dd>164</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g06">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g06">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:3%"><summary><span class="package-id">G07</span><span class="package-name">Construction interaction and history</span><span class="package-state">Implemented</span><span class="package-coverage">3% callable coverage · 3 / 93</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,624</dd><dt>Library / platform owned (mechanical)</dt><dd>18</dd><dt>Preflight owned (mechanical)</dt><dd>8</dd><dt>Language / support mechanics</dt><dd>1,505</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>3 / 93</dd><dt>Unmatched obligations</dt><dd>90</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g07">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g07">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:23%"><summary><span class="package-id">G08</span><span class="package-name">Fences, paths and portals</span><span class="package-state">Implemented</span><span class="package-coverage">23% callable coverage · 79 / 337</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>600</dd><dt>Library / platform owned (mechanical)</dt><dd>42</dd><dt>Preflight owned (mechanical)</dt><dd>42</dd><dt>Language / support mechanics</dt><dd>179</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>79 / 337</dd><dt>Unmatched obligations</dt><dd>258</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g08">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g08">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:2%"><summary><span class="package-id">G09</span><span class="package-name">Habitat containment and membership</span><span class="package-state">Implemented</span><span class="package-coverage">2% callable coverage · 2 / 106</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>160</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>15</dd><dt>Language / support mechanics</dt><dd>39</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>2 / 106</dd><dt>Unmatched obligations</dt><dd>104</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g09">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g09">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:19%"><summary><span class="package-id">G10</span><span class="package-name">Scenery and facility placement</span><span class="package-state">Implemented</span><span class="package-coverage">19% callable coverage · 69 / 360</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>566</dd><dt>Library / platform owned (mechanical)</dt><dd>5</dd><dt>Preflight owned (mechanical)</dt><dd>27</dd><dt>Language / support mechanics</dt><dd>174</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>69 / 360</dd><dt>Unmatched obligations</dt><dd>291</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g10">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g10">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:11%"><summary><span class="package-id">G11</span><span class="package-name">Animal lifecycle and family</span><span class="package-state">Implemented</span><span class="package-coverage">11% callable coverage · 15 / 141</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>396</dd><dt>Library / platform owned (mechanical)</dt><dd>33</dd><dt>Preflight owned (mechanical)</dt><dd>20</dd><dt>Language / support mechanics</dt><dd>202</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>15 / 141</dd><dt>Unmatched obligations</dt><dd>126</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g11">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g11">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:7%"><summary><span class="package-id">G12</span><span class="package-name">Animal needs, welfare and suitability</span><span class="package-state">Implemented</span><span class="package-coverage">7% callable coverage · 1 / 14</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>39</dd><dt>Library / platform owned (mechanical)</dt><dd>3</dd><dt>Preflight owned (mechanical)</dt><dd>2</dd><dt>Language / support mechanics</dt><dd>20</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>1 / 14</dd><dt>Unmatched obligations</dt><dd>13</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g12">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g12">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:1%"><summary><span class="package-id">G13</span><span class="package-name">Data-authored animal task selection</span><span class="package-state">Implemented</span><span class="package-coverage">1% callable coverage · 7 / 475</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,340</dd><dt>Library / platform owned (mechanical)</dt><dd>9</dd><dt>Preflight owned (mechanical)</dt><dd>187</dd><dt>Language / support mechanics</dt><dd>668</dd><dt>Legacy semantic source</dt><dd>1</dd><dt>Mapped Bevy consumer candidates</dt><dd>7 / 475</dd><dt>Unmatched obligations</dt><dd>468</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g13">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g13">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:13%"><summary><span class="package-id">G14</span><span class="package-name">Navigation, steering and docking</span><span class="package-state">Implemented</span><span class="package-coverage">13% callable coverage · 51 / 387</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,009</dd><dt>Library / platform owned (mechanical)</dt><dd>13</dd><dt>Preflight owned (mechanical)</dt><dd>125</dd><dt>Language / support mechanics</dt><dd>484</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>51 / 387</dd><dt>Unmatched obligations</dt><dd>336</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g14">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g14">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">G15</span><span class="package-name">Food, drink and refill transactions</span><span class="package-state">Implemented</span><span class="package-coverage">0% callable coverage · 0 / 3</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>6</dd><dt>Library / platform owned (mechanical)</dt><dd>3</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 3</dd><dt>Unmatched obligations</dt><dd>3</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g15">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g15">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:4%"><summary><span class="package-id">G16</span><span class="package-name">Animal Health</span><span class="package-state">Implemented</span><span class="package-coverage">4% callable coverage · 4 / 90</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>204</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>25</dd><dt>Language / support mechanics</dt><dd>88</dd><dt>Legacy semantic source</dt><dd>1</dd><dt>Mapped Bevy consumer candidates</dt><dd>4 / 90</dd><dt>Unmatched obligations</dt><dd>86</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g16">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g16">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:19%"><summary><span class="package-id">G17</span><span class="package-name">Guests</span><span class="package-state">Implemented</span><span class="package-coverage">19% callable coverage · 18 / 96</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>241</dd><dt>Library / platform owned (mechanical)</dt><dd>13</dd><dt>Preflight owned (mechanical)</dt><dd>23</dd><dt>Language / support mechanics</dt><dd>109</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>18 / 96</dd><dt>Unmatched obligations</dt><dd>78</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g17">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g17">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:7%"><summary><span class="package-id">G18</span><span class="package-name">Economy</span><span class="package-state">Implemented</span><span class="package-coverage">7% callable coverage · 9 / 128</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>397</dd><dt>Library / platform owned (mechanical)</dt><dd>2</dd><dt>Preflight owned (mechanical)</dt><dd>82</dd><dt>Language / support mechanics</dt><dd>185</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>9 / 128</dd><dt>Unmatched obligations</dt><dd>119</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g18">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g18">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:27%"><summary><span class="package-id">G19</span><span class="package-name">Donations</span><span class="package-state">Implemented</span><span class="package-coverage">27% callable coverage · 6 / 22</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>30</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>8</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>6 / 22</dd><dt>Unmatched obligations</dt><dd>16</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g19">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g19">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:28%"><summary><span class="package-id">G20</span><span class="package-name">Staff</span><span class="package-state">Implemented</span><span class="package-coverage">28% callable coverage · 82 / 295</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>772</dd><dt>Library / platform owned (mechanical)</dt><dd>41</dd><dt>Preflight owned (mechanical)</dt><dd>46</dd><dt>Language / support mechanics</dt><dd>390</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>82 / 295</dd><dt>Unmatched obligations</dt><dd>213</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g20">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g20">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:34%"><summary><span class="package-id">G21</span><span class="package-name">Information and Catalogues</span><span class="package-state">Implemented</span><span class="package-coverage">34% callable coverage · 120 / 350</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>779</dd><dt>Library / platform owned (mechanical)</dt><dd>17</dd><dt>Preflight owned (mechanical)</dt><dd>77</dd><dt>Language / support mechanics</dt><dd>292</dd><dt>Legacy semantic source</dt><dd>43</dd><dt>Mapped Bevy consumer candidates</dt><dd>120 / 350</dd><dt>Unmatched obligations</dt><dd>230</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g21">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g21">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:24%"><summary><span class="package-id">G22</span><span class="package-name">Persistence</span><span class="package-state">Implemented</span><span class="package-coverage">24% callable coverage · 33 / 136</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>374</dd><dt>Library / platform owned (mechanical)</dt><dd>128</dd><dt>Preflight owned (mechanical)</dt><dd>25</dd><dt>Language / support mechanics</dt><dd>85</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>33 / 136</dd><dt>Unmatched obligations</dt><dd>103</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g22">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g22">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:27%"><summary><span class="package-id">G23</span><span class="package-name">Progression</span><span class="package-state">Implemented</span><span class="package-coverage">27% callable coverage · 31 / 114</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>236</dd><dt>Library / platform owned (mechanical)</dt><dd>1</dd><dt>Preflight owned (mechanical)</dt><dd>29</dd><dt>Language / support mechanics</dt><dd>92</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>31 / 114</dd><dt>Unmatched obligations</dt><dd>83</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g23">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g23">Coverage details →</a></div></details><details class="package-card package-status-blocked" style="--coverage:32%"><summary><span class="package-id">G24</span><span class="package-name">Scenarios, Campaigns, Tutorials, and Challenges</span><span class="package-state">Blocked</span><span class="package-coverage">32% callable coverage · 30 / 95</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>219</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>30</dd><dt>Language / support mechanics</dt><dd>94</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>30 / 95</dd><dt>Unmatched obligations</dt><dd>65</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g24">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g24">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:8%"><summary><span class="package-id">G25</span><span class="package-name">Aquatic Systems</span><span class="package-state">Implemented</span><span class="package-coverage">8% callable coverage · 21 / 265</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>457</dd><dt>Library / platform owned (mechanical)</dt><dd>11</dd><dt>Preflight owned (mechanical)</dt><dd>42</dd><dt>Language / support mechanics</dt><dd>139</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>21 / 265</dd><dt>Unmatched obligations</dt><dd>244</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g25">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g25">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:17%"><summary><span class="package-id">G26</span><span class="package-name">Animal Shows</span><span class="package-state">Implemented</span><span class="package-coverage">17% callable coverage · 57 / 328</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>686</dd><dt>Library / platform owned (mechanical)</dt><dd>3</dd><dt>Preflight owned (mechanical)</dt><dd>61</dd><dt>Language / support mechanics</dt><dd>294</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>57 / 328</dd><dt>Unmatched obligations</dt><dd>271</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g26">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g26">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:8%"><summary><span class="package-id">G27</span><span class="package-name">Transport and Tours</span><span class="package-state">Implemented</span><span class="package-coverage">8% callable coverage · 57 / 698</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,488</dd><dt>Library / platform owned (mechanical)</dt><dd>29</dd><dt>Preflight owned (mechanical)</dt><dd>115</dd><dt>Language / support mechanics</dt><dd>644</dd><dt>Legacy semantic source</dt><dd>2</dd><dt>Mapped Bevy consumer candidates</dt><dd>57 / 698</dd><dt>Unmatched obligations</dt><dd>641</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g27">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g27">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:71%"><summary><span class="package-id">G28</span><span class="package-name">Photos</span><span class="package-state">Implemented</span><span class="package-coverage">71% callable coverage · 89 / 126</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>281</dd><dt>Library / platform owned (mechanical)</dt><dd>4</dd><dt>Preflight owned (mechanical)</dt><dd>37</dd><dt>Language / support mechanics</dt><dd>114</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>89 / 126</dd><dt>Unmatched obligations</dt><dd>37</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g28">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g28">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:8%"><summary><span class="package-id">G29</span><span class="package-name">Extinct Animal Recovery</span><span class="package-state">Implemented</span><span class="package-coverage">8% callable coverage · 19 / 236</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>504</dd><dt>Library / platform owned (mechanical)</dt><dd>120</dd><dt>Preflight owned (mechanical)</dt><dd>28</dd><dt>Language / support mechanics</dt><dd>120</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>19 / 236</dd><dt>Unmatched obligations</dt><dd>217</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g29">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g29">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:15%"><summary><span class="package-id">G30</span><span class="package-name">Gestures and Puzzles</span><span class="package-state">Implemented</span><span class="package-coverage">15% callable coverage · 29 / 199</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>402</dd><dt>Library / platform owned (mechanical)</dt><dd>5</dd><dt>Preflight owned (mechanical)</dt><dd>39</dd><dt>Language / support mechanics</dt><dd>158</dd><dt>Legacy semantic source</dt><dd>1</dd><dt>Mapped Bevy consumer candidates</dt><dd>29 / 199</dd><dt>Unmatched obligations</dt><dd>170</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g30">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g30">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:33%"><summary><span class="package-id">G31</span><span class="package-name">Immersive and Special Modes</span><span class="package-state">Implemented</span><span class="package-coverage">33% callable coverage · 21 / 63</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>111</dd><dt>Library / platform owned (mechanical)</dt><dd>5</dd><dt>Preflight owned (mechanical)</dt><dd>8</dd><dt>Language / support mechanics</dt><dd>35</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>21 / 63</dd><dt>Unmatched obligations</dt><dd>42</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g31">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g31">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">G32</span><span class="package-name">Simulation time and determinism</span><span class="package-state">Implemented</span><span class="package-coverage">0% callable coverage · 0 / 4</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>5</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>1</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 4</dd><dt>Unmatched obligations</dt><dd>4</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g32">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g32">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:24%"><summary><span class="package-id">G33</span><span class="package-name">World environment and ambient life</span><span class="package-state">Implemented</span><span class="package-coverage">24% callable coverage · 32 / 131</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>284</dd><dt>Library / platform owned (mechanical)</dt><dd>33</dd><dt>Preflight owned (mechanical)</dt><dd>24</dd><dt>Language / support mechanics</dt><dd>96</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>32 / 131</dd><dt>Unmatched obligations</dt><dd>99</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g33">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g33">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:16%"><summary><span class="package-id">G34</span><span class="package-name">Display and graphics settings</span><span class="package-state">Implemented</span><span class="package-coverage">16% callable coverage · 5 / 31</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>53</dd><dt>Library / platform owned (mechanical)</dt><dd>6</dd><dt>Preflight owned (mechanical)</dt><dd>2</dd><dt>Language / support mechanics</dt><dd>14</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>5 / 31</dd><dt>Unmatched obligations</dt><dd>26</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g34">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g34">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">G35</span><span class="package-name">Native content mapping and residency</span><span class="package-state">Implemented</span><span class="package-coverage">No callable behavior evidence assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>0 / 0</dd><dt>Unmatched obligations</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g35">Open package contract ↓</a></div></details><details class="package-card package-status-implemented" style="--coverage:23%"><summary><span class="package-id">G36</span><span class="package-name">Maintenance and Sanitation</span><span class="package-state">Implemented</span><span class="package-coverage">23% callable coverage · 3 / 13</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>14</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>1</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>3 / 13</dd><dt>Unmatched obligations</dt><dd>10</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g36">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g36">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:23%"><summary><span class="package-id">G37</span><span class="package-name">Interactive physics and attachments</span><span class="package-state">Implemented</span><span class="package-coverage">23% callable coverage · 47 / 207</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>894</dd><dt>Library / platform owned (mechanical)</dt><dd>309</dd><dt>Preflight owned (mechanical)</dt><dd>85</dd><dt>Language / support mechanics</dt><dd>293</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Mapped Bevy consumer candidates</dt><dd>47 / 207</dd><dt>Unmatched obligations</dt><dd>160</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g37">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g37">Coverage details →</a></div></details></div></section>
+<section aria-label="Package delivery status"><div class="package-summary"><strong>2 implemented · 1 blocked · 0 verified</strong><span>Green fill is semantic-contract consumer coverage; package verification remains the acceptance gate.</span></div><div class="package-grid"><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">A01</span><span class="package-name">Preflight launcher and pack join</span><span class="package-state">Implemented</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a01">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A02</span><span class="package-name">Compiled UI Document</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a02">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A03</span><span class="package-name">Species Catalogue</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a03">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A04</span><span class="package-name">GPU-ready model</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a04">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A05</span><span class="package-name">GPU-Native Texture</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a05">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A06</span><span class="package-name">Skeletal Animation</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a06">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A07</span><span class="package-name">Material</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a07">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A08</span><span class="package-name">Shader modules and variants</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a08">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A09</span><span class="package-name">Localization</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a09">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A10</span><span class="package-name">Compiled Behavior Program</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a10">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A11</span><span class="package-name">Unified audio</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a11">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A12</span><span class="package-name">System Font Integration</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a12">Open package contract ↓</a></div></details><details class="package-card package-status-blocked" style="--coverage:0%"><summary><span class="package-id">A13</span><span class="package-name">Video stream</span><span class="package-state">Blocked</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a13">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A14</span><span class="package-name">World Definitions</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a14">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A15</span><span class="package-name">Scene Prefab</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a15">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A16</span><span class="package-name">Streamable Terrain</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a16">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A17</span><span class="package-name">Navigation</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a17">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A18</span><span class="package-name">GPU-ready effects</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a18">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">A19</span><span class="package-name">Worlds, Scenarios and Imported Starts</span><span class="package-state">Active</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-a19">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:2%"><summary><span class="package-id">G01</span><span class="package-name">Source-driven game shell</span><span class="package-state">Active</span><span class="package-coverage">2% contract coverage · 1 / 50</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>92</dd><dt>Library / platform owned (mechanical)</dt><dd>3</dd><dt>Preflight owned (mechanical)</dt><dd>7</dd><dt>Language / support mechanics</dt><dd>29</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>50</dd><dt>Mapped contract candidates</dt><dd>1</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>49</dd><dt>Implementation-ready</dt><dd>48</dd><dt>Verification-ready</dt><dd>1</dd><dt>Normalization review required</dt><dd>1</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g01">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g01">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:10%"><summary><span class="package-id">G02</span><span class="package-name">Native game UI</span><span class="package-state">Active</span><span class="package-coverage">10% contract coverage · 33 / 340</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,076</dd><dt>Library / platform owned (mechanical)</dt><dd>243</dd><dt>Preflight owned (mechanical)</dt><dd>99</dd><dt>Language / support mechanics</dt><dd>340</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>340</dd><dt>Mapped contract candidates</dt><dd>33</dd><dt>Mixed-evidence contracts</dt><dd>5</dd><dt>Unmatched contracts</dt><dd>302</dd><dt>Implementation-ready</dt><dd>286</dd><dt>Verification-ready</dt><dd>32</dd><dt>Normalization review required</dt><dd>22</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g02">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g02">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:5%"><summary><span class="package-id">G03</span><span class="package-name">Device-independent input</span><span class="package-state">Active</span><span class="package-coverage">5% contract coverage · 5 / 98</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>673</dd><dt>Library / platform owned (mechanical)</dt><dd>328</dd><dt>Preflight owned (mechanical)</dt><dd>50</dd><dt>Language / support mechanics</dt><dd>175</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>98</dd><dt>Mapped contract candidates</dt><dd>5</dd><dt>Mixed-evidence contracts</dt><dd>1</dd><dt>Unmatched contracts</dt><dd>92</dd><dt>Implementation-ready</dt><dd>86</dd><dt>Verification-ready</dt><dd>5</dd><dt>Normalization review required</dt><dd>7</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g03">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g03">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:13%"><summary><span class="package-id">G04</span><span class="package-name">World instantiation</span><span class="package-state">Active</span><span class="package-coverage">13% contract coverage · 18 / 143</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>495</dd><dt>Library / platform owned (mechanical)</dt><dd>2</dd><dt>Preflight owned (mechanical)</dt><dd>95</dd><dt>Language / support mechanics</dt><dd>217</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>143</dd><dt>Mapped contract candidates</dt><dd>18</dd><dt>Mixed-evidence contracts</dt><dd>2</dd><dt>Unmatched contracts</dt><dd>123</dd><dt>Implementation-ready</dt><dd>121</dd><dt>Verification-ready</dt><dd>18</dd><dt>Normalization review required</dt><dd>4</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g04">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g04">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:20%"><summary><span class="package-id">G05</span><span class="package-name">Editable terrain and water</span><span class="package-state">Active</span><span class="package-coverage">20% contract coverage · 57 / 288</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>791</dd><dt>Library / platform owned (mechanical)</dt><dd>180</dd><dt>Preflight owned (mechanical)</dt><dd>34</dd><dt>Language / support mechanics</dt><dd>145</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>288</dd><dt>Mapped contract candidates</dt><dd>57</dd><dt>Mixed-evidence contracts</dt><dd>15</dd><dt>Unmatched contracts</dt><dd>216</dd><dt>Implementation-ready</dt><dd>191</dd><dt>Verification-ready</dt><dd>45</dd><dt>Normalization review required</dt><dd>52</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g05">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g05">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:28%"><summary><span class="package-id">G06</span><span class="package-name">Authentic game cameras</span><span class="package-state">Active</span><span class="package-coverage">28% contract coverage · 46 / 167</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>338</dd><dt>Library / platform owned (mechanical)</dt><dd>18</dd><dt>Preflight owned (mechanical)</dt><dd>26</dd><dt>Language / support mechanics</dt><dd>77</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>167</dd><dt>Mapped contract candidates</dt><dd>46</dd><dt>Mixed-evidence contracts</dt><dd>2</dd><dt>Unmatched contracts</dt><dd>119</dd><dt>Implementation-ready</dt><dd>107</dd><dt>Verification-ready</dt><dd>39</dd><dt>Normalization review required</dt><dd>21</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g06">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g06">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:4%"><summary><span class="package-id">G07</span><span class="package-name">Construction interaction and history</span><span class="package-state">Active</span><span class="package-coverage">4% contract coverage · 3 / 83</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,624</dd><dt>Library / platform owned (mechanical)</dt><dd>19</dd><dt>Preflight owned (mechanical)</dt><dd>10</dd><dt>Language / support mechanics</dt><dd>1,506</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>83</dd><dt>Mapped contract candidates</dt><dd>3</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>80</dd><dt>Implementation-ready</dt><dd>75</dd><dt>Verification-ready</dt><dd>3</dd><dt>Normalization review required</dt><dd>5</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g07">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g07">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:20%"><summary><span class="package-id">G08</span><span class="package-name">Fences, paths and portals</span><span class="package-state">Active</span><span class="package-coverage">20% contract coverage · 48 / 241</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>600</dd><dt>Library / platform owned (mechanical)</dt><dd>47</dd><dt>Preflight owned (mechanical)</dt><dd>48</dd><dt>Language / support mechanics</dt><dd>183</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>241</dd><dt>Mapped contract candidates</dt><dd>48</dd><dt>Mixed-evidence contracts</dt><dd>6</dd><dt>Unmatched contracts</dt><dd>187</dd><dt>Implementation-ready</dt><dd>177</dd><dt>Verification-ready</dt><dd>41</dd><dt>Normalization review required</dt><dd>23</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g08">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g08">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:1%"><summary><span class="package-id">G09</span><span class="package-name">Habitat containment and membership</span><span class="package-state">Active</span><span class="package-coverage">1% contract coverage · 1 / 73</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>160</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>16</dd><dt>Language / support mechanics</dt><dd>39</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>73</dd><dt>Mapped contract candidates</dt><dd>1</dd><dt>Mixed-evidence contracts</dt><dd>1</dd><dt>Unmatched contracts</dt><dd>71</dd><dt>Implementation-ready</dt><dd>69</dd><dt>Verification-ready</dt><dd>1</dd><dt>Normalization review required</dt><dd>3</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g09">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g09">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:15%"><summary><span class="package-id">G10</span><span class="package-name">Scenery and facility placement</span><span class="package-state">Active</span><span class="package-coverage">15% contract coverage · 37 / 241</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>566</dd><dt>Library / platform owned (mechanical)</dt><dd>5</dd><dt>Preflight owned (mechanical)</dt><dd>37</dd><dt>Language / support mechanics</dt><dd>185</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>241</dd><dt>Mapped contract candidates</dt><dd>37</dd><dt>Mixed-evidence contracts</dt><dd>5</dd><dt>Unmatched contracts</dt><dd>199</dd><dt>Implementation-ready</dt><dd>185</dd><dt>Verification-ready</dt><dd>29</dd><dt>Normalization review required</dt><dd>27</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g10">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g10">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:10%"><summary><span class="package-id">G11</span><span class="package-name">Animal lifecycle and family</span><span class="package-state">Active</span><span class="package-coverage">10% contract coverage · 10 / 96</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>396</dd><dt>Library / platform owned (mechanical)</dt><dd>38</dd><dt>Preflight owned (mechanical)</dt><dd>28</dd><dt>Language / support mechanics</dt><dd>206</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>96</dd><dt>Mapped contract candidates</dt><dd>10</dd><dt>Mixed-evidence contracts</dt><dd>4</dd><dt>Unmatched contracts</dt><dd>82</dd><dt>Implementation-ready</dt><dd>76</dd><dt>Verification-ready</dt><dd>10</dd><dt>Normalization review required</dt><dd>10</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g11">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g11">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:8%"><summary><span class="package-id">G12</span><span class="package-name">Animal needs, welfare and suitability</span><span class="package-state">Active</span><span class="package-coverage">8% contract coverage · 1 / 12</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>39</dd><dt>Library / platform owned (mechanical)</dt><dd>3</dd><dt>Preflight owned (mechanical)</dt><dd>2</dd><dt>Language / support mechanics</dt><dd>21</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>12</dd><dt>Mapped contract candidates</dt><dd>1</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>11</dd><dt>Implementation-ready</dt><dd>11</dd><dt>Verification-ready</dt><dd>1</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g12">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g12">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:1%"><summary><span class="package-id">G13</span><span class="package-name">Data-authored animal task selection</span><span class="package-state">Active</span><span class="package-coverage">1% contract coverage · 4 / 340</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,340</dd><dt>Library / platform owned (mechanical)</dt><dd>10</dd><dt>Preflight owned (mechanical)</dt><dd>218</dd><dt>Language / support mechanics</dt><dd>679</dd><dt>Legacy semantic source</dt><dd>1</dd><dt>Semantic work contracts</dt><dd>340</dd><dt>Mapped contract candidates</dt><dd>4</dd><dt>Mixed-evidence contracts</dt><dd>1</dd><dt>Unmatched contracts</dt><dd>335</dd><dt>Implementation-ready</dt><dd>334</dd><dt>Verification-ready</dt><dd>4</dd><dt>Normalization review required</dt><dd>2</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g13">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g13">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:11%"><summary><span class="package-id">G14</span><span class="package-name">Navigation, steering and docking</span><span class="package-state">Active</span><span class="package-coverage">11% contract coverage · 33 / 293</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,009</dd><dt>Library / platform owned (mechanical)</dt><dd>18</dd><dt>Preflight owned (mechanical)</dt><dd>132</dd><dt>Language / support mechanics</dt><dd>492</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>293</dd><dt>Mapped contract candidates</dt><dd>33</dd><dt>Mixed-evidence contracts</dt><dd>13</dd><dt>Unmatched contracts</dt><dd>247</dd><dt>Implementation-ready</dt><dd>251</dd><dt>Verification-ready</dt><dd>33</dd><dt>Normalization review required</dt><dd>9</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g14">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g14">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">G15</span><span class="package-name">Food, drink and refill transactions</span><span class="package-state">Active</span><span class="package-coverage">0% contract coverage · 0 / 2</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>6</dd><dt>Library / platform owned (mechanical)</dt><dd>3</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>2</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>2</dd><dt>Implementation-ready</dt><dd>2</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g15">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g15">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:15%"><summary><span class="package-id">G16</span><span class="package-name">Animal Health</span><span class="package-state">Active</span><span class="package-coverage">15% contract coverage · 10 / 67</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>204</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>32</dd><dt>Language / support mechanics</dt><dd>91</dd><dt>Legacy semantic source</dt><dd>1</dd><dt>Semantic work contracts</dt><dd>67</dd><dt>Mapped contract candidates</dt><dd>10</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>57</dd><dt>Implementation-ready</dt><dd>54</dd><dt>Verification-ready</dt><dd>8</dd><dt>Normalization review required</dt><dd>5</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g16">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g16">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:19%"><summary><span class="package-id">G17</span><span class="package-name">Guests</span><span class="package-state">Active</span><span class="package-coverage">19% contract coverage · 14 / 75</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>241</dd><dt>Library / platform owned (mechanical)</dt><dd>16</dd><dt>Preflight owned (mechanical)</dt><dd>25</dd><dt>Language / support mechanics</dt><dd>113</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>75</dd><dt>Mapped contract candidates</dt><dd>14</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>61</dd><dt>Implementation-ready</dt><dd>59</dd><dt>Verification-ready</dt><dd>13</dd><dt>Normalization review required</dt><dd>3</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g17">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g17">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:9%"><summary><span class="package-id">G18</span><span class="package-name">Economy</span><span class="package-state">Active</span><span class="package-coverage">9% contract coverage · 9 / 105</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>397</dd><dt>Library / platform owned (mechanical)</dt><dd>2</dd><dt>Preflight owned (mechanical)</dt><dd>84</dd><dt>Language / support mechanics</dt><dd>194</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>105</dd><dt>Mapped contract candidates</dt><dd>9</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>96</dd><dt>Implementation-ready</dt><dd>91</dd><dt>Verification-ready</dt><dd>9</dd><dt>Normalization review required</dt><dd>5</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g18">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g18">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:30%"><summary><span class="package-id">G19</span><span class="package-name">Donations</span><span class="package-state">Active</span><span class="package-coverage">30% contract coverage · 6 / 20</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>30</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>1</dd><dt>Language / support mechanics</dt><dd>8</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>20</dd><dt>Mapped contract candidates</dt><dd>6</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>14</dd><dt>Implementation-ready</dt><dd>13</dd><dt>Verification-ready</dt><dd>6</dd><dt>Normalization review required</dt><dd>1</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g19">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g19">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:25%"><summary><span class="package-id">G20</span><span class="package-name">Staff</span><span class="package-state">Active</span><span class="package-coverage">25% contract coverage · 48 / 189</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>772</dd><dt>Library / platform owned (mechanical)</dt><dd>41</dd><dt>Preflight owned (mechanical)</dt><dd>57</dd><dt>Language / support mechanics</dt><dd>407</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>189</dd><dt>Mapped contract candidates</dt><dd>48</dd><dt>Mixed-evidence contracts</dt><dd>4</dd><dt>Unmatched contracts</dt><dd>137</dd><dt>Implementation-ready</dt><dd>134</dd><dt>Verification-ready</dt><dd>42</dd><dt>Normalization review required</dt><dd>13</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g20">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g20">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:36%"><summary><span class="package-id">G21</span><span class="package-name">Information and Catalogues</span><span class="package-state">Active</span><span class="package-coverage">36% contract coverage · 104 / 290</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>779</dd><dt>Library / platform owned (mechanical)</dt><dd>19</dd><dt>Preflight owned (mechanical)</dt><dd>84</dd><dt>Language / support mechanics</dt><dd>297</dd><dt>Legacy semantic source</dt><dd>43</dd><dt>Semantic work contracts</dt><dd>290</dd><dt>Mapped contract candidates</dt><dd>104</dd><dt>Mixed-evidence contracts</dt><dd>2</dd><dt>Unmatched contracts</dt><dd>184</dd><dt>Implementation-ready</dt><dd>174</dd><dt>Verification-ready</dt><dd>98</dd><dt>Normalization review required</dt><dd>18</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g21">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g21">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:27%"><summary><span class="package-id">G22</span><span class="package-name">Persistence</span><span class="package-state">Active</span><span class="package-coverage">27% contract coverage · 30 / 110</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>374</dd><dt>Library / platform owned (mechanical)</dt><dd>129</dd><dt>Preflight owned (mechanical)</dt><dd>26</dd><dt>Language / support mechanics</dt><dd>88</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>110</dd><dt>Mapped contract candidates</dt><dd>30</dd><dt>Mixed-evidence contracts</dt><dd>3</dd><dt>Unmatched contracts</dt><dd>77</dd><dt>Implementation-ready</dt><dd>74</dd><dt>Verification-ready</dt><dd>28</dd><dt>Normalization review required</dt><dd>8</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g22">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g22">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:25%"><summary><span class="package-id">G23</span><span class="package-name">Progression</span><span class="package-state">Active</span><span class="package-coverage">25% contract coverage · 23 / 93</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>236</dd><dt>Library / platform owned (mechanical)</dt><dd>2</dd><dt>Preflight owned (mechanical)</dt><dd>29</dd><dt>Language / support mechanics</dt><dd>96</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>93</dd><dt>Mapped contract candidates</dt><dd>23</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>70</dd><dt>Implementation-ready</dt><dd>64</dd><dt>Verification-ready</dt><dd>20</dd><dt>Normalization review required</dt><dd>9</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g23">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g23">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:34%"><summary><span class="package-id">G24</span><span class="package-name">Scenarios, Campaigns, Tutorials, and Challenges</span><span class="package-state">Active</span><span class="package-coverage">34% contract coverage · 26 / 76</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>219</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>34</dd><dt>Language / support mechanics</dt><dd>95</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>76</dd><dt>Mapped contract candidates</dt><dd>26</dd><dt>Mixed-evidence contracts</dt><dd>1</dd><dt>Unmatched contracts</dt><dd>49</dd><dt>Implementation-ready</dt><dd>47</dd><dt>Verification-ready</dt><dd>26</dd><dt>Normalization review required</dt><dd>3</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g24">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g24">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:8%"><summary><span class="package-id">G25</span><span class="package-name">Aquatic Systems</span><span class="package-state">Active</span><span class="package-coverage">8% contract coverage · 15 / 179</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>457</dd><dt>Library / platform owned (mechanical)</dt><dd>23</dd><dt>Preflight owned (mechanical)</dt><dd>44</dd><dt>Language / support mechanics</dt><dd>145</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>179</dd><dt>Mapped contract candidates</dt><dd>15</dd><dt>Mixed-evidence contracts</dt><dd>3</dd><dt>Unmatched contracts</dt><dd>161</dd><dt>Implementation-ready</dt><dd>143</dd><dt>Verification-ready</dt><dd>15</dd><dt>Normalization review required</dt><dd>21</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g25">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g25">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:16%"><summary><span class="package-id">G26</span><span class="package-name">Animal Shows</span><span class="package-state">Active</span><span class="package-coverage">16% contract coverage · 36 / 228</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>686</dd><dt>Library / platform owned (mechanical)</dt><dd>4</dd><dt>Preflight owned (mechanical)</dt><dd>69</dd><dt>Language / support mechanics</dt><dd>305</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>228</dd><dt>Mapped contract candidates</dt><dd>36</dd><dt>Mixed-evidence contracts</dt><dd>6</dd><dt>Unmatched contracts</dt><dd>186</dd><dt>Implementation-ready</dt><dd>178</dd><dt>Verification-ready</dt><dd>32</dd><dt>Normalization review required</dt><dd>18</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g26">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g26">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:7%"><summary><span class="package-id">G27</span><span class="package-name">Transport and Tours</span><span class="package-state">Active</span><span class="package-coverage">7% contract coverage · 39 / 545</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>1,488</dd><dt>Library / platform owned (mechanical)</dt><dd>35</dd><dt>Preflight owned (mechanical)</dt><dd>126</dd><dt>Language / support mechanics</dt><dd>660</dd><dt>Legacy semantic source</dt><dd>2</dd><dt>Semantic work contracts</dt><dd>545</dd><dt>Mapped contract candidates</dt><dd>39</dd><dt>Mixed-evidence contracts</dt><dd>9</dd><dt>Unmatched contracts</dt><dd>497</dd><dt>Implementation-ready</dt><dd>496</dd><dt>Verification-ready</dt><dd>38</dd><dt>Normalization review required</dt><dd>11</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g27">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g27">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:75%"><summary><span class="package-id">G28</span><span class="package-name">Photos</span><span class="package-state">Active</span><span class="package-coverage">75% contract coverage · 70 / 93</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>281</dd><dt>Library / platform owned (mechanical)</dt><dd>4</dd><dt>Preflight owned (mechanical)</dt><dd>45</dd><dt>Language / support mechanics</dt><dd>115</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>93</dd><dt>Mapped contract candidates</dt><dd>70</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>23</dd><dt>Implementation-ready</dt><dd>22</dd><dt>Verification-ready</dt><dd>60</dd><dt>Normalization review required</dt><dd>11</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g28">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g28">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:8%"><summary><span class="package-id">G29</span><span class="package-name">Extinct Animal Recovery</span><span class="package-state">Active</span><span class="package-coverage">8% contract coverage · 15 / 177</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>504</dd><dt>Library / platform owned (mechanical)</dt><dd>126</dd><dt>Preflight owned (mechanical)</dt><dd>63</dd><dt>Language / support mechanics</dt><dd>118</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>177</dd><dt>Mapped contract candidates</dt><dd>15</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>162</dd><dt>Implementation-ready</dt><dd>155</dd><dt>Verification-ready</dt><dd>14</dd><dt>Normalization review required</dt><dd>8</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g29">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g29">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:11%"><summary><span class="package-id">G30</span><span class="package-name">Gestures and Puzzles</span><span class="package-state">Active</span><span class="package-coverage">11% contract coverage · 16 / 142</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>402</dd><dt>Library / platform owned (mechanical)</dt><dd>5</dd><dt>Preflight owned (mechanical)</dt><dd>48</dd><dt>Language / support mechanics</dt><dd>163</dd><dt>Legacy semantic source</dt><dd>1</dd><dt>Semantic work contracts</dt><dd>142</dd><dt>Mapped contract candidates</dt><dd>16</dd><dt>Mixed-evidence contracts</dt><dd>3</dd><dt>Unmatched contracts</dt><dd>123</dd><dt>Implementation-ready</dt><dd>120</dd><dt>Verification-ready</dt><dd>14</dd><dt>Normalization review required</dt><dd>8</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g30">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g30">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:34%"><summary><span class="package-id">G31</span><span class="package-name">Immersive and Special Modes</span><span class="package-state">Active</span><span class="package-coverage">34% contract coverage · 18 / 53</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>111</dd><dt>Library / platform owned (mechanical)</dt><dd>5</dd><dt>Preflight owned (mechanical)</dt><dd>10</dd><dt>Language / support mechanics</dt><dd>36</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>53</dd><dt>Mapped contract candidates</dt><dd>18</dd><dt>Mixed-evidence contracts</dt><dd>2</dd><dt>Unmatched contracts</dt><dd>33</dd><dt>Implementation-ready</dt><dd>32</dd><dt>Verification-ready</dt><dd>18</dd><dt>Normalization review required</dt><dd>3</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g31">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g31">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:0%"><summary><span class="package-id">G32</span><span class="package-name">Simulation time and determinism</span><span class="package-state">Active</span><span class="package-coverage">0% contract coverage · 0 / 2</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>5</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>3</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>2</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>2</dd><dt>Implementation-ready</dt><dd>2</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g32">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g32">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:23%"><summary><span class="package-id">G33</span><span class="package-name">World environment and ambient life</span><span class="package-state">Active</span><span class="package-coverage">23% contract coverage · 19 / 84</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>284</dd><dt>Library / platform owned (mechanical)</dt><dd>44</dd><dt>Preflight owned (mechanical)</dt><dd>32</dd><dt>Language / support mechanics</dt><dd>94</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>84</dd><dt>Mapped contract candidates</dt><dd>19</dd><dt>Mixed-evidence contracts</dt><dd>2</dd><dt>Unmatched contracts</dt><dd>63</dd><dt>Implementation-ready</dt><dd>62</dd><dt>Verification-ready</dt><dd>13</dd><dt>Normalization review required</dt><dd>9</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g33">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g33">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:16%"><summary><span class="package-id">G34</span><span class="package-name">Display and graphics settings</span><span class="package-state">Active</span><span class="package-coverage">16% contract coverage · 4 / 25</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>53</dd><dt>Library / platform owned (mechanical)</dt><dd>6</dd><dt>Preflight owned (mechanical)</dt><dd>3</dd><dt>Language / support mechanics</dt><dd>15</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>25</dd><dt>Mapped contract candidates</dt><dd>4</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>21</dd><dt>Implementation-ready</dt><dd>20</dd><dt>Verification-ready</dt><dd>4</dd><dt>Normalization review required</dt><dd>1</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g34">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g34">Coverage details →</a></div></details><details class="package-card package-status-implemented" style="--coverage:0%"><summary><span class="package-id">G35</span><span class="package-name">Native content mapping and residency</span><span class="package-state">Implemented</span><span class="package-coverage">No behavior contracts assigned</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>0</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>0</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>0</dd><dt>Mapped contract candidates</dt><dd>0</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>0</dd><dt>Implementation-ready</dt><dd>0</dd><dt>Verification-ready</dt><dd>0</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g35">Open package contract ↓</a></div></details><details class="package-card package-status-active" style="--coverage:40%"><summary><span class="package-id">G36</span><span class="package-name">Maintenance and Sanitation</span><span class="package-state">Active</span><span class="package-coverage">40% contract coverage · 4 / 10</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>14</dd><dt>Library / platform owned (mechanical)</dt><dd>0</dd><dt>Preflight owned (mechanical)</dt><dd>0</dd><dt>Language / support mechanics</dt><dd>2</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>10</dd><dt>Mapped contract candidates</dt><dd>4</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>6</dd><dt>Implementation-ready</dt><dd>6</dd><dt>Verification-ready</dt><dd>4</dd><dt>Normalization review required</dt><dd>0</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g36">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g36">Coverage details →</a></div></details><details class="package-card package-status-active" style="--coverage:17%"><summary><span class="package-id">G37</span><span class="package-name">Interactive physics and attachments</span><span class="package-state">Active</span><span class="package-coverage">17% contract coverage · 25 / 143</span></summary><div class="package-detail"><dl><dt>Original callable evidence</dt><dd>894</dd><dt>Library / platform owned (mechanical)</dt><dd>314</dd><dt>Preflight owned (mechanical)</dt><dd>88</dd><dt>Language / support mechanics</dt><dd>302</dd><dt>Legacy semantic source</dt><dd>0</dd><dt>Semantic work contracts</dt><dd>143</dd><dt>Mapped contract candidates</dt><dd>25</dd><dt>Mixed-evidence contracts</dt><dd>0</dd><dt>Unmatched contracts</dt><dd>118</dd><dt>Implementation-ready</dt><dd>109</dd><dt>Verification-ready</dt><dd>22</dd><dt>Normalization review required</dt><dd>12</dd><dt>Behaviorally verified</dt><dd>0</dd></dl><a href="#package-g37">Open package contract ↓</a> · <a href="behavior-coverage.html#owner-g37">Coverage details →</a></div></details></div></section>
 
 <h1>Detailed package contracts</h1>
 <p><a id="package-a01"></a></p>
-<h2>A01 — Launcher</h2>
-<h3>1. Identity and outcome</h3>
-<p>The separate <code>openzt2-preflight</code> executable lets a player choose a Zoo
-Tycoon 2 installation, scan its archives, select any discovered core/DLC/mod
-layers, convert the selected set into one resolved native profile, remove an
-installed profile, choose <code>Off</code>, <code>Core</code>, or <code>All enabled</code> fast preload, and
-launch OpenZT2. Core/DLC/mod presentation and progress are ordinary launcher
-UI; no part enters the game process. Integration wave 6; it consumes the pack
-assembler and the statically linked A02–A19 source frontends.</p>
-<h3>2. Exclusive ownership</h3>
-<p>The launcher package owns <code>launcher/src/</code> in full. Everything else is read-only. Cargo members,
-dependencies, icons, converter module wiring and game binary wiring are
-root handoffs. In particular, do not edit <code>converter/src/pack.rs</code> or any family.</p>
-<p><code>rfd 0.17</code> is mandatory for the native installation-directory picker and owns
-all platform dialog integration. The worker must not implement a filesystem
-browser, portal/GTK/Win32/Cocoa backend, or retain dialog state after selection.
-Root adds the minimal platform features.</p>
-<h3>3. Frozen public contract</h3>
-<p>| Symbol | Kind | Exact shape or signature | Owner and invariant |
-|---|---|---|---|
-| <code>PreflightAppPlugin</code> | plugin | unit struct implementing <code>Plugin</code> | Registers only launcher state/UI/jobs. |
-| <code>PreflightPhase</code> | state enum | <code>ChooseLocation, ChoosingLocation, Scanning, Verifying, Ready, Converting, Launching, Failed</code> | One launcher phase; work disables conflicting browse/remove/play actions. |
-| <code>PackRole</code> | enum | <code>Core, Dlc, Mod</code> | Classification established by scan evidence, never filename colour. |
-| <code>PreloadMode</code> | shared native enum | <code>openzt2_native::contract::PreloadMode::{Off, Core, AllEnabled}</code> | Sole launcher→engine page-fault policy; <code>AllEnabled</code> never includes unselected packs. |
-| <code>ArchiveKey</code> | value | <code>pub struct ArchiveKey(pub AssetId)</code> | Stable ID of normalized source-relative archive path. |
-| <code>SourceArchive</code> | record | <code>{ key:ArchiveKey, source_path:PathBuf, display_name:String, role:PackRole, original_bytes:u64, content_hash:[u8;32], verification:ArchiveVerification, required_for_launch:bool }</code> | Scan result; checksumming is an explicit verification phase and only the three evidenced core archives set <code>required_for_launch</code>. |
-| <code>InstalledProfile</code> | record | <code>{ id:AssetId, path:PathBuf, source_fingerprint:[u8;32], optimized_bytes:u64, target:TargetProfile }</code> | <code>id</code> is the verified native pack/profile identity, never a slot integer. |
-| <code>ConvertedArchive</code> | record | <code>{ key:ArchiveKey, source_hash:[u8;32], cache_path:PathBuf, output_hash:[u8;32], optimized_bytes:u64, target:TargetProfile, converter_schema:u32 }</code> | One verified per-source conversion cache; never loaded by engine directly. |
-| <code>ConversionCacheManifest</code> | record | <code>{ version:u32, converted:BTreeMap&lt;ArchiveKey,ConvertedArchive&gt; }</code> | Atomically persisted launcher cache index; a row is complete only after cache header/hash/source/schema/target validation. |
-| <code>ArchiveRow</code> | component | <code>{ key: ArchiveKey }</code> | UI row identity; visual state is derived. |
-| <code>ArchiveSelection</code> | resource | <code>{ selected: BTreeSet&lt;ArchiveKey&gt; }</code> | One selection drives conversion, deletion and launch inclusion; default empty. |
-| <code>DiscoveredArchives</code> | resource | <code>{ rows:Vec&lt;SourceArchive&gt;, cache:ConversionCacheManifest, installed:Option&lt;InstalledProfile&gt; }</code> | Bounded scan plus per-row conversion truth and final resolved output. |
-| <code>PreflightSettings</code> | resource | <code>{ source_root:Option&lt;PathBuf&gt;, output_profile:PathBuf, preload:PreloadMode }</code> | Persisted launcher preferences, not live game state. |
-| <code>ConversionProgress</code> | resource | <code>{ completed_bytes: u64, total_bytes: u64, current: Option&lt;ArchiveKey&gt;, failure: Option&lt;String&gt; }</code> | Progress is byte based and monotonically increases for one job. |
-| <code>scan_installation</code> | function | <code>fn scan_installation(root: &amp;Path, target: TargetProfile) -&gt; io::Result&lt;Vec&lt;SourceArchive&gt;&gt;</code> | Pure scan; deterministic normalized ordering. |
-| <code>convert_selection</code> | function | <code>fn convert_selection(source:&amp;[SourceArchive], selected:&amp;BTreeSet&lt;ArchiveKey&gt;, target:TargetProfile, cache_root:&amp;Path, progress:impl FnMut(ArchiveKey,u64,u64))-&gt;io::Result&lt;Vec&lt;ConvertedArchive&gt;&gt;</code> | Converts only missing selected rows to atomic cache entries; caller persists manifest then assembles profile. |
-| <code>remove_converted_archive</code> | function | <code>fn remove_converted_archive(key:ArchiveKey, cache:&amp;mut ConversionCacheManifest, resolved:Option&lt;&amp;InstalledProfile&gt;)-&gt;io::Result&lt;()&gt;</code> | Deletes that row cache, atomically persists manifest and invalidates/deletes resolved output. Core is not special. |
-| <code>assemble_resolved_profile</code> | function | <code>fn assemble_resolved_profile(source:&amp;[SourceArchive], selected:&amp;BTreeSet&lt;ArchiveKey&gt;, cache:&amp;ConversionCacheManifest, destination:&amp;Path)-&gt;io::Result&lt;InstalledProfile&gt;</code> | Flattens selected valid conversions in resolved precedence order into sole engine profile. |
-| <code>launch_game</code> | function | <code>fn launch_game(executable:&amp;Path, profile:&amp;InstalledProfile, preload:PreloadMode)-&gt;io::Result&lt;Child&gt;</code> | Passes exact <code>--profile &lt;absolute path&gt; --profile-id &lt;32 lowercase hex&gt; --target-profile &lt;u32&gt; --preload &lt;off|core|all-enabled&gt;</code> arguments; starts only with selected core. |</p>
-<h3>4. Data layout or ECS ownership</h3>
-<p>Launcher entities are presentation only. <code>DiscoveredArchives</code> is the bounded
-scan catalogue; <code>ArchiveSelection</code> is the single selection truth; one task
-entity owns any active conversion. No source archive bytes or converted asset
-graphs are retained after conversion. UI systems derive row colour, enabled
-buttons, <code>original / optimized</code> sizes and per-row progress bars. Convert is
-enabled only when the unified selection contains at least one missing/stale row
-and no job is active; a completed valid row cannot be reconverted. Remove is
-enabled only when the selection contains converted rows
-and disabled while converting. Play is disabled until all three core rows are
-selected and every selected row has a valid conversion represented by the
-current resolved profile. Once true, Play is green regardless of unselected
-optional rows. When anything is unselected, the informational text is exactly
-<code>Unselected packs will not be loaded. Only the three core packs are required to launch.</code>; it does not turn a valid core selection into an error.</p>
-<p><code>View contents</code> opens a modal archive viewer over an immutable snapshot of the
-same unified selection. It reads each chosen row from its exact source archive,
-uses the selected set only to resolve referenced dependencies, and cannot
-change selection or operate during scan, verification, conversion, or launch.
-The viewer shares the tooling-only source-format crate with conversion; it does
-not install an archive as a Bevy asset source or enter the game dependency graph.</p>
-<h3>5. Preflight producer contract</h3>
-<p>Accept installation roots chosen by a native directory picker. Scan Z2F/source
-archives read-only, recognize core identities by evidenced canonical paths and
-hashes, classify DLC/mods, and compute hashes lazily during explicit Scan—not
-app startup. Later selected layers override earlier ones in preflight; only the
-winning consumer assets enter <code>assemble_pack</code>. Conversion is atomic, cancelable
-between files, deterministic, and rejects missing core inputs, corrupt archives,
-unsupported producer output, source/output hash mismatch, target/schema
-mismatch, duplicate paths, cache-manifest inconsistency and destination
-verification failure. A completed valid row cannot be reconverted until removed.
-<code>assemble_resolved_profile</code> alone applies selected layer precedence; engine sees
-only that final output.</p>
-<h3>6. Behavioral evidence and disposition</h3>
-<p>Start at ignored <code>vendor/original-software/</code> archive names/manifests, old
-<code>reconstruction/game/src/bin/launcher.rs</code> and converter sources in commit
-<code>d5657e5a</code>, and current <code>converter/src/pack.rs</code>. Evidence questions: exact three
-core archive identities; official expansion versus downloaded-content
-classification; original launcher naming only where player familiarity matters.</p>
-<h3>7. Required behavior</h3>
-<p>Nothing is selected on first scan. Core rows are deselectable and deletable but
-launch requires all three selected, converted, and present in the verified
-resolved profile. A valid checksum/profile is shown complete
-across restart; changed source/schema/target or invalid cache becomes stale.
-Each row shows <code>original_bytes / optimized_bytes</code>; no single estimate is reused.
-Selecting a converted row permits deletion, never reconversion. Removing it
-also invalidates the resolved profile. Collapsible, scrollable
-Core/DLC/Mods sections expose all rows. Closing/canceling never leaves a profile
-that passes validation. The deliberate OpenZT2 option <code>Fast preload</code> is passed
-as <code>PreloadMode</code>; this application does not fault pages itself.</p>
-<h3>8. Performance contract</h3>
-<p>No automatic full scan or conversion on open. Directory enumeration is O(n),
-hashing and conversion O(total selected bytes), bounded to one conversion job.
-UI frames do no filesystem access and allocate nothing after row hydration
-unless scan progress changes. Stream source files with reusable buffers; never
-hold all source archives in RAM. Report converter heap peak and bytes/sec; game
-heap/mapping/GPU counters are out of process.</p>
-<h3>9. Acceptance criteria</h3>
-<p>All source under the owned subtree is complete formatted Rust. The demonstrated
-flow is: pick location → scan → select three core plus one DLC → convert with
-bars → play → quit → restart → scan and observe four individually valid
-converted rows and the same valid resolved profile. Button
-states and warnings obey the rules above. Non-goals: original UI styling and any
-runtime source parsing. No stubs, hidden auto-conversion or fake completion.</p>
-<h3>10. Required handoff</h3>
-<p>Report files/API, UI/file-dialog dependencies, static source-frontend wiring and
-root workspace/bin registration, game executable/environment wiring, remaining
-archive identity evidence, and conversion throughput/peak heap. Root should
-erase any temporary compatibility adapter. Archive inspection is launcher
-functionality and must remain source-tooling-only rather than becoming a game
-runtime loader.</p>
+<h2>A01 — Preflight launcher and pack join</h2>
+<p>The standalone <code>openzt2-preflight</code> application discovers and verifies original
+Z2F archives, lets the player select core, DLC, and mod inputs, maintains one
+content-addressed archive-local source artifact per verified input, joins the
+enabled set, and launches the game with one installed <code>openzt2.ozp</code>. The launcher owns the
+source picker, scan/verify/convert UI, source-artifact cache, enabled selection,
+join progress, installed-pack receipt, preload choice, and child-process launch.
+None of those concerns enter the game process.</p>
+<p>Native directory selection is owned by <code>rfd 0.17</code>; the launcher must not
+implement a filesystem browser or platform dialog backend.</p>
+<h3>Frozen boundary</h3>
+<ul>
+<li><code>SourceArchive</code> identifies one original input by canonical path and content
+hash. Its hash changes only when that input changes.</li>
+<li>An archive-local source artifact is keyed only by original archive identity,
+source hash, and source-artifact schema. It contains canonical paths and
+validated decompressed source bytes. It is neither an OZP nor a runtime asset
+source.</li>
+<li>Selected-set compiler shards are keyed by the complete join fingerprint and
+may be cached only as implementation artifacts of that exact cohort. They
+must never be represented as independently converted input packs, reused
+under another selection, or exposed to the game.</li>
+<li><code>ArchiveSelection</code> is the only selection used for viewing, conversion,
+deletion, and launch inclusion. The initial selection is empty; all three
+verified core archives must be selected to launch.</li>
+<li>The selected-set compilation pipeline is the only cross-archive operation.
+Its planner applies source precedence, selects path and typed-binding
+winners, merges contributions, and resolves native dependencies. Its shard
+join only concatenates that already-disjoint planned output, rejects any
+duplicate as a compiler bug, writes exactly one <code>openzt2.ozp</code>, validates the
+installed pack once, and persists an <code>InstalledPack</code> receipt.</li>
+<li><code>InstalledPack</code> contains the path, pack identity, enabled-set fingerprint,
+byte length, and target format. “Profile” is not content terminology.</li>
+<li><code>launch_game</code> passes <code>--pack</code>, <code>--pack-id</code>, <code>--target-format</code>, and <code>--preload</code>.
+The game is never given source artifacts, compiled shards, or original
+archives.</li>
+</ul>
+<h3>Correctness and performance</h3>
+<p>Archive-local preparation must be deterministic and atomic. A valid unchanged
+source artifact is reused across every enabled combination without rescanning,
+rehashing, or decompressing its original archive. Adding, removing, or
+reordering enabled DLC/mods invalidates only selected-set compilation and the
+installed join, not unrelated source artifacts. The selected-set planner
+performs winner selection once; no earlier stage may discard a contribution
+because of another archive and no later stage may repeat precedence selection.</p>
+<p>The UI presents exactly <strong>Preparation → Indexing → Planning → Prework →
+Conversion → Shards → Pack → Verification → Done</strong>. Preparation covers the
+archive-local source artifacts. Indexing reports one exact unit per input
+archive. Planning reports its real precedence, inspection, and closure work.
+Prework and conversion report exact aggregate cells, each covering at most
+1,000 jobs. Shards reports compiled-shard production and validation. Pack
+reports the deterministic winner-free join and final write/hash bytes.
+Verification reports final installed-pack verification. Every expensive
+operation is instrumented and remains responsive and cancelable.</p>
+<p>Independent archive, source, family, and shard work runs in parallel subject to
+bounded resource budgets. UI state is sourced from producer callbacks, never
+inferred from filenames, elapsed time, queue occupancy, or a later stage. Grey
+means not started, yellow active, green complete, and red blocked. A stage that
+is still active must report less than 100 percent; reaching 100 percent advances
+it immediately. <code>Done</code> appears only after the installed pack is verified and
+its receipt committed. Temporary artifacts are guarded and atomically promoted
+only after success. The installed pack is the sole runtime product. <code>Off</code>,
+<code>Core</code>, and <code>AllEnabled</code> control page faulting of that one pack; <code>AllEnabled</code> therefore
+means all content compiled into the selected join, never every discovered mod.</p>
+<h3>Rejected designs</h3>
+<p>Do not produce independently runtime-loadable layer packs, perform winner
+selection while building source artifacts, cache an enabled cohort under each
+input archive, call content a profile, launch with multiple packs, merge at
+runtime, parse Z2F/XML in the game, or retain a second decoded content world.</p>
 <p><a id="package-a02"></a></p>
 <h2>A02 — Compiled UI Document</h2>
 <h3>1. Identity and outcome</h3>
@@ -530,7 +582,7 @@ engine, retained XML document, or generic UI runtime.</p>
 <tr>
   <td><code>UiDocumentLoader</code></td>
   <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; implements <code>AssetLoader&lt;Asset=UiDocumentAsset&gt;</code> for <code>ozui</code></td>
+  <td><code>{ pack:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; implements <code>AssetLoader&lt;Asset=UiDocumentAsset&gt;</code> for <code>ozui</code></td>
   <td>Uses <code>LoadContext::path()</code> to acquire mapped range, not reader copying.</td>
 </tr>
 <tr>
@@ -567,7 +619,7 @@ addition with an exact unit). Unknown fields fail conversion; there is no
 selected-field ID, generic property key or fallback reflection path.</p>
 <h3>6. Behavioral evidence and disposition</h3>
 <p>Search shipped <code>ui/**/*.xml</code>, <code>*.layout</code>, skin/replacement documents and command
-attributes; <code>cpp-reconstruction</code> UI/BFXML types via RTTI TSV; the specification;
+attributes; <code>projects/oracle/cpp</code> UI/BFXML types via RTTI TSV; the specification;
 and commit <code>d5657e5a</code> <code>domain/.../ui_contract.rs</code>,
 <code>presentation/ui/{commands,layout,projection,widgets}.rs</code>. Live-check focus,
 modal and coordinate scaling. Questions: complete document-role and tag/widget set, command
@@ -726,7 +778,7 @@ inputs; root moves/deletes them and registers modules/loaders.</p>
 <tr>
   <td><code>SpeciesAssetLoader</code></td>
   <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=SpeciesCatalogAsset&gt;</code> for <code>ozspecies</code> using <code>LoadContext::path()</code> + <code>get_owned</code></td>
+  <td><code>{ pack:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=SpeciesCatalogAsset&gt;</code> for <code>ozspecies</code> using <code>LoadContext::path()</code> + <code>get_owned</code></td>
   <td>No decoded graph or reader copy.</td>
 </tr>
 <tr>
@@ -1058,7 +1110,8 @@ narrow GPU-image registration bridge lets ordinary Bevy materials and
 <p>Accept only DDS/TGA/BMP/JPEG and loose-installation CUR, the formats evidenced by shipped archives or the
 original C++ loaders. PNG, KTX2, and unevidenced BFT texture inputs are not part
 of the source contract.
-Normalize virtual paths before ID. Resolve replacements and later pack layers
+Normalize virtual paths before ID. Resolve replacements from later,
+higher-precedence source archives
 before decode. Compatible DDS blocks and complete authored mips are copied
 unchanged. Decode, orient, select colour space, generate missing/invalid mips,
 renormalize normal maps, transcode only target-incompatible formats and compute tight row
@@ -1287,7 +1340,7 @@ world, transform hierarchy, render extraction path, or generic animation host.</
 <tr>
   <td><code>AnimationAssetLoader</code></td>
   <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=AnimationAsset&gt;</code> for <code>ozanim</code> via path + <code>get_owned</code></td>
+  <td><code>{ pack:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=AnimationAsset&gt;</code> for <code>ozanim</code> via path + <code>get_owned</code></td>
   <td>No keyframe/reader copies.</td>
 </tr>
 <tr>
@@ -1479,7 +1532,7 @@ registry, graphics abstraction, or copied texture/material graph.</p>
 <tr>
   <td><code>MaterialAssetLoader</code></td>
   <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=MaterialAsset&gt;</code> for <code>ozmaterial</code> via path + <code>get_owned</code></td>
+  <td><code>{ pack:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=MaterialAsset&gt;</code> for <code>ozmaterial</code> via path + <code>get_owned</code></td>
   <td>No reader copy/runtime assembly.</td>
 </tr>
 <tr>
@@ -1742,7 +1795,7 @@ contract only.</p>
 <tr>
   <td><code>LocalizationAssetLoader</code></td>
   <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=LocalizationAsset&gt;</code> for <code>ozloc</code> via path + <code>get_owned</code></td>
+  <td><code>{ pack:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=LocalizationAsset&gt;</code> for <code>ozloc</code> via path + <code>get_owned</code></td>
   <td>No reader copy/String reconstruction.</td>
 </tr>
 <tr>
@@ -1777,7 +1830,7 @@ Compare live representative UI, finance and scenario strings.</p>
 for UI to display a diagnostic, never silently key-as-value in release. Fixed
 format tokens support original authored placeholders without arbitrary scripts.
 Mods override keys before output. User locale change selects another completed
-native locale asset/profile, not source remerge.</p>
+native locale asset from the installed pack, not source remerge.</p>
 <h3>8. Performance contract</h3>
 <p>Compile O(total text log entries); validation O(entries+bytes); lookup O(log n)
 and zero allocation. Formatting writes into caller-provided reusable <code>fmt::Write</code>
@@ -1966,7 +2019,7 @@ general Lua VM. Integration wave 3; depends on A14 definitions.</p>
 <tr>
   <td><code>BehaviorProgramLoader</code></td>
   <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=BehaviorProgramAsset&gt;</code> for <code>ozbehavior</code> via path + <code>get_owned</code></td>
+  <td><code>{ pack:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=BehaviorProgramAsset&gt;</code> for <code>ozbehavior</code> via path + <code>get_owned</code></td>
   <td>No reader copy/Lua parser.</td>
 </tr>
 <tr>
@@ -1998,7 +2051,8 @@ in the shipped/mod corpus and oracle. Each behavior-bearing command must become
 an explicitly named enum variant with only its genuine typed payload; an
 <code>AssetId</code> event name, string opcode, generic dispatcher or catch-all variant is
 not an admissible representation.
-Later packs replace definitions before compilation. Reject recursion, unbounded
+Later, higher-precedence source archives replace definitions before compilation.
+Reject recursion, unbounded
 loops, dynamic global access, arbitrary I/O, unknown fields, missing references,
 invalid curves, malformed gesture geometry, puzzle cycles and action sequences
 with no terminal/yield. Stable program/template/puzzle ID then authored order.</p>
@@ -3033,7 +3087,7 @@ read-only. Root owns module/asset/plugin registration and any shared-type moves.
 <tr>
   <td><code>WorldDefinitionsLoader</code></td>
   <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=WorldDefinitionsAsset&gt;</code> for <code>ozdefs</code> via path + <code>get_owned</code></td>
+  <td><code>{ pack:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=WorldDefinitionsAsset&gt;</code> for <code>ozdefs</code> via path + <code>get_owned</code></td>
   <td>No reader copy/source objects.</td>
 </tr>
 <tr>
@@ -3328,7 +3382,7 @@ property bag. Integration wave 1; depends on A04, A07 and A14.</p>
 <tr>
   <td><code>ScenePrefabLoader</code></td>
   <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=ScenePrefabAsset&gt;</code> for <code>ozscene</code> via path + <code>get_owned</code></td>
+  <td><code>{ pack:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=ScenePrefabAsset&gt;</code> for <code>ozscene</code> via path + <code>get_owned</code></td>
   <td>No reader copy/object graph.</td>
 </tr>
 <tr>
@@ -3405,7 +3459,7 @@ world. Integration wave 1; depends on A05, A07 and A14.</p>
 <tr>
   <td><code>TERRAIN_ARCHIVE_VERSION</code></td>
   <td>constant</td>
-  <td><code>u32 = 1</code></td>
+  <td><code>u32 = 5</code></td>
   <td>Layout version.</td>
 </tr>
 <tr>
@@ -3436,7 +3490,7 @@ world. Integration wave 1; depends on A05, A07 and A14.</p>
   <td><code>BiomeLayer</code></td>
   <td>record</td>
   <td><code>{ chunk:u32, biome:AssetId, channel:u8, weight_scale:u8, reserved:u16 }</code></td>
-  <td>Max four active channels per blend texel unless target profile states eight.</td>
+  <td>Up to eight active channels per chunk; preflight compacts a map-wide biome catalogue and pads each committed blend texel to the fixed eight-channel target layout.</td>
 </tr>
 <tr>
   <td><code>WaterFlags</code></td>
@@ -3489,13 +3543,25 @@ world. Integration wave 1; depends on A05, A07 and A14.</p>
 <tr>
   <td><code>TerrainAsset</code></td>
   <td>Bevy asset</td>
-  <td><code>{ archive:MappedTerrainArchive }</code></td>
-  <td>Mapping owner.</td>
+  <td><code>{ archive:MappedTerrainArchive, dependencies:TerrainDependencies, chunks:Box&lt;[TerrainChunkAssets]&gt; }</code></td>
+  <td>One strong handle owns the validated mapping, typed dependency handles, and ordinary Bevy mesh/material presentation assets for the selected terrain.</td>
+</tr>
+<tr>
+  <td><code>TerrainMaterial</code></td>
+  <td>Bevy <code>Material</code> asset</td>
+  <td>eight required layer <code>Handle&lt;Image&gt;</code> bindings, one required <code>Rg32Uint</code> blend <code>Handle&lt;Image&gt;</code>, and two final channel-scale vectors</td>
+  <td>Bevy owns extraction, bind groups, batching, and GPU lifetime; required bindings cannot enter the optional-texture fallback path.</td>
+</tr>
+<tr>
+  <td><code>TerrainChunkAssets</code></td>
+  <td>handle bundle</td>
+  <td><code>{ mesh:Handle&lt;Mesh&gt;, material:Handle&lt;TerrainMaterial&gt;, blend:Handle&lt;Image&gt; }</code></td>
+  <td>Final presentation handles installed directly on the chunk entity as <code>Mesh3d</code> and <code>MeshMaterial3d&lt;TerrainMaterial&gt;</code>.</td>
 </tr>
 <tr>
   <td><code>TerrainAssetLoader</code></td>
   <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=TerrainAsset&gt;</code> for <code>ozterrain</code> via path + <code>get_owned</code></td>
+  <td><code>{ pack:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=TerrainAsset&gt;</code> for <code>ozterrain</code> via path + <code>get_owned</code></td>
   <td>No reader copy/decode/retiling.</td>
 </tr>
 <tr>
@@ -3508,11 +3574,13 @@ world. Integration wave 1; depends on A05, A07 and A14.</p>
 </table></div>
 <h3>4. Data layout or ECS ownership</h3>
 <p>rkyv metadata is followed by aligned payload ranges: u16 height grids,
-R8/RGBA8 biome blend blocks, <code>TerrainVertex</code>, u32 indices and compact collision
+eight-weight <code>Rg32Uint</code> biome blend texels, <code>TerrainVertex</code>, u32 indices and compact collision
 samples. Byte ranges use <code>AssetRange</code>; record links use <code>TableRange</code>. Chunks map
-directly. G05 prepares these exact ranges into its persistent <code>TerrainGpuAsset</code>
-and owns dirty-span extraction and partial GPU writes. Live edits never mutate
-or copy the archive into a second base terrain graph.</p>
+directly. The selected terrain handle prepares one ordinary Bevy <code>Mesh</code>, blend
+<code>Image</code>, and <code>TerrainMaterial</code> per chunk; the material retains the eight final
+surface-image handles and Bevy owns their extraction and GPU lifetime. G05 edits
+those same Bevy assets. Live edits never mutate or copy the archive into a
+second base terrain graph.</p>
 <h3>5. Preflight producer contract</h3>
 <p>Accept original terrain/map records, biome paint, water and referenced material/
 texture definitions after override resolution. Normalize ID, recover dimensions,
@@ -3537,10 +3605,11 @@ assets fail. Mods/maps compile through the same record contract. Terrain editing
 authentic constants are recovered in G05/A14, not guessed here.</p>
 <h3>8. Performance contract</h3>
 <p>Chunk lookup O(1), payload slicing zero allocation; validation O(chunks+payload
-ranges). G05 consumes mapped ranges through persistent resources and reusable
-staging with no recurring allocation after capacity. Residency is bounded by
-visible/preload policy. This package tracks mapped/resident pages and faults;
-G05 tracks edit heap, exact terrain GPU bytes and chunk upload time.</p>
+ranges). Initial preparation is proportional only to the selected terrain and
+occurs once per strong handle; settled frames perform no terrain preparation or
+allocation. Residency is bounded by selected-world handles and preload policy.
+This package tracks mapped/resident pages and faults; G05 tracks edit heap,
+exact terrain GPU bytes and changed-asset upload time.</p>
 <h3>9. Acceptance criteria</h3>
 <p>Four files/API; multi-chunk sloped/biome/water fixture, seam and height decode
 checks, corrupt range/alignment/dependency rejection, zero-allocation lookup/
@@ -3670,7 +3739,7 @@ borrowed mapped slices without retained graph state.</p>
 <tr>
   <td><code>NavigationAssetLoader</code></td>
   <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=NavigationAsset&gt;</code> for <code>oznav</code> via path + <code>get_owned</code></td>
+  <td><code>{ pack:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=NavigationAsset&gt;</code> for <code>oznav</code> via path + <code>get_owned</code></td>
   <td>No reader copy/graph reconstruction.</td>
 </tr>
 <tr>
@@ -4055,7 +4124,7 @@ Integration wave 4; depends on A14–A17.</p>
 <tr>
   <td><code>WorldScenarioLoader</code></td>
   <td>loader</td>
-  <td><code>{ profile:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=WorldScenarioAsset&gt;</code> for <code>ozworlds</code> via path + <code>get_owned</code></td>
+  <td><code>{ pack:Arc&lt;MappedPack&gt; }</code>; <code>new(Arc&lt;MappedPack&gt;)-&gt;Self</code>; <code>AssetLoader&lt;Asset=WorldScenarioAsset&gt;</code> for <code>ozworlds</code> via path + <code>get_owned</code></td>
   <td>No reader copy/original parser.</td>
 </tr>
 <tr>
@@ -4180,7 +4249,7 @@ plugin registration, state initialization and ordering are root handoffs.</p>
   <td><code>ProfileChoice</code></td>
   <td>component</td>
   <td><code>pub struct ProfileChoice(pub AssetId);</code></td>
-  <td>Stable native profile identity; never a positional slot.</td>
+  <td>Stable player-profile identity; never a positional slot.</td>
 </tr>
 <tr>
   <td><code>WorldChoice</code></td>
@@ -4191,8 +4260,8 @@ plugin registration, state initialization and ordering are root handoffs.</p>
 <tr>
   <td><code>ShellSelection</code></td>
   <td>resource</td>
-  <td><code>pub struct ShellSelection { pub profile: Option&lt;AssetId&gt;, pub mode: Option&lt;PlayMode&gt;, pub scenario: Option&lt;AssetId&gt; }</code></td>
-  <td>Sole bounded cross-screen selection.</td>
+  <td><code>pub struct ShellSelection { pub mode: Option&lt;PlayMode&gt;, pub scenario: Option&lt;AssetId&gt; }</code></td>
+  <td>Sole bounded shell-owned mode/world selection. G22's <code>ProfileIndex::selected</code> remains the only selected-profile authority.</td>
 </tr>
 <tr>
   <td><code>ShellCommand</code></td>
@@ -4216,7 +4285,9 @@ profile request/result named below, and G04 owns
 those exact G04 messages and must not redeclare them. G34 applies display and
 graphics settings; G01 owns only navigation into/out of the options document.</p>
 <h3>4. ECS ownership</h3>
-<p><code>ShellSelection</code> is genuinely global bounded navigation state. <code>ShellScreen</code>,
+<p><code>ShellSelection</code> is genuinely global bounded navigation state for mode and
+world only. The shell reads G22's canonical <code>ProfileIndex::selected</code> when it
+starts a world and never copies that identity. <code>ShellScreen</code>,
 <code>ProfileChoice</code>, and <code>WorldChoice</code> are facts on projected UI entities.</p>
 <div class="table-scroll"><table><thead>
 <tr>
@@ -4259,8 +4330,8 @@ graphics settings; G01 owns only navigation into/out of the options document.</p
 <tr>
   <td><code>route_shell_commands</code></td>
   <td><code>Update/GameSet::Intent</code></td>
-  <td><code>MessageReader&lt;ShellCommand&gt;, ResMut&lt;ShellSelection&gt;, Query&lt;&amp;WorldChoice&gt;</code></td>
-  <td>selection, <code>NextState&lt;GamePhase&gt;</code>, <code>BeginWorldLoad</code>, <code>AppExit</code></td>
+  <td><code>MessageReader&lt;ShellCommand&gt;, ResMut&lt;ShellSelection&gt;, Res&lt;ProfileIndex&gt;, Query&lt;&amp;WorldChoice&gt;</code></td>
+  <td>mode/world selection, <code>NextState&lt;GamePhase&gt;</code>, <code>BeginWorldLoad</code>, <code>AppExit</code></td>
   <td>in menu phases; ordered after G03/G02 input</td>
 </tr>
 <tr>
@@ -4276,13 +4347,6 @@ graphics settings; G01 owns only navigation into/out of the options document.</p
   <td><code>Commands, MessageReader&lt;ProfileIndexReady&gt;, Res&lt;ProfileIndex&gt;, MessageWriter&lt;ShowUiRole&gt;</code></td>
   <td><code>UiDocumentRole::ProfileSelect</code> plus <code>ProfileChoice</code> entities</td>
   <td>sorted G22 records only</td>
-</tr>
-<tr>
-  <td><code>finish_profile_operations</code></td>
-  <td><code>Update/GameSet::Intent</code></td>
-  <td><code>MessageReader&lt;ProfileCreated&gt;, MessageReader&lt;ProfileSelected&gt;, MessageReader&lt;ProfileDeleted&gt;, MessageReader&lt;ProfileOperationFailed&gt;, ResMut&lt;ShellSelection&gt;</code></td>
-  <td>selected ID and source-defined success/error UI requests</td>
-  <td>only after durable G22 result; never optimistic</td>
 </tr>
 <tr>
   <td><code>show_options_screen</code></td>
@@ -4337,7 +4401,8 @@ and original loading failure presentation. Resolve from shipped documents and
 live behavior, not guessed timeouts or hardcoded marker positions.</p>
 <h3>7. Required behavior</h3>
 <p>Every visible item/marker comes from A02/A19/G22 data. <code>StartSelected</code> is ignored
-unless profile, mode and scenario are all present and compatible. Back returns
+unless G22 has a selected profile and the shell has a compatible mode and
+scenario. Back returns
 one authentic level without retaining hidden screen trees. A matching load
 completion enters the game; stale completions cannot. Missing/corrupt native
 assets produce an explicit disabled/error UI state, never fake success.
@@ -4364,6 +4429,12 @@ evidence; G34/A11/G03 options seams; seams to erase; and expected allocation,
 mapping, GPU and navigation validation.</p>
 <p><a id="package-g02"></a></p>
 <h2>G02 — Native game UI</h2>
+<p>Current verified boundary (2026-07-21): authored tree projection, nested child
+presentation, text alignment, and exact nine-slice rendering are visible in the
+headless in-game capture. Catalogue population is not a G02 widget runtime; G02
+provides the ordinary row sinks and typed activation, while G21 must hydrate
+those sinks from mapped catalogue records. <code>autopopulate:list</code> remains partial
+until that end-to-end behavior is visible.</p>
 <h3>1. Identity and outcome</h3>
 <p>Compiled A02 UI documents become ordinary Bevy UI entities with authored
 layout, style, focus, bindings and fixed commands. Modded documents work because
@@ -4565,9 +4636,10 @@ single precedence-resolved document for every supported role at that semantic
 native virtual path. Do not invent local command strings, JSON-like values,
 widget traits, a DOM, a binding property bag, or a role-to-handle store.
 Projection exhaustively converts each <code>UiBinding</code> variant into the corresponding
-typed component above once. A05's stable native-ID <code>Handle&lt;Image&gt;</code> is the sole
-bridge to Bevy <code>ImageNode</code>, while a retained <code>Handle&lt;TextureAsset&gt;</code> owns its mapped
-source through preparation; A12 resolves the recovered system-font policy into ordinary Bevy
+typed component above once. The A05 asset boundary resolves one final native
+texture identity, retains its strong mapped owner for the UI entity lifetime,
+and supplies Bevy's typed image view; G02 never manufactures a pack path or
+manages upload/residency. A12 resolves the recovered system-font policy into ordinary Bevy
 <code>TextFont</code> beside <code>Text</code>.</p>
 <h3>4. ECS ownership</h3>
 <p>All live UI is Bevy <code>Node</code>, <code>Text</code>, <code>ImageNode</code>, interaction and small marker
@@ -4586,8 +4658,8 @@ components. Only per-screen focus is retained.</p>
   <td><code>project_ui_documents</code></td>
   <td><code>Update/GameSet::Ui</code></td>
   <td><code>Commands, MessageReader&lt;ShowUiDocument&gt;, Res&lt;Assets&lt;UiDocumentAsset&gt;&gt;, Res&lt;AssetServer&gt;, Res&lt;ContentMap&gt;</code></td>
-  <td>Bevy UI tree, exhaustive typed binding components, <code>ImageNode</code> using A05's native-ID image handle plus its mapped texture source handle, and ordinary <code>TextFont</code> using A12 system-font policy</td>
-  <td>only loaded validated assets; before interaction; no custom image/font renderer</td>
+  <td>Bevy UI tree, exhaustive typed binding components, A05-owned prepared image handles, and ordinary <code>TextFont</code> using A12 system-font policy</td>
+  <td>only loaded validated assets; before interaction; no custom image/font renderer or pack lookup</td>
 </tr>
 <tr>
   <td><code>resolve_ui_roles</code></td>
@@ -5168,7 +5240,7 @@ schedule registration. Do not edit A16 or G07.</p>
   <td><code>TerrainRenderChunk</code></td>
   <td>component</td>
   <td><code>pub struct TerrainRenderChunk;</code></td>
-  <td>Small render marker on a terrain chunk entity; render extraction reads the A16 handle and record from <code>TerrainChunk</code>, never a duplicated render-world terrain graph.</td>
+  <td>Small presentation marker on an ordinary Bevy mesh/material entity; no parallel render-world terrain graph exists.</td>
 </tr>
 <tr>
   <td><code>EditedTerrainSamples</code></td>
@@ -5187,6 +5259,12 @@ schedule registration. Do not edit A16 or G07.</p>
   <td>component</td>
   <td><code>pub struct TerrainCollisionRevision(pub u64);</code></td>
   <td>Last terrain edit revision applied to this chunk's collider.</td>
+</tr>
+<tr>
+  <td><code>TerrainRenderRevision</code></td>
+  <td>component</td>
+  <td><code>pub struct TerrainRenderRevision(pub u64);</code></td>
+  <td>Last terrain edit revision applied directly to the chunk's Bevy <code>Mesh</code> and blend <code>Image</code>.</td>
 </tr>
 <tr>
   <td><code>TerrainDirtyFlags</code></td>
@@ -5285,22 +5363,10 @@ schedule registration. Do not edit A16 or G07.</p>
   <td>World metres, normalized finite normal.</td>
 </tr>
 <tr>
-  <td><code>TerrainGpuAsset</code></td>
-  <td>prepared render asset</td>
-  <td><code>pub struct TerrainGpuAsset { pub heights: Buffer, pub blends: Buffer, pub water: Buffer, pub index: Buffer, pub vertex_bytes: u64, pub blend_bytes: u64, pub water_bytes: u64 }</code></td>
-  <td>Persistent buffers prepared once from A16's GPU-ready payload through Bevy's <code>RenderAsset</code> path; never reconstructed as a CPU <code>Mesh</code>.</td>
-</tr>
-<tr>
-  <td><code>TerrainGpuUpdate</code></td>
-  <td>render value</td>
-  <td><code>pub struct TerrainGpuUpdate { pub entity: Entity, pub asset: bevy::asset::AssetId&lt;TerrainAsset&gt;, pub record: u32, pub min: UVec2, pub max: UVec2, pub flags: TerrainDirtyFlags, pub revision: u64, pub byte_start: u32, pub byte_len: u32 }</code></td>
-  <td>One extracted dirty rectangle referencing bytes in reusable staging.</td>
-</tr>
-<tr>
-  <td><code>ExtractedTerrainUpdates</code></td>
-  <td>render resource</td>
-  <td><code>pub struct ExtractedTerrainUpdates { pub updates: Vec&lt;TerrainGpuUpdate&gt;, pub bytes: Vec&lt;u8&gt;, pub uploaded_revisions: EntityHashMap&lt;u64&gt; }</code></td>
-  <td>Render-world-only bounded queue and staging storage; capacities grow during load/edit warm-up, then remain stable.</td>
+  <td><code>update_terrain_render_assets</code></td>
+  <td>system</td>
+  <td>focused query over dirty terrain chunks plus <code>Assets&lt;Mesh&gt;</code>/<code>Assets&lt;Image&gt;</code></td>
+  <td>Mutates the ordinary Bevy assets already referenced by <code>Mesh3d</code> and <code>TerrainChunkRenderAssets</code>; Bevy owns extraction and GPU residency, and no custom terrain buffer owner exists.</td>
 </tr>
 </tbody>
 </table></div>
@@ -5367,11 +5433,11 @@ work or repeated upload.</p>
   <td>only revisions newer than <code>uploaded_revisions</code>; no full chunk copy</td>
 </tr>
 <tr>
-  <td><code>write_terrain_updates</code></td>
-  <td>render <code>Render/RenderSet::PrepareResources</code></td>
-  <td><code>Res&lt;RenderQueue&gt;, Res&lt;RenderAssets&lt;TerrainGpuAsset&gt;&gt;, ResMut&lt;ExtractedTerrainUpdates&gt;</code></td>
-  <td><code>RenderQueue::write_buffer</code> into exact existing height/blend/water ranges and uploaded revision</td>
-  <td>after extraction; no buffer recreation or full upload</td>
+  <td><code>update_terrain_render_assets</code></td>
+  <td><code>Update/GameSet::Projection</code></td>
+  <td><code>ResMut&lt;Assets&lt;Mesh&gt;&gt;, ResMut&lt;Assets&lt;Image&gt;&gt;, Query&lt;(&amp;TerrainChunk,&amp;EditedTerrainSamples,&amp;TerrainDirty,&amp;Mesh3d,&amp;TerrainChunkRenderAssets,&amp;mut TerrainRenderRevision)&gt;</code></td>
+  <td>changed vertex heights/normals and blend texels in the same Bevy assets already referenced by the chunk entity</td>
+  <td>revisions newer than the applied revision only; Bevy performs the resulting render extraction/upload</td>
 </tr>
 </tbody>
 </table></div>
@@ -5400,20 +5466,21 @@ asset validation, not with partial terrain.</p>
 zero-allocation; a stroke is <code>O(samples in radius)</code>. An overlay allocates once
 on first write to that chunk; unedited maps remain zero-copy. Deltas allocate
 only during per-player-edit preparation and are discarded without world
-mutation if preparation/debit fails. A16 payload preparation creates persistent GPU
-buffers once. Dirty extraction copies only the changed rectangle into reused
-staging and <code>RenderQueue::write_buffer</code> updates only corresponding ranges; it
-never rebuilds a <code>Mesh</code>, vertex buffer, or full chunk. Tests count idle frame,
-sample and unchanged-revision upload allocations; smaps/page faults cover A16;
-the GPU ledger covers exact persistent buffers, textures and update bytes.</p>
+mutation if preparation/debit fails. A16 prepares ordinary Bevy mesh,
+blend-image, and terrain-material assets once for the selected world. Dirty
+processing mutates only the corresponding ranges of those authoritative assets
+and does no work for an unchanged revision; Bevy owns render extraction and GPU
+lifetime. Tests count idle frame, sample and unchanged-revision allocations;
+smaps/page faults cover A16; the GPU ledger covers exact persistent buffers,
+textures and changed upload bytes.</p>
 <h3>9. Acceptance criteria</h3>
 <p>Deliver all exports, mapped-versus-overlay sampling/seam/kernel/round-trip tests,
 prepare-without-mutation, debit-gate and atomic multi-chunk acknowledgement,
-proof unedited load/sampling allocates no sample arrays, and a no-dirty no-op
-test. A changed 8x8 rectangle must produce only the corresponding height/blend/
-water queue writes, while a repeated revision produces none. No source parsing,
-whole-map rebuild/reupload per stroke, CPU <code>Mesh</code> mutation, per-frame GPU asset
-creation, renderer wrapper, guess constants or eager second terrain graph. Root
+proof unedited load/sampling allocates no editable sample arrays, and a no-dirty
+no-op test. A changed 8x8 rectangle must alter only the corresponding
+height/blend/water ranges, while a repeated revision produces none. No source
+parsing, whole-map rebuild per stroke, per-frame GPU asset creation, renderer
+wrapper, guess constants or eager second terrain graph. Root
 bulk-validates original map appearance, editing, collision and history.</p>
 <h3>10. Required handoff</h3>
 <p>Report API/files, Bevy/render/physics dependencies, A16/G04/G07 symbols,
@@ -8052,7 +8119,7 @@ healthy, controllable, alive, and available to normal behavior.</p>
 definitions, G11 animal lifecycle, G12 animal welfare, G13 animal behavior, and
 G14 locomotion. Prerequisites are read-only and must not be copied or wrapped.</p>
 <h3>2. Exclusive ownership</h3>
-<p>The worker exclusively owns <code>reconstruction/game/src/plugins/animal_health/</code>
+<p>The worker exclusively owns <code>projects/reimplementation/game/src/plugins/animal_health/</code>
 and may create <code>mod.rs</code> plus private child modules there. Every other path is
 read-only. Root owns crate/module declarations, plugin registration, schedule
 configuration, dependencies, reflection registration, and alignment of names
@@ -8257,8 +8324,8 @@ This package must not add filesystem discovery, Z2F, XML, original codecs,
 source precedence, or conversion dependencies.</p>
 <h3>6. Behavioral evidence and disposition</h3>
 <p>Start with shipped disease/task/entity definitions under ignored <code>vendor/</code>
-archives; search <code>cpp-reconstruction/</code> and
-<code>docs/analysis/type-coverage-reconciliation.tsv</code> for <code>ZTDiseaseMgr</code>,
+archives; search <code>projects/oracle/cpp/</code> and
+<code>projects/perimeter/data/type-coverage-reconciliation.tsv</code> for <code>ZTDiseaseMgr</code>,
 <code>ZTDisease</code>, <code>ZTCureDiseaseMode</code>, <code>ZTBehCureDisease</code>, tranquilizer, rampage,
 escape, death, and recapture tokens; consult <code>zt-byte-range-map.tsv</code>; observe
 the original for warning timing and presentation. Mine only behavior/evidence
@@ -8321,7 +8388,7 @@ are one cohesive lifecycle, not a guest simulation resource.</p>
 <p>Integration wave: 3. Logical prerequisites: A14 world definitions, G04 world
 spawn, G14 locomotion, and G36 sanitation facts. G18–G21 consume its facts.</p>
 <h3>2. Exclusive ownership</h3>
-<p>The worker exclusively owns <code>reconstruction/game/src/plugins/guests/</code>. Every
+<p>The worker exclusively owns <code>projects/reimplementation/game/src/plugins/guests/</code>. Every
 other path is read-only. Root owns declarations, registration, schedules,
 dependencies, reflection, and cross-package renames. No collision broadens
 ownership.</p>
@@ -8639,7 +8706,7 @@ a port of the original economy component graph.</p>
 <p>Integration wave: 3. Prerequisites: A14 definitions, G10 placement/facilities,
 and G17 guests. G19, G20, G23, G24, G26, and G27 consume transactions.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/economy/</code>. Everything else is
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/economy/</code>. Everything else is
 read-only. Root owns module/plugin/schedule/dependency/reflection registration
 and aligns earlier symbols. Report collisions.</p>
 <h3>3. Frozen public contract</h3>
@@ -8858,7 +8925,7 @@ natural reporting owner rather than retained transactions.</p>
 <p>Not applicable: the engine consumes only native assets produced before launch.
 No XML/Z2F/filesystem/source precedence belongs here.</p>
 <h3>6. Behavioral evidence and disposition</h3>
-<p>Primary code evidence exists in <code>cpp-reconstruction/include/openzt2/economy/</code>
+<p>Primary code evidence exists in <code>projects/oracle/cpp/include/openzt2/economy/</code>
 and <code>src/economy/</code> (<code>ZTEconomyComponent</code>, transaction/tracker/data), plus shipped
 facility, product, admission, scenario, and economy definitions. Search analysis
 TSVs for economy messages and live-observe price UI, service timing/refunds, and
@@ -8914,7 +8981,7 @@ receive UI-visible totals. Donation decision and completion form one cohesive
 feature, while accounting remains owned by G18.</p>
 <p>Integration wave: 3. Prerequisites: G17 guests and G18 economy.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/donations/</code>. Everything else
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/donations/</code>. Everything else
 is read-only. Root owns declarations, plugin/schedule/message/reflection wiring
 and cross-package alignment.</p>
 <h3>3. Frozen public contract</h3>
@@ -9116,7 +9183,7 @@ There is no staff manager or central simulated workforce object.</p>
 <p>Integration wave: 3. Prerequisites: A14 definitions, G10 facilities, G14
 locomotion, G15 feeding, and G18 economy. G16 health requests treatment work.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/staff/</code>; all else read-only.
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/staff/</code>; all else read-only.
 Root owns declarations, registration, schedules, reflection, dependencies, and
 cross-package symbol alignment. Report collisions.</p>
 <h3>3. Frozen public contract</h3>
@@ -9413,6 +9480,14 @@ whole-world dispatcher, stub, guessed rate, or duplicate target state.</p>
 evidence, seams, and allocator/page/gameplay validation.</p>
 <p><a id="package-g21"></a></p>
 <h2>G21 — Information and Catalogues</h2>
+<p>Current blocking integration defect (2026-07-21): the mapped catalogue and its
+typed <code>PopulateTypeList</code> action exist, but the first <code>CataloguePanel</code> cannot
+initialize because category discovery depends on an existing panel. Projected
+rows also lack consumers for icon, price, unlock, and affordability bindings,
+and their owner comparison targets the list entity rather than the document
+root used by projected descendants. The package remains active until a real
+construction catalogue is visibly populated and selectable through ordinary
+Bevy UI entities.</p>
 <h3>1. Identity and outcome</h3>
 <p>This package connects selection to native UI panels, purchase catalogues,
 filters, buy information, entity status, and Zoopedia content. It projects live
@@ -9421,7 +9496,7 @@ selected entity, catalogue, or simulation.</p>
 <p>Integration wave: 3. Prerequisites: A02 UI, A09 localization, A14 definitions,
 G02 UI runtime, and G07 construction.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/information/</code>; all other paths
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/information/</code>; all other paths
 read-only. Root owns registrations, loader/plugin wiring, schedule ordering,
 dependencies, and cross-package alignment.</p>
 <h3>3. Frozen public contract</h3>
@@ -9710,7 +9785,7 @@ retains a mirror world. Original save/map import belongs to A19 preflight.</p>
 consumers. G01–G03 and G21 own shell/input/UI state and have no world-snapshot
 section.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/persistence/</code>; all else
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/persistence/</code>; all else
 read-only. Root owns Cargo features/dependencies, module/plugin/schedule and
 reflection/type registration. The worker delivers the complete concrete section
 pipeline through G36 now; integration must not add a registration facade or a
@@ -9795,7 +9870,7 @@ serializable.</p>
 <tr>
   <td><code>PersistenceFailure</code></td>
   <td>enum</td>
-  <td><code>Missing</code>, <code>Io</code>, <code>InvalidHeader</code>, <code>UnsupportedVersion</code>, <code>WrongProfile</code>, <code>CorruptSection</code>, <code>UnknownAsset</code>, <code>DuplicateEntityId</code>, <code>BrokenReference</code>, <code>CapacityExceeded</code></td>
+  <td><code>Missing</code>, <code>Io</code>, <code>InvalidHeader</code>, <code>UnsupportedVersion</code>, <code>WrongPackId</code>, <code>CorruptSection</code>, <code>UnknownAsset</code>, <code>DuplicateEntityId</code>, <code>BrokenReference</code>, <code>CapacityExceeded</code></td>
   <td>No source-format fallback.</td>
 </tr>
 <tr>
@@ -9826,19 +9901,19 @@ serializable.</p>
   <td><code>ProfileIndex</code></td>
   <td><code>Resource</code></td>
   <td><code>pub struct ProfileIndex { pub entries: Vec&lt;ProfileRecord&gt;, pub selected: Option&lt;AssetId&gt; }</code></td>
-  <td>Sole bounded installed-profile catalogue; sorted by stable ID and replaced atomically after explicit profile I/O.</td>
+  <td>Sole bounded installed-profile catalogue and sole durable selected-profile identity; sorted by stable ID and replaced atomically after explicit profile I/O. Shell launch borrows <code>selected</code> directly.</td>
 </tr>
 <tr>
   <td><code>ProfileOptions</code></td>
   <td><code>Resource</code></td>
   <td><code>pub struct ProfileOptions { pub profile_id: AssetId, pub locale: AssetId, pub controller_enabled: bool }</code></td>
-  <td>Genuine global user/profile policy only. A11 <code>AudioMixSettings</code> is the sole live volume authority and is serialized directly; fast preload is startup/mapping policy owned by A01/G35, not persistence state.</td>
+  <td>Settings loaded for <code>ProfileIndex::selected</code>; <code>profile_id</code> is an ownership/integrity association used for paths and snapshot validation, not another selectable-profile authority. A11 <code>AudioMixSettings</code> is the sole live volume authority and is serialized directly; fast preload is startup/mapping policy owned by A01/G35, not persistence state.</td>
 </tr>
 <tr>
   <td><code>LoadProfileIndex</code></td>
   <td><code>Message</code></td>
   <td><code>pub struct LoadProfileIndex;</code></td>
-  <td>Boot/profile-screen request for native profile metadata.</td>
+  <td>Boot/profile-screen request for player-profile metadata.</td>
 </tr>
 <tr>
   <td><code>CreateProfile</code></td>
@@ -10151,7 +10226,7 @@ habitat/index facts and G21 UI selection are rebuilt by their natural systems.</
   <td><code>load_profile_index</code></td>
   <td><code>Update / GameSet::Intent</code></td>
   <td><code>MessageReader&lt;LoadProfileIndex&gt;, Query&lt;(),With&lt;ProfileIoTask&gt;&gt;, Commands, MessageWriter&lt;ProfileOperationFailed&gt;</code></td>
-  <td>Spawns one bounded native profile-index read task</td>
+  <td>Spawns one bounded player-profile-index read task</td>
   <td>Integration wave 2; explicit request and no existing task.</td>
 </tr>
 <tr>
@@ -10767,7 +10842,7 @@ authored research projects, and earn awards with visible feedback.</p>
 <p>Integration wave: 4. Prerequisites: A03 species indexes, A14 definitions,
 G18–G22, G32 time, and G36 cleanliness facts.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/progression/</code>; all else
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/progression/</code>; all else
 read-only. Root owns declarations, plugin/schedule/reflection wiring,
 dependencies, and persistence section integration.</p>
 <h3>3. Frozen public contract</h3>
@@ -11131,7 +11206,7 @@ not embed a scripting VM or duplicate the world into a scenario snapshot.</p>
 <p>Integration wave: 4. Prerequisites: A19 world scenarios, G18 economy, G22
 persistence, and G23 progression.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/scenario/</code>; all else read-only.
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/scenario/</code>; all else read-only.
 Root owns declarations, plugin/schedule/state/reflection/persistence wiring,
 dependencies, and alignment with A19's final archived rule enum.</p>
 <h3>3. Frozen public contract</h3>
@@ -11679,7 +11754,7 @@ The same ECS world drives rendering, navigation, welfare, and persistence.</p>
 <p>Integration wave: 5. Prerequisites: A14–A18, G05 terrain, G09 habitat, G10
 placement, G11–G16 animal systems.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/aquatic/</code>; all else read-only.
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/aquatic/</code>; all else read-only.
 Root owns declarations, plugin/schedule/reflection/persistence registration,
 dependencies, and cross-package symbol alignment.</p>
 <h3>3. Frozen public contract</h3>
@@ -11885,7 +11960,7 @@ real stages; guests watch and react; revenue/donations use G18/G19.</p>
 <p>Integration wave: 5. Prerequisites: A06 animation, A10 behavior, A14 definitions,
 G11–G18. G25 supplies aquatic show-stage suitability where applicable.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/shows/</code>; all else read-only.
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/shows/</code>; all else read-only.
 Root owns registrations, schedule/reflection/persistence wiring, dependencies,
 and cross-package alignment.</p>
 <h3>3. Frozen public contract</h3>
@@ -12129,7 +12204,7 @@ travel a validated circuit, view authored subjects, pay, and disembark.</p>
 <p>Integration wave: 5. Prerequisites: A14 definitions, A15 prefabs, A17 navigation,
 G14 locomotion, G17 guests, and G18 economy.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/transport_tours/</code>; all other
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/transport_tours/</code>; all other
 paths read-only. Root owns registrations, schedules, reflection/persistence,
 dependencies, and cross-package alignment.</p>
 <h3>3. Frozen public contract</h3>
@@ -12372,7 +12447,7 @@ typed subject evidence to G24. It does not retain a second rendered world.</p>
 <p>Integration wave: 5. Prerequisites: A02 UI, A05 textures, A19 challenges, G06
 camera, and G24 scenario.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/photos/</code>; all else read-only.
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/photos/</code>; all else read-only.
 Root owns module/plugin/render-graph/schedule/reflection/persistence registration,
 dependencies, and cross-package alignment.</p>
 <h3>3. Frozen public contract</h3>
@@ -12596,7 +12671,7 @@ a cloning lab; successful cloning requests the normal G11 animal spawn path.</p>
 <p>Integration wave: 5. Prerequisites: A03 species, A10 behavior, A14 definitions,
 G11 animal lifecycle, G23 progression, and G24 scenario.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/extinct_animals/</code>; all else
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/extinct_animals/</code>; all else
 read-only. Root owns registrations, schedules, reflection/persistence,
 dependencies, and cross-package alignment.</p>
 <h3>3. Frozen public contract</h3>
@@ -12854,7 +12929,7 @@ and other proven modes without adding a script VM or source-document runtime.</p
 <p>Integration wave: 5. Prerequisites: A02 UI, A10 behavior programs, G02 UI,
 G03 input, and G24 scenario.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/gestures_puzzles/</code>; all else
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/gestures_puzzles/</code>; all else
 read-only. Root owns registrations, schedules, reflection/persistence,
 dependencies, and alignment with A10 command/template representation.</p>
 <h3>3. Frozen public contract</h3>
@@ -13079,7 +13154,7 @@ input world, or overarching runtime.</p>
 <p>Integration wave: 5. Prerequisites: G03 input, G06 camera, G24 scenario, G26
 shows, G28 photos, G29 extinct animals, and G30 gestures/puzzles.</p>
 <h3>2. Exclusive ownership</h3>
-<p>Exclusive path: <code>reconstruction/game/src/plugins/immersive_modes/</code>; all else
+<p>Exclusive path: <code>projects/reimplementation/game/src/plugins/immersive_modes/</code>; all else
 read-only. Root owns module/plugin/state/schedule/reflection/persistence wiring,
 dependencies, and cross-package symbol alignment.</p>
 <h3>3. Frozen public contract</h3>
@@ -13892,7 +13967,7 @@ persists all three natural owners. This package does not create a settings host
 or copy engine state. Integration wave 2. Prerequisites: G01, G02 and G06 plus
 the prepared presentation contracts from A04–A08, A16 and A18.</p>
 <h3>2. Exclusive ownership</h3>
-<p>The worker exclusively owns <code>reconstruction/game/src/plugins/settings/</code>.
+<p>The worker exclusively owns <code>projects/reimplementation/game/src/plugins/settings/</code>.
 Every other path is read-only. Root owns module/plugin registration, schedule
 ordering and G01/G02/G22 wiring.</p>
 <p>Bevy window/UI/audio/input and Bevy/wgpu render resources are the only settings
@@ -14098,182 +14173,33 @@ API-name seams, and allocator/swapchain/GPU/visual validation. Root must erase
 any upstream-name shim and preserve A11/G03 as the sole audio/input authorities.</p>
 <p><a id="package-g35"></a></p>
 <h2>G35 — Native content mapping and residency</h2>
-<h3>1. Identity and outcome</h3>
-<p>The game opens and validates exactly one A01-resolved native profile, maps it
-read-only once, exposes its byte ranges through Bevy's asset source/loaders, and
-applies the selected <code>PreloadMode</code> without creating a heap copy. <code>Off</code> performs
-no eager page touches, <code>Core</code> greedily faults the core gameplay closure, and
-<code>AllEnabled</code> greedily faults the entire selected/resolved profile, all within a
-safe available-memory budget. Integration wave 1. Prerequisites: frozen native
-pack transport and the launcher-supplied profile path/mode.</p>
-<h3>2. Exclusive ownership</h3>
-<p>The implementation lives in <code>reconstruction/game/src/plugins/content/</code>.
-The superseded <code>game/src/content.rs</code> is available only through Git history;
-it is not a second content implementation. Crate/plugin registration and the
-small native-pack API extension named below are central integration concerns.
-No family loader or gameplay plugin is owned by this package.</p>
-<p>Existing <code>memmap2</code> and <code>rkyv</code> are the mandatory mapping/archive implementation.
-G35 may add page-fault policy and Bevy asset-source integration only. It must not
-copy the mapping into <code>Arc&lt;[u8]&gt;</code>, decode a second content graph, introduce an
-asset store, or add another filesystem/cache layer.</p>
-<h3>3. Frozen public contract</h3>
-<div class="table-scroll"><table><thead>
-<tr>
-  <th>Symbol</th>
-  <th>Kind</th>
-  <th>Exact shape or signature</th>
-  <th>Owner and invariant</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td><code>ContentPlugin</code></td>
-  <td><code>Plugin</code></td>
-  <td><code>pub struct ContentPlugin { profile:Arc&lt;MappedPack&gt;, preload:PreloadMode }</code>; <code>pub fn open(path:impl AsRef&lt;Path&gt;, expected_id:AssetId, expected_target:TargetProfile, preload:PreloadMode)-&gt;io::Result&lt;Self&gt;</code></td>
-  <td>Sole game startup owner of opening/validating the launcher-selected resolved mapping; expected values come from A01's frozen arguments.</td>
-</tr>
-<tr>
-  <td><code>ContentMap</code></td>
-  <td><code>Resource</code></td>
-  <td><code>pub struct ContentMap(pub Arc&lt;MappedPack&gt;);</code></td>
-  <td>One immutable mapped profile retained only so Bevy family loaders/asset source share its lifetime; never decoded content state.</td>
-</tr>
-<tr>
-  <td><code>ContentReady</code></td>
-  <td><code>Message</code></td>
-  <td><code>pub struct ContentReady { pub assets:u32, pub mapped_bytes:u64, pub prefaulted_bytes:u64, pub mode:PreloadMode }</code></td>
-  <td>Emitted once after asset-source registration and requested eager touches complete.</td>
-</tr>
-<tr>
-  <td><code>ContentLoadFailed</code></td>
-  <td><code>Message</code></td>
-  <td><code>pub struct ContentLoadFailed { pub reason:ContentFailure }</code></td>
-  <td>Boot remains blocked; no fallback source path.</td>
-</tr>
-<tr>
-  <td><code>ContentFailure</code></td>
-  <td>enum</td>
-  <td><code>Open</code>, <code>InvalidPack</code>, <code>WrongProfile</code>, <code>WrongTarget</code>, <code>InsufficientBootstrapMemory</code>, <code>AssetSourceRegistration</code></td>
-  <td>Fixed startup failures.</td>
-</tr>
-<tr>
-  <td><code>ResidencyBudget</code></td>
-  <td>value</td>
-  <td><code>pub struct ResidencyBudget { pub available_bytes:u64, pub safety_headroom_bytes:u64, pub touch_budget_bytes:u64 }</code></td>
-  <td>Snapshot of startup OS memory facts; not retained live state after preload.</td>
-</tr>
-<tr>
-  <td><code>PreloadReport</code></td>
-  <td>value</td>
-  <td><code>pub struct PreloadReport { pub requested:PreloadMode, pub touched_bytes:u64, pub skipped_bytes:u64, pub major_faults:u64, pub minor_faults:u64 }</code></td>
-  <td>Startup diagnostics only, then emitted/recorded by performance tooling.</td>
-</tr>
-<tr>
-  <td><code>memory_budget</code></td>
-  <td>function</td>
-  <td><code>pub fn memory_budget(total_bytes:u64, available_bytes:u64)-&gt;ResidencyBudget</code></td>
-  <td><code>headroom=max(total_bytes/8, 2_GiB)</code> and touch budget is <code>available-headroom</code>, saturating; explicit OpenZT2 policy.</td>
-</tr>
-<tr>
-  <td><code>preload_groups</code></td>
-  <td>function</td>
-  <td><code>pub fn preload_groups(mode:PreloadMode)-&gt;&amp;'static [LoadGroup]</code></td>
-  <td><code>Off=[]</code>; <code>Core=[Bootstrap,Menu,Zoo,Resident]</code>; <code>AllEnabled=[Bootstrap,Menu,Zoo,Resident,OnDemand,Stream]</code>.</td>
-</tr>
-</tbody>
-</table></div>
-<p>Root extends <code>MappedPack</code> once with
-<code>pub fn pack_id(&amp;self) -&gt; AssetId</code>, <code>pub fn target_profile(&amp;self) -&gt; TargetProfile</code> and
-<code>pub fn prefault_budgeted(&amp;self, groups:&amp;[LoadGroup], budget_bytes:u64)-&gt;u64</code>.
-The first two expose already-validated header values so startup can reject the
-wrong resolved profile or target without re-reading its header. The prefault function
-walks final catalogue order and touches at most the requested number of 4-KiB
-payload bytes, including a partial final asset when needed. It allocates
-nothing, retains nothing, and cannot see original pack/DLC/mod layers.</p>
-<h3>4. ECS ownership</h3>
-<p><code>ContentMap</code> is genuine immutable global ownership of the mapping used by every
-typed loader. No asset catalogue, decoded record graph, residency mirror, byte
-cache or background content world is retained.</p>
-<div class="table-scroll"><table><thead>
-<tr>
-  <th>System</th>
-  <th>Schedule/set</th>
-  <th>Exact query and parameters</th>
-  <th>Writes</th>
-  <th>Run condition/order</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td><code>install_content_source</code></td>
-  <td>plugin <code>build</code></td>
-  <td>owned <code>Arc&lt;MappedPack&gt;</code>, <code>App::register_asset_source</code>, <code>Commands</code>/resource insertion equivalent</td>
-  <td>Bevy asset source backed by mapped slices and one <code>ContentMap</code></td>
-  <td>Before any family loader or <code>GamePhase::Boot</code> system.</td>
-</tr>
-<tr>
-  <td><code>prefault_content</code></td>
-  <td><code>Startup / GameSet::Diagnostics</code></td>
-  <td><code>Res&lt;ContentMap&gt;</code>, plugin <code>PreloadMode</code>, OS <code>sysinfo(2)</code> memory snapshot, <code>MessageWriter&lt;ContentReady&gt;</code>, <code>MessageWriter&lt;ContentLoadFailed&gt;</code></td>
-  <td>Page touches only plus one report/message</td>
-  <td>Once; after source installation and before shell bootstrap requests.</td>
-</tr>
-</tbody>
-</table></div>
-<p>The asset reader returns borrowed <code>SliceReader</code> views into <code>MappedPack</code>; family
-loaders acquire <code>MappedAsset</code> owners from the same <code>Arc</code>. Bevy <code>Handle&lt;T&gt;</code> and
-<code>Assets&lt;T&gt;</code> remain the only asset lifecycle/cache authority.</p>
-<h3>5. Preflight producer contract</h3>
-<p>Not applicable: the engine consumes only the final native profile. A01 and the
-family producers have already resolved overrides, dependencies, target formats
-and <code>LoadGroup</code>. <code>AllEnabled</code> therefore means every asset in the selected final
-profile, never unselected source archives.</p>
-<h3>6. Behavioral evidence and disposition</h3>
-<p>Use the current <code>native/src/pack.rs</code>, <code>converter/src/pack.rs</code>, allocation/mapping
-regressions and Linux page-fault measurements. Commit <code>d5657e5a</code> may identify
-previous startup asset demand but contributes no architecture. The original
-game is not authority for the OpenZT2 preload improvement.</p>
-<p>Evidence questions are limited to measuring the headroom default on Jarvis and
-representative lower-memory machines. A policy change alters one pure formula;
-it cannot add prediction caches, source-pack semantics or a content manager.</p>
-<h3>7. Required behavior</h3>
-<ul>
-<li>Opening performs the sole game-content file open, read-only mmap and complete
-header/catalogue-range/catalogue-hash validation, then compares the launch
-profile ID and target. It deliberately does not scan payload pages in <code>Off</code>;
-each family performs its one typed rkyv/payload validation when first
-hydrated (or during requested prefault/bootstrap hydration). After that boundary, asset hydration
-performs no <code>open/read/pread</code> against game content and copies no payload into
-a general heap buffer.</li>
-<li><code>Off</code> touches no pages proactively. <code>Core</code> follows the exact core group order.
-<code>AllEnabled</code> follows all final-profile groups. Both stop exactly at the memory
-budget and report skipped bytes rather than swapping the workstation.</li>
-<li>Normal demand paging remains valid for untouched bytes. Streaming assets keep
-bounded decoder/GPU buffers owned by their family; this package owns none.</li>
-<li>A mapping or target failure blocks Boot explicitly. No original Z2F/XML path,
-converter invocation or fallback asset source exists in the game binary.</li>
-</ul>
-<h3>8. Performance contract</h3>
-<p>Map/open validation is O(catalogue); prefault is O(pages touched); lookup remains
-the native pack's allocation-free binary lookup. Heap growth is one <code>Arc</code>/Bevy
-registration only, never proportional to payload bytes. Regression checks
-measure wall time, minor/major faults and <code>/proc/&lt;pid&gt;/smaps_rollup</code> mapped/RSS
-separately from Rust heap. After <code>ContentReady</code>, game-content <code>open/read/pread</code>
-syscalls are forbidden and settled asset-handle cloning allocates zero.</p>
-<h3>9. Acceptance criteria</h3>
-<p>Deliver ordinary formatted Rust under the owned directory with every symbol and
-system above. Narrow tests cover pure budget/group selection, Off zero touches,
-bounded partial Core/AllEnabled touches and one shared mapping owner. Root bulk
-checks syscall/page-fault/allocation contracts. No copied pack bytes, asset
-store, runtime converter, layer merge, host, manager, prediction graph, <code>todo!</code>,
-stub or fake ready signal.</p>
-<h3>10. Required handoff</h3>
-<p>Report files/API, root deletion of old <code>content.rs</code>, native <code>pack_id</code>,
-<code>target_profile</code> and <code>prefault_budgeted</code> additions, asset-source/plugin ordering,
-profile/target checks,
-OS memory API, A01 launch arguments, family-loader use, and exact heap/mapping/
-page-fault/syscall results. Any temporary source-name shim is removed during
-destructive integration.</p>
+<p>The game receives exactly one launcher-verified installed <code>openzt2.ozp</code>. The
+content plugin opens and read-only maps that file once, checks the expected pack
+identity and target format, registers the mapped ranges with Bevy asset loading,
+and retains the mapping for the asset lifetimes that borrow it. Bevy handles and
+<code>Assets&lt;T&gt;</code> remain the only runtime asset lifecycle authority.</p>
+<p><code>ContentMap</code> is the one immutable process-wide mapping owner. Its
+<code>Arc&lt;MappedPack&gt;</code> is private: asset loaders alone receive a clone of that owner,
+while gameplay can request only typed strong Bevy handles.
+It is not a decoded cache, source catalogue, mod manager, profile, or parallel
+world. Family loaders return archived views or renderer preparation referencing
+the mapped bytes. They do not reopen files, parse source formats, resolve
+precedence, merge packs, allocate duplicate payloads, or infer authoritative
+records by scanning unrelated entries.</p>
+<p><code>PreloadMode::Off</code> performs no eager touches. <code>Core</code> faults bootstrap, menu,
+zoo, and resident load groups within measured free-memory headroom.
+<code>AllEnabled</code> additionally faults on-demand and streaming groups in the installed
+pack. These modes affect residency only; they cannot expose unselected inputs or
+preflight source artifacts or compiled shards. After startup, game-content
+filesystem reads cease. Cloning a Bevy handle never copies mapped data, archived traversal allocates nothing,
+and GPU preparation performs at most the required upload from the mapped range.
+Canonical gameplay records contain final native asset identities. Source
+bindings never cross this boundary, and gameplay never constructs pack paths,
+chooses a lookup namespace, or couples a payload handle to a separate residency
+owner.</p>
+<p>The launcher passes <code>--pack &lt;absolute path&gt; --pack-id &lt;identity&gt; --target-format &lt;u32&gt; --preload &lt;mode&gt;</code>. Missing or mismatched values are fatal;
+there is no source-format fallback. The game has no knowledge of how many Z2F,
+DLC, or mod archives contributed to the installed pack.</p>
 <p><a id="package-g36"></a></p>
 <h2>G36 — Maintenance and Sanitation</h2>
 <h3>1. Identity and outcome</h3>
@@ -14295,7 +14221,7 @@ staff jobs, and G32 simulation time. G21, G22, and G23 consume the resulting
 facts after root integration.</p>
 <h3>2. Exclusive ownership</h3>
 <p>The worker exclusively owns
-<code>reconstruction/game/src/plugins/maintenance/</code>. Every other repository path is
+<code>projects/reimplementation/game/src/plugins/maintenance/</code>. Every other repository path is
 read-only. Root owns crate declarations, plugin registration, schedule
 ordering, reflection, dependencies, asset registration, and the adjacent
 contract corrections listed below. A collision is reported; it never expands
@@ -14553,15 +14479,15 @@ mutations, maintenance-worker requests, and condition/status attributes. Search
 the C++ oracle and analysis tables for <code>ZTAIStaffMgr</code>, maintenance-worker task
 selection, <code>SweepTrash</code>, <code>EmptyTrash</code>, <code>EmptyRecyclingBin</code>, trash quantity,
 facility condition, and cleanup events. Concrete starting points include
-<code>docs/analysis/function-perimeter.tsv</code> entries for
+<code>projects/perimeter/data/function-perimeter.tsv</code> entries for
 <code>populate_trash_level_display</code>, maintenance-worker panels, and maintenance
-filter handlers; <code>docs/analysis/global-perimeter.tsv</code> trash-quantity and
-maintenance-worker bindings; and <code>docs/analysis/rtti-classes.tsv</code> staff cleanup
+filter handlers; <code>projects/perimeter/data/global-perimeter.tsv</code> trash-quantity and
+maintenance-worker bindings; and <code>projects/perimeter/data/rtti-classes.tsv</code> staff cleanup
 types. Observe the original for threshold crossing, job cancellation/retry,
 litter placement/stacking, repair amount, and rating response.</p>
 <p>Mine commit <code>d5657e5a</code> only for already-discovered behavior/evidence in the
-historical <code>reconstruction/domain/src/simulation/facility.rs</code> and
-<code>reconstruction/domain/src/simulation/staff.rs</code> paths and their former feature
+historical <code>projects/reimplementation/domain/src/simulation/facility.rs</code> and
+<code>projects/reimplementation/domain/src/simulation/staff.rs</code> paths and their former feature
 callers. Those files do not exist in the current workspace. Their dynamic maps,
 parsed strings, managers, and runtime contracts are not implementation material.</p>
 <p>Evidence gates before implementation: confirm which object families possess
@@ -14895,7 +14821,7 @@ allocation/contact-count results.</p>
 
 </body><script id="openzt2-live-reload">
 (()=>{
- const current="9f76c0a246236b42";
+ const current="11bc29ff40ec0930";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;
