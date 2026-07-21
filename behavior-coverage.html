@@ -1,76 +1,9 @@
 <!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OpenZT2 - Behavioral Coverage</title>
-<meta name="openzt2-site-version" content="ef556f1384b4fd44">
-
+<meta name="description" content="This OpenZT2 report has moved into the canonical Functional Specification.">
 <meta http-equiv="refresh" content="0; url=functional-specification.html#behavioral-coverage">
 <link rel="canonical" href="https://openzt2.over-yonder.tech/functional-specification#behavioral-coverage">
 <script>location.replace("functional-specification.html"+(location.hash||"#behavioral-coverage"))</script>
 <p>This material now forms part of the <a href="functional-specification.html#behavioral-coverage">Functional Specification</a>.</p>
-<script id="openzt2-live-reload">
-(()=>{
- const current="ef556f1384b4fd44";
- const endpoint="site-version.json";
- const interval=60000;
- let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;
- const update=()=>{
-  if(!button)return;
-  if(paused){
-   button.classList.add("paused");
-   button.style.setProperty("--reload-progress","0");
-   button.title="Automatic refresh paused. Click to unpause.";
-   button.setAttribute("aria-label",button.title);
-   button.textContent="⏸";
-   return;
-  }
-  const remaining=Math.max(0,Math.ceil((nextAt-Date.now())/1000));
-  const progress=Math.min(100,Math.max(0,100-(remaining*100)/(interval/1000)));
-  button.classList.remove("paused");
-  button.style.setProperty("--reload-progress",progress.toFixed(1));
-  button.title=`Next automatic refresh in ${remaining}s. Click to pause.`;
-  button.setAttribute("aria-label",button.title);
-  button.textContent="↻";
- };
- const schedule=()=>{
-  if(paused)return;
-  nextAt=Date.now()+interval;
-  clearTimeout(timer);
-  timer=setTimeout(check,interval);
-  update();
- };
- const check=async()=>{
-  if(paused)return;
-  try{
-   const response=await fetch(endpoint+"?t="+Date.now(),{cache:"no-store"});
-   if(!response.ok){schedule();return;}
-   const latest=(await response.json()).version;
-   if(latest&&latest!==current){location.reload();return;}
-  }catch(_){
-  }
-  schedule();
- };
- const toggle=()=>{
-  paused=!paused;
-  if(paused){
-   clearTimeout(timer);
-  }else{
-   schedule();
-  }
-  update();
- };
- const mount=()=>{
-  const nav=document.querySelector(".tabs");
-  if(!nav)return;
-  button=document.createElement("button");
-  button.type="button";
-  button.className="reload-toggle";
-  button.onclick=toggle;
-  const theme=document.querySelector(".theme-toggle");
-  if(theme)theme.after(button);else nav.append(button);
-  ticker=setInterval(update,1000);
-  schedule();
- };
- if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount);else mount();
-})();
-</script>
 </html>
