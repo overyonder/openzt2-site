@@ -305,11 +305,6 @@ the original evidence.</p>
 <section id="native-asset-transformation">
  <h2>Native asset transformation</h2>
  <p class="lede">Every admitted original format is traced through preflight into its final native pack representation and Bevy or approved-library consumer. These are implementation contracts within this specification, not a separate project stage.</p>
- <div class="plan-progress-card">
-  <h3>Transformation coverage</h3>
-  <div class="plan-stacked-bar" role="img" aria-label="37 source-to-native transformations"><div class="plan-seg asset-seg-mapped" style="width:56.756757%" title="Mapped: 21">21</div><div class="plan-seg asset-seg-prepared" style="width:21.621622%" title="Bounded preparation: 8">8</div><div class="plan-seg asset-seg-omitted" style="width:18.918919%" title="Reviewed omission: 7">7</div><div class="plan-seg asset-seg-blocked" style="width:2.702703%" title="Blocked: 1">1</div></div>
-  <div class="plan-legend"><span class="plan-legend-row"><i class="plan-swatch asset-seg-mapped"></i>Mapped: 21</span><span class="plan-legend-row"><i class="plan-swatch asset-seg-prepared"></i>Bounded preparation: 8</span><span class="plan-legend-row"><i class="plan-swatch asset-seg-omitted"></i>Reviewed omission: 7</span><span class="plan-legend-row"><i class="plan-swatch asset-seg-blocked"></i>Blocked: 1</span></div>
- </div>
  <section class="contract" aria-label="Runtime ownership contract">
   <div><strong>Staged compiler</strong><span>Discovery, verification, precedence planning, translation, validation, assembly, and atomic installation are separate bounded phases with byte-accurate progress.</span></div>
   <div><strong>Mapped custom assets</strong><span>All immutable archives remain ranges inside one <code>Arc&lt;MappedPack&gt;</code>. Bevy handles point to custom asset wrappers over those ranges.</span></div>
