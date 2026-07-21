@@ -98,8 +98,8 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
  </div>
  <div class="legend" aria-label="Ownership legend"><span class="mapped"><i></i>Mapped producer/loader route exists; downstream closure is separate</span><span class="native"><i></i>Bevy-native ownership/handoff</span><span class="prepared"><i></i>Bounded owned preparation</span><span class="omitted"><i></i>Validated then omitted</span><span class="blocked"><i></i>Blocked route</span></div>
  <p class="note">The <code>Vec</code> fields visible in converter-side Rust structures are archive-construction inputs. After rkyv serialization they are archived vectors traversed in place; they are not reconstructed as runtime heap vectors. Small handle arrays, draw metadata, pose buffers, decoder state, and GPU objects are deliberate runtime state rather than copies of source payloads.</p>
- <h2>Semantic disposition register</h2>
- <p class="lede">Source details may disappear only when their observable meaning has either moved into a consumer-owned native field or been explicitly judged irrelevant to the modern renderer. A blocker is not a dropped semantic.</p>
+ <h2>How source behavior is carried forward</h2>
+ <p class="lede">This table records the less obvious cases: behavior preserved in a native owner, deliberately omitted because it has no modern effect, or blocked pending a faithful implementation.</p>
  <div class="lineage-wrap">
   <table>
    <thead><tr><th>Source semantic</th><th>Disposition</th><th>Native or Bevy owner</th><th>Reason / remaining work</th></tr></thead>
