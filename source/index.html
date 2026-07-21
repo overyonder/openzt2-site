@@ -14,7 +14,6 @@ button,input,select{background:var(--control);color:var(--fg);border:1px solid v
 .tabs a.gstart{margin-left:9px;position:relative}.tabs a.gstart::before{content:"";position:absolute;left:-5px;top:2px;bottom:2px;border-left:1px solid var(--control-border)}
 .nav-icon{display:none}.theme-toggle{width:24px;height:24px;display:flex;align-items:center;justify-content:center;background:var(--control);color:var(--fg);border:1px solid var(--control-border);border-radius:4px;padding:0;font:15px/1 system-ui,sans-serif;cursor:pointer}
 main{max-width:1180px;margin:0 auto;padding:8px 20px 60px}h1{font-size:24px;margin:10px 0 2px}.sub{color:var(--muted);margin:0 0 16px}
-.pipeline{border:1px solid var(--line);border-radius:6px;background:color-mix(in srgb,var(--soft) 55%,transparent);padding:12px 14px;margin:12px 0 18px}.pipeline h2{margin:0 0 8px;border:0;padding:0}.pipeline ol{margin:0;padding-left:22px}.pipeline li{margin:4px 0;color:var(--muted)}.pipeline strong{color:var(--fg)}
 .progress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0 18px}
 .progress-card{border:1px solid var(--line);border-radius:5px;background:color-mix(in srgb,var(--soft) 55%,transparent);padding:10px 12px}.progress-card h3{margin:0 0 7px;font-size:15px}.progress-card h3 a{text-decoration:none}
 .progress-card.primary{grid-column:1/-1}
@@ -23,9 +22,6 @@ main{max-width:1180px;margin:0 auto;padding:8px 20px 60px}h1{font-size:24px;marg
 .seg-brief{background:#b57614}.seg-active{background:#8f3f71}.seg-implemented{background:#076678}.seg-verified{background:#79740e}.seg-blocked{background:#9d0006}
 .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:3px 12px;margin:7px 0 0;font-size:12px;color:var(--muted)}.legend-row{display:flex;align-items:center;gap:6px}.swatch{width:10px;height:10px;border-radius:2px;display:inline-block;flex:0 0 auto}.progress-note{font-size:12.5px;color:var(--muted);margin:8px 0 0!important}
 h2{font-size:17px;margin:26px 0 6px;border-bottom:1px solid var(--line);padding-bottom:3px}
-.doc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:10px 0 18px}
-.doc-card{border:1px solid var(--line);border-radius:6px;background:var(--soft);padding:12px 14px}
-.doc-card h3{margin:0 0 6px;font-size:15px}.doc-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}.doc-card a{font-weight:700;text-decoration:none}
 .legalrow{margin:22px 0 0;border-top:1px solid var(--line);padding-top:12px;color:var(--muted);font-size:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .legalrow button{font-size:12px}
 .modal[hidden]{display:none}.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:60}
@@ -39,47 +35,12 @@ h2{font-size:17px;margin:26px 0 6px;border-bottom:1px solid var(--line);padding-
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;:&quot;7462f5834b4745449f0f5e46d98a53ab&quot;}"></script>
 <!-- End Cloudflare Web Analytics -->
 <body>
-<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="/">OpenZT2</a><a class="active" href="/"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a class="gstart" href="zt-disk-map"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a class="gstart" href="functional-specification"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a href="asset-lineage"><span class="nav-icon" aria-hidden="true">⇥</span><span class="nav-label">Asset Lineage</span></a><a href="behavior-coverage"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-label">Behavior Coverage</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
+<nav class="tabs" aria-label="OpenZT2"><a class="site-brand" href="/">OpenZT2</a><a class="active" href="/"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-label">Dashboard</span></a><a href="zt-disk-map"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Byte Range Map</span></a><a href="perimeter"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Binary Perimeter</span></a><a href="functional-specification"><span class="nav-icon" aria-hidden="true">◇</span><span class="nav-label">Functional Specification</span></a><a class="site-company" href="https://over-yonder.tech/">over|yonder ↗</a></nav>
 <main>
  <h1>OpenZT2 Reconstruction Dashboard</h1>
- <p class="sub">A map of the reconstruction pipeline: evidence, ownership/behavior, and implementation.</p>
-
- <section class="pipeline" aria-label="Reconstruction pipeline">
-  <h2>Pipeline</h2>
-  <ol>
-   <li><strong>Byte range map</strong> is the evidence gate by address/range: it records whether each mapped byte or range exists and what it is.</li>
-   <li><strong>Binary perimeter</strong> is the evidence pivot gate: it groups the recorded evidence by functions, type identities, vtables, globals, and broad evidence families.</li>
-   <li><strong>Functional specification</strong> is the product and delivery gate: it defines the greenfield Bevy architecture, native pack contracts, original behavior, performance acceptance, and every discrete implementation package.</li>
-   <li><strong>Asset lineage</strong> is the transformation gate: it traces each accepted original format through preflight into the exact native pack and Bevy consumer boundary.</li>
-   <li><strong>Behavior coverage</strong> is the logic-closure gate: it crosswalks recovered callable obligations to focused Bevy consumers while keeping source-authored behavior corpora explicit.</li>
-  </ol>
- </section>
+ <p class="sub">Project progress from recovered binary evidence to the active Bevy implementation.</p>
 
  <div class="progress-grid" id="progress-bars" aria-label="Project progress summary"></div>
-
- <h2>Pages</h2>
- <div class="doc-grid" aria-label="Project page guide">
-  <div class="doc-card">
-   <h3><a href="zt-disk-map">Byte Range Map</a></h3>
-   <p>Contains the byte-level evidence ledger for the original executable: disk/runtime ranges, SafeDisc materialization records, accepted function identities, residual gaps, and status notes for exact address spans.</p>
-  </div>
-  <div class="doc-card">
-   <h3><a href="perimeter">Binary Perimeter</a></h3>
-   <p>Shows generated function, variables/data, and type-identity inventories over the stripped binary, joining exact byte-map anchors with library provenance, vtable membership, inferred domains, and remaining frontier classifications.</p>
-  </div>
-  <div class="doc-card">
-   <h3><a href="functional-specification">Functional Specification</a></h3>
-   <p>The canonical product contract and delivery map: high-performance native assets, greenfield Bevy ownership, original-game behavior, acceptance criteria, and the status of all 56 independent work packages.</p>
-  </div>
-  <div class="doc-card">
-   <h3><a href="asset-lineage">Asset Lineage</a></h3>
-   <p>The source-to-native compiler map: archive discovery and verification, precedence planning, every accepted original extension, rkyv output, mapped Bevy ownership, copy policy, and renderer handoff.</p>
-  </div>
-  <div class="doc-card">
-   <h3><a href="behavior-coverage">Behavior Coverage</a></h3>
-   <p>The measured logic-closure surface: recovered binary-callable obligations, mechanically classified library and preflight ownership, candidate Bevy consumers, and the remaining semantic review boundary.</p>
-  </div>
- </div>
 
  <div class="legalrow">
   <span>Historical clean-room project reference.</span>
@@ -101,22 +62,23 @@ function pct(n,total){return total?`${(100*n/total).toFixed(1)}%`:"0.0%"}
 function seg(cls,n,total,label){return n?`<div class="seg ${cls}" style="width:${100*n/(total||1)}%" title="${esc(label)}">${pct(n,total)}</div>`:""}
 function legend(cls,label){return `<div class="legend-row"><span class="swatch ${cls}"></span>${esc(label)}</div>`}
 (()=>{const m=document.getElementById("legal-modal");document.getElementById("legal-open").onclick=()=>m.hidden=false;document.getElementById("legal-close").onclick=()=>m.hidden=true;m.onclick=e=>{if(e.target===m)m.hidden=true}})();
-text(["functional-specification"]).then(specText=>{
+text(["functional-specification","functional-specification.html"]).then(specText=>{
  const plan=packageProgress(specText);
- document.getElementById("progress-bars").innerHTML=[
-   `<div class="progress-card primary">
-    <h3><a href="functional-specification">Game Package Delivery</a></h3>
-    <div class="stacked-bar" role="img" aria-label="${esc(plan.aria)}">
-     ${plan.segments}
-    </div>
-    <div class="legend">${plan.legend}</div>
-    <p class="progress-note">${plan.note}</p>
-   </div>`,
-   `<div class="progress-card">
-    <h3><a href="perimeter">Evidence Gates</a></h3>
-    <p class="progress-note">Byte range and binary perimeter coverage remain on their evidence pages. The delivery bar tracks the packages whose combined acceptance produces the complete game.</p>
-   </div>`
- ].join("");
+ document.getElementById("progress-bars").innerHTML=`
+  <div class="progress-card primary">
+   <h3>Project timeline</h3>
+   <div class="timeline-stages">
+    <a class="timeline-stage complete" href="zt-disk-map"><span>1</span><strong>Unpacking &amp; decompilation</strong><small>Complete</small></a>
+    <a class="timeline-stage complete" href="zt-disk-map"><span>2</span><strong>Binary mapping &amp; analysis</strong><small>Complete</small></a>
+    <a class="timeline-stage complete" href="perimeter"><span>3</span><strong>Perimeter review &amp; reverse engineering</strong><small>Complete</small></a>
+    <a class="timeline-stage complete" href="functional-specification"><span>4</span><strong>Functional specification</strong><small>Established</small></a>
+    <a class="timeline-stage active" href="functional-specification#implementation-packages"><span>5</span><strong>Bevy implementation</strong><small>Active</small></a>
+   </div>
+   <h3>Implementation acceptance</h3>
+   <div class="stacked-bar" role="img" aria-label="${esc(plan.aria)}">${plan.segments}</div>
+   <div class="legend">${plan.legend}</div>
+   <p class="progress-note">${plan.note}</p>
+  </div>`;
 }).catch(e=>{document.getElementById("progress-bars").insertAdjacentHTML("afterend",`<p class="sub">Failed to load progress data: ${esc(e.message)}</p>`)});
 function packageProgress(source){
  const order=[["brief","Brief ready"],["active","Active"],["implemented","Implemented"],["verified","Verified"],["blocked","Blocked"]];
