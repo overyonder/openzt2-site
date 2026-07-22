@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="openzt2-site-version" content="fddc677a47871ea2">
+<meta name="openzt2-site-version" content="2a8d0edf3fff4fac">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zoo Tycoon 2 executable byte range map — OpenZT2</title>
 <link rel="canonical" href="https://openzt2.over-yonder.tech/zt-disk-map">
@@ -803,7 +803,7 @@ initCommonControls();
 loadPayload().then(()=>{for(const [space,tree] of Object.entries(payload))makeExplorer(space,tree)}).catch(error=>{document.getElementById("spaces").innerHTML=`<p style="color:#e05252">Failed to load byte range map: ${error.message}</p>`});
 </script></body><script id="openzt2-live-reload">
 (()=>{
- const current="fddc677a47871ea2";
+ const current="2a8d0edf3fff4fac";
  const endpoint="site-version.json";
  const interval=60000;
  let paused=false,timer=0,ticker=0,nextAt=Date.now()+interval,button=null;
